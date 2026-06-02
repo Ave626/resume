@@ -4,6 +4,10 @@ from app.domain.entities import Lecture
 
 class LectureRepository(ABC):
     @abstractmethod
+    async def get_by_id(self, lecture_id: UUID) -> Lecture | None:
+        raise NotImplementedError
+        
+    @abstractmethod
     async def get_by_ids(self,lecture_ids : list[UUID]) -> list[Lecture]:
         raise NotImplementedError
 

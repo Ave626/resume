@@ -4,4 +4,6 @@ class ApplicationError(Exception):
 class CourseNotFoundError(ApplicationError):
     pass
 
+class LectureNotFoundError(ApplicationError):
+    pass
 
