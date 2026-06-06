@@ -7,7 +7,7 @@ class Section:
     id: UUID
     module_id : UUID
     title : str
-    desciption : str = ""
+    description : str = ""
     position : int = 1
     lecture_ids : list[UUID] = field(default_factory=list)
     def __post_init__(self) -> None:

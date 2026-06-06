@@ -25,7 +25,7 @@ class CreateSectionUseCase:
             id = uuid4(),
             module_id=module.id,
             title=command.title,
-            desciption=command.description,
+            description=command.description,
             position=command.position,
         )
         module.add_section(section.id)
