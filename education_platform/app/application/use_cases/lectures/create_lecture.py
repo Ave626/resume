@@ -1,6 +1,5 @@
 from app.application.exceptions import SectionNotFoundError
-from app.application.interfaces.repositories.lecture_repository import LectureRepository
-from app.application.interfaces.repositories.section_repository import SectionRepository
+from app.application.interfaces.unit_of_work import UnitOfWork
 from dataclasses import dataclass
 from uuid import UUID,uuid4
 
@@ -14,25 +13,25 @@ class CreateLectureCommand:
     position : int
 
 class CreateLectureUseCase:
-    def __init__(self,section_repository : SectionRepository,lecture_repository : LectureRepository):
-        self.section_repository = section_repository
-        self.lecture_repository = lecture_repository
+    def __init__(self,uow : UnitOfWork):
+        self.uow = uow
 
     async def execute(self,command : CreateLectureCommand) -> Lecture:
-        section = await self.section_repository.get_by_id(command.section_id)
-        if section is None:
-            raise SectionNotFoundError("Такой секции нет")
-        lecture = Lecture(
-            id=uuid4(),
-            section_id=command.section_id,
-            title = command.title,
-            content = command.content,
-            position = command.position
-        )
-        section.add_lecture(lecture.id)
-        await self.lecture_repository.add(lecture)
-        await self.section_repository.update(section)
-        return lecture
-
+        async with self.uow:
+            section = await self.uow.sections.get_by_id(command.section_id)
+            if section is None:
+                raise SectionNotFoundError("Такой секции нет")
+            lecture = Lecture(
+                id=uuid4(),
+                section_id=command.section_id,
+                title = command.title,
+                content = command.content,
+                position = command.position
+            )
+            section.add_lecture(lecture.id)
+            await self.uow.lectures.add(lecture)
+            await self.uow.sections.update(section)
+            await self.uow.commit()
+            return lecture
 
 
