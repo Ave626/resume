@@ -2,10 +2,10 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from app.application.interfaces.unit_of_work import UnitOfWork
 from app.infrastructure.database.repositories import (
-    SQlAlchemyCourseRepository,
-    SQlAlchemyLectureRepository,
-    SQlAlchemyModuleRepository,
-    SQlAlchemySectionRepository,
+    SQLAlchemyCourseRepository,
+    SQLAlchemyLectureRepository,
+    SQLAlchemyModuleRepository,
+    SQLAlchemySectionRepository,
 )
 
 
@@ -25,10 +25,10 @@ class SqlAlchemyUnitOfWork(UnitOfWork):
                 raise RuntimeError('Session factory is required when session is not provided.')
             self.session = self.session_factory()
 
-        self.courses = SQlAlchemyCourseRepository(self.session)
-        self.modules = SQlAlchemyModuleRepository(self.session)
-        self.sections = SQlAlchemySectionRepository(self.session)
-        self.lectures = SQlAlchemyLectureRepository(self.session)
+        self.courses = SQLAlchemyCourseRepository(self.session)
+        self.modules = SQLAlchemyModuleRepository(self.session)
+        self.sections = SQLAlchemySectionRepository(self.session)
+        self.lectures = SQLAlchemyLectureRepository(self.session)
         return self
 
     async def __aexit__(self, exc_type, exc, tb) -> None:

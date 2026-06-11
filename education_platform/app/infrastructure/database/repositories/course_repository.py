@@ -8,7 +8,7 @@ from app.domain.entities.course import Course
 from app.infrastructure.database.mappers.course_mapper import CourseMapper
 from app.infrastructure.database.models.course_model import CourseModel
 
-class SqlAlchemyCourseRepository(CourseRepository):
+class SQLAlchemyCourseRepository(CourseRepository):
     def __init__(self,session : AsyncSession) -> None:
         self.session = session
     
