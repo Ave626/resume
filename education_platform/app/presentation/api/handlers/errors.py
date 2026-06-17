@@ -33,8 +33,34 @@ async def course_not_found_handler(request: Request, exc: Exception) -> JSONResp
         status_code=status.HTTP_404_NOT_FOUND,
     )
 
-def register_exception_handlers(app : FastAPI) -> JSONResponse:
-    app.add_exception_handler(DomainError,domain_error_handler)
-    app.add_exception_handler(ApplicationError,application_error_handler)
-    app.add_exception_handler(CourseNotFoundError,course_not_found_handler)
+async def module_not_found_handler(request: Request, exc: Exception) -> JSONResponse:
+    return build_error_response(
+        error="module_not_found",
+        message=str(exc),
+        status_code=status.HTTP_404_NOT_FOUND,
+    )
 
+
+async def section_not_found_handler(request: Request, exc: Exception) -> JSONResponse:
+    return build_error_response(
+        error="section_not_found",
+        message=str(exc),
+        status_code=status.HTTP_404_NOT_FOUND,
+    )
+
+
+async def lecture_not_found_handler(request: Request, exc: Exception) -> JSONResponse:
+    return build_error_response(
+        error="lecture_not_found",
+        message=str(exc),
+        status_code=status.HTTP_404_NOT_FOUND,
+    )
+
+
+def register_exception_handlers(app: FastAPI) -> None:
+    app.add_exception_handler(DomainError, domain_error_handler)
+    app.add_exception_handler(ApplicationError, application_error_handler)
+    app.add_exception_handler(CourseNotFoundError, course_not_found_handler)
+    app.add_exception_handler(ModuleNotFoundError, module_not_found_handler)
+    app.add_exception_handler(SectionNotFoundError, section_not_found_handler)
+    app.add_exception_handler(LectureNotFoundError, lecture_not_found_handler)
