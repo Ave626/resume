@@ -1,4 +1,3 @@
-from app.application.interfaces.repositories import course_repository
 from collections.abc import AsyncGenerator
 from fastapi import Depends
 from app.application.use_cases.courses.get_course import GetCourseUseCase

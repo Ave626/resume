@@ -1,4 +1,3 @@
-from alembic.ddl import postgresql
 from uuid import UUID
 from fastapi import APIRouter, Depends, status
 from app.application.use_cases.courses.create_course import (
@@ -79,7 +78,7 @@ router = APIRouter(prefix="/admin", tags=["Admin"])
 )
 async def create_course(
     request : CreateCourseRequest,
-    use_case : CreateLectureUseCase = Depends(get_create_course_use_case)
+    use_case : CreateCourseUseCase = Depends(get_create_course_use_case)
 ) -> CourseResponse:
     result = await use_case.execute(CreateCourseCommand(title=request.title,description=request.description))
     return CourseResponse.model_validate(result)
@@ -137,8 +136,8 @@ async def create_module(
     request : CreateModuleRequest,
     use_case : CreateModuleUseCase = Depends(get_create_module_use_case)
 ) -> ModuleResponse:
-    result = await use_case.execute(CreateModuleCommand(course_id=course_id,title=request.title,description=request.description))
-    ModuleResponse.model_validate(result)
+    result = await use_case.execute(CreateModuleCommand(course_id=course_id,title=request.title,description=request.description,position=request.position))
+    return ModuleResponse.model_validate(result)
 
 
 @router.put(
@@ -163,7 +162,7 @@ async def create_module(
 async def update_module(
     module_id : UUID,
     request : UpdateModuleRequest,
-    use_case : UpdateModuleRequest = Depends(get_update_module_use_case),
+    use_case : UpdateModuleUseCase = Depends(get_update_module_use_case),
 ) -> ModuleResponse:
     result = await use_case.execute(UpdateModuleCommand(module_id=module_id,title=request.title,description=request.description,position=request.position))
     return ModuleResponse.model_validate(result)
