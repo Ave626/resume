@@ -1,5 +1,9 @@
 from collections.abc import AsyncGenerator
-from fastapi import Depends
+from fastapi import Depends, Security
+from fastapi.security import HTTPBearer,HTTPAuthorizationCredentials
+from app.domain.entities.user import User
+from app.infrastructure.security.jwt_token_service import InvalidTokenError
+from app.presentation.exceptions import AuthenticationError
 from app.application.use_cases.courses.get_course import GetCourseUseCase
 from app.application.use_cases.courses.get_course_structure import GetCourseStructureUseCase
 from app.application.use_cases.courses.get_courses import GetCoursesUseCase
@@ -18,8 +22,10 @@ from app.infrastructure.security.password_hasher import PwdlibPasswordHasher
 from app.application.use_cases.auth.login_user import LoginUserUseCase
 from app.application.interfaces.services.token_service import TokenService
 from app.infrastructure.security.jwt_token_service import JwtTokenService
-
 from app.infrastructure.database import SessionFactory, SqlAlchemyUnitOfWork
+from app.presentation.exceptions import PermissionDeniedError
+
+http_bearer = HTTPBearer(auto_error=False)
 
 
 def get_token_service() -> TokenService:
@@ -107,3 +113,28 @@ def get_login_user_use_case() -> LoginUserUseCase:
         password_hasher=get_password_hasher(),
         token_service=get_token_service(),
     )
+
+async def get_current_user(
+    credentials : HTTPAuthorizationCredentials | None = Security(http_bearer),
+    uow : SqlAlchemyUnitOfWork = Depends(get_uow),
+    token_serice : TokenService = Depends(get_token_service),
+) -> User:
+    if credentials is None:
+        raise AuthenticationError("Auth credentials were not provided")
+    if credentials.scheme.lower() != "bearer":
+        raise AuthenticationError("Auth scheme must be bearer")
+    try:
+        user_id = token_serice.get_user_id(credentials.credentials)
+    except InvalidTokenError as exc:
+        raise AuthenticationError(str(exc)) from exc
+    
+    user = await uow.users.get_by_id(user_id)
+    if user is None:
+        raise AuthenticationError("User from token was not found")
+    return user
+
+async def get_current_admin(current_user : User = Depends(get_current_user)) -> User:
+    if not current_user.can_manage_platform():
+        raise PermissionDeniedError("Admin access is required")
+    return current_user
+

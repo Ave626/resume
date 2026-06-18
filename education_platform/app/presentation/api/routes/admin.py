@@ -41,6 +41,7 @@ from app.presentation.api.dependencies import (
     get_update_lecture_use_case,
     get_update_module_use_case,
     get_update_section_use_case,
+    get_current_admin,
 )
 from app.presentation.api.schemas import (
     CourseResponse,
@@ -58,7 +59,21 @@ from app.presentation.api.schemas import (
     ErrorResponse,
 )
 
-router = APIRouter(prefix="/admin", tags=["Admin"])
+router = APIRouter(
+    prefix='/admin',
+    tags=['Admin'],
+    dependencies=[Depends(get_current_admin)],
+    responses={
+        401: {
+            'description': 'Authentication credentials are missing or invalid.',
+            'model': ErrorResponse,
+        },
+        403: {
+            'description': 'Admin access is required.',
+            'model': ErrorResponse,
+        },
+    },
+)
 
 @router.post(
     "/courses",

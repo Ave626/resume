@@ -15,7 +15,7 @@ class Module:
         self._validate()
 
     def _validate(self) -> None:
-        if not self.title() or not self.title().strip():
+        if not self.title or not self.title.strip():
             raise InvalidModuleError("Названия модуля не может быть пустым")
         if not self.description or not self.description.strip():
             raise InvalidModuleError("Описание модуля не может быть пустым")
