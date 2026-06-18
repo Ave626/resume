@@ -3,7 +3,10 @@ from fastapi.responses import JSONResponse
 
 from app.application.exceptions import (
     ApplicationError,
-    CourseNotFoundError
+    CourseNotFoundError,
+    ModuleNotFoundError,
+    SectionNotFoundError,
+    LectureNotFoundError,
 )
 from app.domain.exceptions import DomainError
 from app.presentation.api.schemas import ErrorResponse

@@ -13,3 +13,8 @@ class ModuleNotFoundError(ApplicationError):
 class SectionNotFoundError(ApplicationError):
     pass
 
+class UserAlreadyExistsError(ApplicationError):
+    pass
+
+class InvalidCredentialsError(ApplicationError):
+    pass
