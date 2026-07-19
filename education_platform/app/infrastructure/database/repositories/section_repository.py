@@ -7,11 +7,12 @@ from app.infrastructure.database.models.section_model import SectionModel
 from app.infrastructure.database.mappers.section_mapper import SectionMapper
 from app.domain.entities.section import Section
 
+
 class SQLAlchemySectionRepository(SectionRepository):
-    def __init__(self,session : AsyncSession) -> None:
+    def __init__(self, session: AsyncSession) -> None:
         self.session = session
-    
-    async def get_by_id(self,section_id : UUID) -> Section | None:
+
+    async def get_by_id(self, section_id: UUID) -> Section | None:
         stmt = (
             select(SectionModel)
             .options(selectinload(SectionModel.lectures))
@@ -20,8 +21,8 @@ class SQLAlchemySectionRepository(SectionRepository):
         result = await self.session.execute(stmt)
         model = result.scalar_one_or_none()
         return None if model is None else SectionMapper.to_domain(model)
-    
-    async def get_by_ids(self, section_ids : list[UUID]) -> list[Section]:
+
+    async def get_by_ids(self, section_ids: list[UUID]) -> list[Section]:
         stmt = (
             select(SectionModel)
             .options(selectinload(SectionModel.lectures))
@@ -29,17 +30,23 @@ class SQLAlchemySectionRepository(SectionRepository):
         )
         result = await self.session.execute(stmt)
         return [SectionMapper.to_domain(model) for model in result.scalars().all()]
-    
-    async def add(self, section : Section) -> None:
+
+    async def add(self, section: Section) -> None:
         self.session.add(SectionMapper.to_model(section))
         await self.session.flush()
-    
-    async def update(self,section : Section) -> None:
-        model = await self.session.get(SectionModel,str(section.id))
+
+    async def update(self, section: Section) -> None:
+        model = await self.session.get(SectionModel, str(section.id))
         if model is None:
             return None
         model.title = section.title
         model.description = section.description
         model.position = section.position
         await self.session.flush()
+    
+    async def delete(self,section : Section) -> None:
+        model = await self.session.get(SectionModel, str(section.id))
+        if model is not None:
+            await self.session.delete(model)
+            await self.session.flush()
 
