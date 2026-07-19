@@ -31,4 +31,8 @@ class Module:
     def add_section(self,section_id : UUID) -> None:
         if section_id not in self.section_ids:
             self.section_ids.append(section_id)
+    
+    def remove_section(self,section_id : UUID) -> None:
+        if section_id in self.section_ids:
+            self.section_ids.remove(section_id)
 
