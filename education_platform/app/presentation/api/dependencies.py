@@ -16,6 +16,10 @@ from app.application.use_cases.modules.create_module import CreateModuleUseCase
 from app.application.use_cases.modules.update_module import UpdateModuleUseCase
 from app.application.use_cases.sections.create_section import CreateSectionUseCase
 from app.application.use_cases.sections.update_section import UpdateSectionUseCase
+from app.application.use_cases.lectures.delete_lecture import DeleteLectureUseCase
+from app.application.use_cases.modules.delete_module import DeleteModuleUseCase
+from app.application.use_cases.sections.delete_section import DeleteSectionUseCase
+from app.application.use_cases.courses.delete_course import DeleteCourseUseCase
 from app.application.interfaces.services.password_hasher import PasswordHasher
 from app.application.use_cases.auth.register_user import RegisterUserUseCase
 from app.infrastructure.security.password_hasher import PwdlibPasswordHasher
@@ -98,6 +102,26 @@ def get_update_lecture_use_case() -> UpdateLectureUseCase:
         uow=SqlAlchemyUnitOfWork(session_factory=SessionFactory)
     )
 
+def get_delete_lecture_use_case() -> DeleteLectureUseCase:
+    return DeleteLectureUseCase(
+        uow = SqlAlchemyUnitOfWork(session_factory=SessionFactory)
+    )
+
+def get_delete_section_use_case() -> DeleteSectionUseCase:
+    return DeleteSectionUseCase(
+        uow = SqlAlchemyUnitOfWork(session_factory=SessionFactory)
+    )
+
+def get_delete_module_use_case() -> DeleteModuleUseCase:
+    return DeleteModuleUseCase(
+        uow = SqlAlchemyUnitOfWork(session_factory=SessionFactory)
+    )
+
+def get_delete_course_use_case() -> DeleteCourseUseCase:
+    return DeleteCourseUseCase(
+        uow = SqlAlchemyUnitOfWork(session_factory=SessionFactory)
+    )
+
 def get_password_hasher() -> PasswordHasher:
     return PwdlibPasswordHasher()
 
@@ -113,6 +137,7 @@ def get_login_user_use_case() -> LoginUserUseCase:
         password_hasher=get_password_hasher(),
         token_service=get_token_service(),
     )
+
 
 async def get_current_user(
     credentials : HTTPAuthorizationCredentials | None = Security(http_bearer),
