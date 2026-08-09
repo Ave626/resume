@@ -1,10 +1,12 @@
 from uuid import UUID
+
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+
 from app.application.interfaces.repositories.lecture_repository import LectureRepository
 from app.domain.entities.lecture import Lecture
 from app.infrastructure.database.mappers.lecture_mapper import LectureMapper
 from app.infrastructure.database.models.lecture_model import LectureModel
-from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession
 
 
 class SQLAlchemyLectureRepository(LectureRepository):
@@ -37,10 +39,8 @@ class SQLAlchemyLectureRepository(LectureRepository):
         model.position = lecture.position
         await self.session.flush()
 
-    async def delete(self,lecture : Lecture) -> None:
-        model = await self.session.get(LectureModel,str(lecture.id))
+    async def delete(self, lecture: Lecture) -> None:
+        model = await self.session.get(LectureModel, str(lecture.id))
         if model is not None:
             await self.session.delete(model)
             await self.session.flush()
-    
-

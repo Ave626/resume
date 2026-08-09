@@ -1,11 +1,12 @@
-from abc import ABC,abstractmethod
+from abc import ABC, abstractmethod
 from uuid import UUID
+
 from app.domain.entities.course import Course
 
-class CourseRepository(ABC):
 
+class CourseRepository(ABC):
     @abstractmethod
-    async def get_by_id(self,course_id : UUID) -> Course | None:
+    async def get_by_id(self, course_id: UUID) -> Course | None:
         raise NotImplementedError
 
     @abstractmethod
@@ -13,13 +14,13 @@ class CourseRepository(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    async def add(self,course : Course) -> None:
+    async def add(self, course: Course) -> None:
         raise NotImplementedError
 
     @abstractmethod
-    async def update(self,course : Course) -> None:
+    async def update(self, course: Course) -> None:
         raise NotImplementedError
 
     @abstractmethod
-    async def delete(self,course : Course) -> None:
+    async def delete(self, course: Course) -> None:
         raise NotImplementedError

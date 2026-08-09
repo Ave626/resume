@@ -6,8 +6,8 @@ from app.infrastructure.database.mappers.user_mapper import UserMapper
 
 __all__ = [
     "CourseMapper",
+    "LectureMapper",
     "ModuleMapper",
     "SectionMapper",
-    "LectureMapper",
     "UserMapper",
 ]

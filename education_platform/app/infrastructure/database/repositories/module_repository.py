@@ -1,11 +1,13 @@
 from uuid import UUID
-from app.domain.entities.module import Module
-from app.application.interfaces.repositories.module_repository import ModuleRepository
-from sqlalchemy.orm import selectinload
-from app.infrastructure.database.mappers.module_mapper import ModuleMapper
-from app.infrastructure.database.models.module_model import ModuleModel
+
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
+
+from app.application.interfaces.repositories.module_repository import ModuleRepository
+from app.domain.entities.module import Module
+from app.infrastructure.database.mappers.module_mapper import ModuleMapper
+from app.infrastructure.database.models.module_model import ModuleModel
 
 
 class SQLAlchemyModuleRepository(ModuleRepository):
@@ -27,7 +29,7 @@ class SQLAlchemyModuleRepository(ModuleRepository):
             return []
         stmt = (
             select(ModuleModel)
-            .options(selectinload((ModuleModel.sections)))
+            .options(selectinload(ModuleModel.sections))
             .where(ModuleModel.id.in_([str(item) for item in module_ids]))
         )
         result = await self.session.execute(stmt)
@@ -40,15 +42,14 @@ class SQLAlchemyModuleRepository(ModuleRepository):
     async def update(self, module: Module) -> None:
         model = await self.session.get(ModuleModel, str(module.id))
         if model is None:
-            return None
+            return
         model.title = module.title
         model.description = module.description
         model.position = module.position
         await self.session.flush()
-    
-    async def delete(self,module : Module) -> None:
+
+    async def delete(self, module: Module) -> None:
         model = await self.session.get(ModuleModel, str(module.id))
         if model is not None:
             await self.session.delete(model)
             await self.session.flush()
-

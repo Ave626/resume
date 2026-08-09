@@ -1,7 +1,8 @@
 from uuid import UUID
+
 from sqlalchemy import select
-from sqlalchemy.orm import selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 from app.application.interfaces.repositories.course_repository import CourseRepository
 from app.domain.entities.course import Course
@@ -35,12 +36,12 @@ class SQLAlchemyCourseRepository(CourseRepository):
     async def update(self, course: Course) -> None:
         model = await self.session.get(CourseModel, str(course.id))
         if model is None:
-            return None
+            return
         model.title = course.title
         model.description = course.description
         await self.session.flush()
 
-    async def delete(self,course  : Course) -> None:
+    async def delete(self, course: Course) -> None:
         model = await self.session.get(CourseModel, str(course.id))
         if model is not None:
             await self.session.delete(model)

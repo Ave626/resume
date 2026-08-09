@@ -1,11 +1,13 @@
 from uuid import UUID
+
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
+
 from app.application.interfaces.repositories.section_repository import SectionRepository
-from app.infrastructure.database.models.section_model import SectionModel
-from app.infrastructure.database.mappers.section_mapper import SectionMapper
 from app.domain.entities.section import Section
+from app.infrastructure.database.mappers.section_mapper import SectionMapper
+from app.infrastructure.database.models.section_model import SectionModel
 
 
 class SQLAlchemySectionRepository(SectionRepository):
@@ -38,15 +40,14 @@ class SQLAlchemySectionRepository(SectionRepository):
     async def update(self, section: Section) -> None:
         model = await self.session.get(SectionModel, str(section.id))
         if model is None:
-            return None
+            return
         model.title = section.title
         model.description = section.description
         model.position = section.position
         await self.session.flush()
-    
-    async def delete(self,section : Section) -> None:
+
+    async def delete(self, section: Section) -> None:
         model = await self.session.get(SectionModel, str(section.id))
         if model is not None:
             await self.session.delete(model)
             await self.session.flush()
-

@@ -20,10 +20,12 @@ class SqlAlchemyUnitOfWork(UnitOfWork):
         self._external_session = session
         self.session: AsyncSession | None = session
 
-    async def __aenter__(self) -> 'SqlAlchemyUnitOfWork':
+    async def __aenter__(self) -> "SqlAlchemyUnitOfWork":
         if self.session is None:
             if self.session_factory is None:
-                raise RuntimeError('Session factory is required when session is not provided.')
+                raise RuntimeError(
+                    "Session factory is required when session is not provided."
+                )
             self.session = self.session_factory()
 
         self.courses = SQLAlchemyCourseRepository(self.session)

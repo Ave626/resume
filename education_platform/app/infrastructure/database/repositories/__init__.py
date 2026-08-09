@@ -10,15 +10,14 @@ from app.infrastructure.database.repositories.module_repository import (
 from app.infrastructure.database.repositories.section_repository import (
     SQLAlchemySectionRepository,
 )
-
 from app.infrastructure.database.repositories.user_repository import (
     SqlAlchemyUserRepository,
 )
 
 __all__ = [
     "SQLAlchemyCourseRepository",
+    "SQLAlchemyLectureRepository",
     "SQLAlchemyModuleRepository",
     "SQLAlchemySectionRepository",
-    "SQLAlchemyLectureRepository",
     "SqlAlchemyUserRepository",
 ]
