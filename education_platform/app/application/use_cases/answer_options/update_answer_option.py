@@ -8,9 +8,7 @@ from app.application.exceptions import (
 )
 from app.application.interfaces.unit_of_work import UnitOfWork
 from app.domain.entities import User
-from app.application.interfaces.services.course_access_service
-
-
+from app.application.interfaces.services.course_access_service import CourseAccessService
 @dataclass(slots=True)
 class UpdateAnswerOptionCommand:
     actor: User
@@ -23,6 +21,7 @@ class UpdateAnswerOptionCommand:
 class UpdateAnswerOptionUseCase:
     def __init__(self, uow: UnitOfWork) -> None:
         self.uow = uow
+        self.course_access_service = CourseAccessService(uow)
 
     async def execute(self, command: UpdateAnswerOptionCommand) -> None:
 
@@ -33,7 +32,12 @@ class UpdateAnswerOptionUseCase:
             if answer_option is None:
                 raise AnswerOptionNotFoundError("Answer option not found")
 
-            qusetion = aw
+            question = await self.uow.questions.get_by_id(answer_option.question_id)
+            if question is not None:
+                await self.course_access_service.ensure_can_manage_section(
+                    actor=command.actor,
+                    section_id=question.section_id,
+                )
 
             has_attempts = await self.uow.question_attempts.exists_by_question_id(
                 answer_option.question_id
