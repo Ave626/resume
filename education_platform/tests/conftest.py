@@ -1,8 +1,8 @@
 import os
 from collections.abc import AsyncIterator
+from pathlib import Path
 from types import SimpleNamespace
 from uuid import uuid4
-from pathlib import Path
 
 import pytest
 import pytest_asyncio
@@ -22,6 +22,7 @@ from app.infrastructure.database.models import (
 from app.infrastructure.security.password_hasher import PwdlibPasswordHasher
 from app.main import create_app
 
+
 @pytest_asyncio.fixture
 async def test_engine(tmp_path_factory) -> AsyncIterator:
     database_dir = tmp_path_factory.mktemp("test_db")
@@ -38,6 +39,7 @@ async def test_engine(tmp_path_factory) -> AsyncIterator:
     if database_path.exists():
         os.remove(database_path)
 
+
 @pytest.fixture
 def session_factory(test_engine):
     return async_sessionmaker(
@@ -45,6 +47,7 @@ def session_factory(test_engine):
         expire_on_commit=False,
         class_=AsyncSession,
     )
+
 
 @pytest_asyncio.fixture
 async def app(session_factory):
@@ -56,11 +59,13 @@ async def app(session_factory):
     finally:
         api_dependencies.SessionFactory = original_session_factory
 
+
 @pytest_asyncio.fixture
 async def client(app) -> AsyncIterator[AsyncClient]:
     transport = ASGITransport(app=app)
-    async with AsyncClient(transport=transport, base_url='http://test') as client:
+    async with AsyncClient(transport=transport, base_url="http://test") as client:
         yield client
+
 
 @pytest_asyncio.fixture(autouse=True)
 async def clear_database(session_factory) -> None:
@@ -68,6 +73,7 @@ async def clear_database(session_factory) -> None:
         for model in [LectureModel, SectionModel, ModuleModel, CourseModel, UserModel]:
             await session.execute(delete(model))
         await session.commit()
+
 
 @pytest_asyncio.fixture
 async def seeded_course_tree(session_factory):
@@ -79,28 +85,28 @@ async def seeded_course_tree(session_factory):
     async with session_factory() as session:
         course = CourseModel(
             id=course_id,
-            title='FastAPI course',
-            description='Clean architecture in practice.',
+            title="FastAPI course",
+            description="Clean architecture in practice.",
         )
         module = ModuleModel(
             id=module_id,
             course_id=course_id,
-            title='MVP stage',
-            description='Content, users and access.',
+            title="MVP stage",
+            description="Content, users and access.",
             position=1,
         )
         section = SectionModel(
             id=section_id,
             module_id=module_id,
-            title='Auth section',
-            description='JWT and route protection.',
+            title="Auth section",
+            description="JWT and route protection.",
             position=1,
         )
         lecture = LectureModel(
             id=lecture_id,
             section_id=section_id,
-            title='Bearer token in practice',
-            content='Lecture content',
+            title="Bearer token in practice",
+            content="Lecture content",
             position=1,
         )
         session.add_all([course, module, section, lecture])
@@ -111,9 +117,10 @@ async def seeded_course_tree(session_factory):
         module_id=module_id,
         section_id=section_id,
         lecture_id=lecture_id,
-        course_title='FastAPI course',
-        lecture_content='Lecture content',
+        course_title="FastAPI course",
+        lecture_content="Lecture content",
     )
+
 
 @pytest_asyncio.fixture
 async def seeded_student_user(session_factory):
@@ -121,14 +128,15 @@ async def seeded_student_user(session_factory):
     async with session_factory() as session:
         user = UserModel(
             id=str(uuid4()),
-            email='student@example.com',
-            hashed_password=hasher.hash('strongpassword123'),
-            role='student',
+            email="student@example.com",
+            hashed_password=hasher.hash("strongpassword123"),
+            role="student",
         )
         session.add(user)
         await session.commit()
         await session.refresh(user)
         return user
+
 
 @pytest_asyncio.fixture
 async def seeded_admin_user(session_factory):
@@ -136,35 +144,37 @@ async def seeded_admin_user(session_factory):
     async with session_factory() as session:
         user = UserModel(
             id=str(uuid4()),
-            email='admin@example.com',
-            hashed_password=hasher.hash('strongpassword123'),
-            role='admin',
+            email="admin@example.com",
+            hashed_password=hasher.hash("strongpassword123"),
+            role="admin",
         )
         session.add(user)
         await session.commit()
         await session.refresh(user)
         return user
 
+
 @pytest_asyncio.fixture
 async def student_auth_headers(client, seeded_student_user):
     response = await client.post(
-        '/api/auth/login',
+        "/api/auth/login",
         json={
-            'email': 'student@example.com',
-            'password': 'strongpassword123',
+            "email": "student@example.com",
+            "password": "strongpassword123",
         },
     )
-    token = response.json()['access_token']
-    return {'Authorization': f'Bearer {token}'}
+    token = response.json()["access_token"]
+    return {"Authorization": f"Bearer {token}"}
+
 
 @pytest_asyncio.fixture
 async def admin_auth_headers(client, seeded_admin_user):
     response = await client.post(
-        '/api/auth/login',
+        "/api/auth/login",
         json={
-            'email': 'admin@example.com',
-            'password': 'strongpassword123',
+            "email": "admin@example.com",
+            "password": "strongpassword123",
         },
     )
-    token = response.json()['access_token']
-    return {'Authorization': f'Bearer {token}'}
+    token = response.json()["access_token"]
+    return {"Authorization": f"Bearer {token}"}
