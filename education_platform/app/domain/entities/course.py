@@ -1,13 +1,16 @@
-from dataclasses import dataclass,field
+from dataclasses import dataclass, field
 from uuid import UUID
+
 from app.domain.exceptions import InvalidCourseError
+
 
 @dataclass(slots=True)
 class Course:
-    id : UUID
-    title : str
-    description : str
-    module_ids : list[UUID] = field(default_factory=list)
+    id: UUID
+    author_id: UUID
+    title: str
+    description: str
+    module_ids: list[UUID] = field(default_factory=list)
 
     def __post_init__(self) -> None:
         self._validate()
@@ -18,17 +21,18 @@ class Course:
         if not self.description or not self.description.strip():
             raise InvalidCourseError("Обьяснение курса не должо быть пустым")
 
-    def update(self,title : str,description : str) -> None:
+    def update(self, title: str, description: str) -> None:
         self.title = title
         self.description = description
         self._validate()
 
-    def add_module(self,module_id : UUID):
+    def add_module(self, module_id: UUID):
         if module_id not in self.module_ids:
             self.module_ids.append(module_id)
-    
-    def remove_module(self,module_id : UUID):
+
+    def remove_module(self, module_id: UUID):
         if module_id in self.module_ids:
             self.module_ids.remove(module_id)
-    
 
+    def is_owned_by(self, user_id: UUID) -> bool:
+        return self.author_id == user_id

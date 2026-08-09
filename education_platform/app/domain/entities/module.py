@@ -1,16 +1,18 @@
-from app.domain.exceptions import InvalidModuleError
-from dataclasses import field
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from uuid import UUID
+
+from app.domain.exceptions import InvalidModuleError
+
 
 @dataclass(slots=True)
 class Module:
-    id : UUID
-    course_id : UUID
-    title : str
-    description : str
+    id: UUID
+    course_id: UUID
+    title: str
+    description: str
     position: int
-    section_ids : list[UUID] = field(default_factory=list)
+    section_ids: list[UUID] = field(default_factory=list)
+
     def __post_init__(self) -> None:
         self._validate()
 
@@ -22,17 +24,16 @@ class Module:
         if self.position < 1:
             raise InvalidModuleError("Позиуия должна быть положительна")
 
-    def update(self,title : str,description : str,position : int) -> None:
+    def update(self, title: str, description: str, position: int) -> None:
         self.title = title
         self.description = description
         self.position = position
         self._validate()
 
-    def add_section(self,section_id : UUID) -> None:
+    def add_section(self, section_id: UUID) -> None:
         if section_id not in self.section_ids:
             self.section_ids.append(section_id)
-    
-    def remove_section(self,section_id : UUID) -> None:
+
+    def remove_section(self, section_id: UUID) -> None:
         if section_id in self.section_ids:
             self.section_ids.remove(section_id)
-
