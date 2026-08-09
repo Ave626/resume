@@ -1,11 +1,14 @@
 from uuid import UUID
-from pydantic import BaseModel,ConfigDict
+
+from pydantic import BaseModel, ConfigDict
+
 
 class CourseBaseResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
-    id : UUID
-    title : str
-    description : str
+    id: UUID
+    title: str
+    description: str
+
 
 class ModuleBaseResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
@@ -15,6 +18,7 @@ class ModuleBaseResponse(BaseModel):
     description: str
     position: int
 
+
 class SectionBaseResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
@@ -22,6 +26,7 @@ class SectionBaseResponse(BaseModel):
     title: str
     description: str
     position: int
+
 
 class LectureBaseResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
@@ -34,6 +39,7 @@ class LectureBaseResponse(BaseModel):
 class CourseListItemResponse(CourseBaseResponse):
     pass
 
+
 class CourseResponse(CourseBaseResponse):
     pass
 
@@ -42,10 +48,13 @@ class LectureResponse(LectureBaseResponse):
     content: str
     section_id: UUID
 
+
 class LectureStructureResponse(LectureBaseResponse):
     pass
 
+
 class SectionStructureResponse(SectionBaseResponse):
+    question_ids: list[UUID]
     lectures: list[LectureStructureResponse]
 
 
@@ -55,6 +64,3 @@ class ModuleStructureResponse(ModuleBaseResponse):
 
 class CourseStructureResponse(CourseBaseResponse):
     modules: list[ModuleStructureResponse]
-
-
-

@@ -1,3 +1,10 @@
+from app.presentation.api.schemas.auth import (
+    CurrentUserResponse,
+    LoginRequest,
+    RegisteredUserResponse,
+    RegisterUserRequest,
+    TokenResponse,
+)
 from app.presentation.api.schemas.content import (
     CourseListItemResponse,
     CourseResponse,
@@ -7,9 +14,15 @@ from app.presentation.api.schemas.content import (
     ModuleStructureResponse,
     SectionStructureResponse,
 )
-from app.presentation.api.schemas.courses import CreateCourseRequest, UpdateCourseRequest
+from app.presentation.api.schemas.courses import (
+    CreateCourseRequest,
+    UpdateCourseRequest,
+)
 from app.presentation.api.schemas.errors import ErrorResponse
-from app.presentation.api.schemas.lectures import CreateLectureRequest, UpdateLectureRequest
+from app.presentation.api.schemas.lectures import (
+    CreateLectureRequest,
+    UpdateLectureRequest,
+)
 from app.presentation.api.schemas.modules import (
     CreateModuleRequest,
     ModuleResponse,
@@ -20,36 +33,29 @@ from app.presentation.api.schemas.sections import (
     SectionResponse,
     UpdateSectionRequest,
 )
-from app.presentation.api.schemas.auth import (
-    RegisterUserRequest,
-    RegisteredUserResponse,
-    LoginRequest,
-    TokenResponse,
-    CurrentUserResponse
-)
 
 __all__ = [
     "CourseListItemResponse",
     "CourseResponse",
     "CourseStructureResponse",
+    "CreateCourseRequest",
+    "CreateLectureRequest",
+    "CreateModuleRequest",
+    "CreateSectionRequest",
+    "CurrentUserResponse",
+    "ErrorResponse",
     "LectureResponse",
     "LectureStructureResponse",
-    "ModuleStructureResponse",
-    "SectionStructureResponse",
-    "CreateCourseRequest",
-    "UpdateCourseRequest",
-    "CreateModuleRequest",
-    "UpdateModuleRequest",
+    "LoginRequest",
     "ModuleResponse",
-    "CreateSectionRequest",
-    "UpdateSectionRequest",
-    "SectionResponse",
-    "CreateLectureRequest",
-    "UpdateLectureRequest",
-    "ErrorResponse",
+    "ModuleStructureResponse",
     "RegisterUserRequest",
     "RegisteredUserResponse",
-    "LoginRequest",
+    "SectionResponse",
+    "SectionStructureResponse",
     "TokenResponse",
-    "CurrentUserResponse"
+    "UpdateCourseRequest",
+    "UpdateLectureRequest",
+    "UpdateModuleRequest",
+    "UpdateSectionRequest",
 ]

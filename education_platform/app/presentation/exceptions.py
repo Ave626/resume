@@ -1,6 +1,7 @@
 class PresentationError(Exception):
     pass
 
+
 class AuthenticationError(PresentationError):
     pass
 

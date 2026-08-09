@@ -1,9 +1,9 @@
 from fastapi import APIRouter
-from app.presentation.api.routes.admin import router as admin_router
-from app.presentation.api.routes.content import router as content_router
-from app.presentation.api.routes.auth import router as auth_router
-from app.infrastructure.config import get_settings
 
+from app.infrastructure.config import get_settings
+from app.presentation.api.routes.admin import router as admin_router
+from app.presentation.api.routes.auth import router as auth_router
+from app.presentation.api.routes.content import router as content_router
 
 settings = get_settings()
 
