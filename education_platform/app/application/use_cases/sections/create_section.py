@@ -1,27 +1,35 @@
 from dataclasses import dataclass
-from app.application.interfaces.unit_of_work import UnitOfWork
+from uuid import UUID, uuid4
+
 from app.application.exceptions import ModuleNotFoundError
+from app.application.interfaces.unit_of_work import UnitOfWork
 from app.domain.entities.section import Section
-from uuid import uuid4,UUID
+from app.domain.entities.user import User
+from app.application.interfaces.services.course_access_service import CourseAccessService
+
 
 @dataclass(slots=True)
 class CreateSectionCommand:
-    module_id : UUID
-    title : str
-    description : str
-    position : int
+    module_id: UUID
+    title: str
+    description: str
+    position: int
+    actor : User
+
 
 class CreateSectionUseCase:
-    def __init__(self,uow : UnitOfWork) -> None:
+    def __init__(self, uow: UnitOfWork) -> None:
         self.uow = uow
-    
-    async def execute(self,command : CreateSectionCommand) -> Section:
+        self.course_access_service = CourseAccessService(uow)
+
+    async def execute(self, command: CreateSectionCommand) -> Section:
         async with self.uow:
             module = await self.uow.modules.get_by_id(command.module_id)
             if module is None:
                 raise ModuleNotFoundError("Такого модуля нет")
+            await self.course_access_service.ensure_can_manage_module(command.actor,module.id)
             section = Section(
-                id = uuid4(),
+                id=uuid4(),
                 module_id=module.id,
                 title=command.title,
                 description=command.description,
