@@ -1,6 +1,8 @@
 from app.application.use_cases.courses.create_course import CreateCourseUseCase
 from app.application.use_cases.courses.get_course import GetCourseUseCase
-from app.application.use_cases.courses.get_course_structure import GetCourseStructureUseCase
+from app.application.use_cases.courses.get_course_structure import (
+    GetCourseStructureUseCase,
+)
 from app.application.use_cases.courses.get_courses import GetCoursesUseCase
 from app.application.use_cases.courses.update_course import UpdateCourseUseCase
 from app.application.use_cases.lectures.create_lecture import CreateLectureUseCase
@@ -14,18 +16,18 @@ from app.application.use_cases.sections.get_section import GetSectionUseCase
 from app.application.use_cases.sections.update_section import UpdateSectionUseCase
 
 __all__ = [
+    "CreateCourseUseCase",
+    "CreateLectureUseCase",
+    "CreateModuleUseCase",
+    "CreateSectionUseCase",
+    "GetCourseStructureUseCase",
     "GetCourseUseCase",
     "GetCoursesUseCase",
-    "GetCourseStructureUseCase",
     "GetLectureUseCase",
-    "CreateCourseUseCase",
-    "UpdateCourseUseCase",
-    "CreateModuleUseCase",
     "GetModuleUseCase",
-    "UpdateModuleUseCase",
-    "CreateSectionUseCase",
     "GetSectionUseCase",
-    "UpdateSectionUseCase",
-    "CreateLectureUseCase",
+    "UpdateCourseUseCase",
     "UpdateLectureUseCase",
+    "UpdateModuleUseCase",
+    "UpdateSectionUseCase",
 ]
