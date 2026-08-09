@@ -1,5 +1,7 @@
 from pwdlib import PasswordHash
+
 from app.application.interfaces.services.password_hasher import PasswordHasher
+
 
 class PwdlibPasswordHasher(PasswordHasher):
     def __init__(self) -> None:
