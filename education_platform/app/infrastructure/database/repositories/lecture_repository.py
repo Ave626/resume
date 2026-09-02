@@ -44,3 +44,6 @@ class SQLAlchemyLectureRepository(LectureRepository):
         if model is not None:
             await self.session.delete(model)
             await self.session.flush()
+
+
+SqlAlchemyLectureRepository = SQLAlchemyLectureRepository

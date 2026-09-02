@@ -9,16 +9,17 @@ class CourseMapper:
     def to_domain(model: CourseModel) -> Course:
         return Course(
             id=UUID(model.id),
+            author_id=UUID(model.author_id),
             title=model.title,
             description=model.description,
-            module_ids=[
-                UUID(module.id)
-                for module in sorted(model.modules, key=lambda x: x.position)
-            ],
+            module_ids=[UUID(module.id) for module in sorted(model.modules, key=lambda x: x.position)],
         )
 
     @staticmethod
     def to_model(entity: Course) -> CourseModel:
         return CourseModel(
-            id=str(entity.id), title=entity.title, description=entity.description
+            id=str(entity.id),
+            author_id=str(entity.author_id),
+            title=entity.title,
+            description=entity.description,
         )

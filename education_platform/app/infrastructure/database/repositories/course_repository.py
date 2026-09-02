@@ -10,7 +10,7 @@ from app.infrastructure.database.mappers.course_mapper import CourseMapper
 from app.infrastructure.database.models.course_model import CourseModel
 
 
-class SQLAlchemyCourseRepository(CourseRepository):
+class SqlAlchemyCourseRepository(CourseRepository):
     def __init__(self, session: AsyncSession) -> None:
         self.session = session
 
@@ -46,3 +46,6 @@ class SQLAlchemyCourseRepository(CourseRepository):
         if model is not None:
             await self.session.delete(model)
             await self.session.flush()
+
+
+SQLAlchemyCourseRepository = SqlAlchemyCourseRepository

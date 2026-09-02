@@ -53,3 +53,6 @@ class SQLAlchemyModuleRepository(ModuleRepository):
         if model is not None:
             await self.session.delete(model)
             await self.session.flush()
+
+
+SqlAlchemyModuleRepository = SQLAlchemyModuleRepository

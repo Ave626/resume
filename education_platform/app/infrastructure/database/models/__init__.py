@@ -1,15 +1,23 @@
+from app.infrastructure.database.models.answer_option_model import AnswerOptionModel
 from app.infrastructure.database.models.base import Base
 from app.infrastructure.database.models.course_model import CourseModel
 from app.infrastructure.database.models.lecture_model import LectureModel
 from app.infrastructure.database.models.module_model import ModuleModel
+from app.infrastructure.database.models.progress_model import ProgressModel
+from app.infrastructure.database.models.question_attempt_model import QuestionAttemptModel
+from app.infrastructure.database.models.question_model import QuestionModel
 from app.infrastructure.database.models.section_model import SectionModel
 from app.infrastructure.database.models.user_model import UserModel
 
 __all__ = [
     "Base",
     "CourseModel",
-    "LectureModel",
     "ModuleModel",
     "SectionModel",
+    "LectureModel",
     "UserModel",
+    "QuestionModel",
+    "AnswerOptionModel",
+    "QuestionAttemptModel",
+    "ProgressModel",
 ]
