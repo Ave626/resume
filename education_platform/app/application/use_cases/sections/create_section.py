@@ -5,7 +5,7 @@ from app.application.exceptions import ModuleNotFoundError
 from app.application.interfaces.unit_of_work import UnitOfWork
 from app.domain.entities.section import Section
 from app.domain.entities.user import User
-from app.application.interfaces.services.course_access_service import CourseAccessService
+from app.application.services.course_access_service import CourseAccessService
 
 
 @dataclass(slots=True)

@@ -12,6 +12,7 @@ from app.application.interfaces.repositories.question_repository import (
 )
 from app.application.interfaces.repositories.section_repository import SectionRepository
 from app.application.interfaces.repositories.user_repository import UserRepository
+from app.application.interfaces.repositories.progress_repository import ProgressRepository
 
 __all__ = [
     "AnswerOptionRepository",
@@ -22,4 +23,5 @@ __all__ = [
     "QuestionRepository",
     "SectionRepository",
     "UserRepository",
+    "ProgressRepository",
 ]

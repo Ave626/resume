@@ -34,13 +34,13 @@ class PermissionDeniedError(ApplicationError):
     pass
 
 
-class AnswerOptionRepository(ApplicationError):
-    pass
-
-
 class AnswerOptionNotFoundError(ApplicationError):
     pass
 
 
 class QuestionAlreadyUsedError(ApplicationError):
+    pass
+
+
+class QuestionAttemptNotFoundError(ApplicationError):
     pass

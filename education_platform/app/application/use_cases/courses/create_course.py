@@ -3,7 +3,7 @@ from uuid import uuid4
 
 from app.application.interfaces.unit_of_work import UnitOfWork
 from app.domain.entities import Course, User
-from app.application.interfaces.services.course_access_service import (
+from app.application.services.course_access_service import (
     CourseAccessService,
 )
 from app.application.exceptions import PermissionDeniedError

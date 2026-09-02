@@ -1,10 +1,10 @@
 from dataclasses import dataclass
 from uuid import UUID, uuid4
 
-from app.application.exceptions import PermissionDeniedError, QuestionNotFoundError
+from app.application.exceptions import QuestionNotFoundError
 from app.application.interfaces.unit_of_work import UnitOfWork
 from app.domain.entities import AnswerOption, User
-from app.application.interfaces.services.course_access_service import CourseAccessService
+from app.application.services.course_access_service import CourseAccessService
 
 @dataclass(slots=True)
 class CreateAnswerOptionCommand:

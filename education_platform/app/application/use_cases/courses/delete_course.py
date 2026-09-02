@@ -3,7 +3,7 @@ from uuid import UUID
 
 from app.application.exceptions import CourseNotFoundError
 from app.application.interfaces.unit_of_work import UnitOfWork
-from app.application.interfaces.services.course_access_service import CourseAccessService
+from app.application.services.course_access_service import CourseAccessService
 from app.domain.entities.user import User
 
 
