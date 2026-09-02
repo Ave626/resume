@@ -33,6 +33,20 @@ from app.presentation.api.schemas.sections import (
     SectionResponse,
     UpdateSectionRequest,
 )
+from app.presentation.api.schemas.questions import (
+    AnswerOptionResponse,
+    CreateAnswerOptionRequest,
+    CreateQuestionRequest,
+    QuestionResponse,
+    UpdateAnswerOptionRequest,
+    UpdateQuestionRequest,
+)
+from app.presentation.api.schemas.question_attempts import (
+    QuestionAttemptResultResponse,
+    StartQuestionAttemptResponse,
+    SubmitQuestionAnswerRequest,
+)
+
 
 __all__ = [
     "CourseListItemResponse",
@@ -58,4 +72,13 @@ __all__ = [
     "UpdateLectureRequest",
     "UpdateModuleRequest",
     "UpdateSectionRequest",
+    'CreateQuestionRequest',
+    'UpdateQuestionRequest',
+    'QuestionResponse',
+    'CreateAnswerOptionRequest',
+    'UpdateAnswerOptionRequest',
+    'AnswerOptionResponse',
+    'StartQuestionAttemptResponse',
+    'SubmitQuestionAnswerRequest',
+    'QuestionAttemptResultResponse',
 ]

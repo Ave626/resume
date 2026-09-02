@@ -48,3 +48,10 @@ migrations/__pycache__/
 # OS
 .DS_Store
 Thumbs.db
+
+# AI Harness & Agent artifacts
+.agents/
+.claude/
+AGENTS.md
+swarm-report/
+.memory-bank/
