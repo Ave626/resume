@@ -1,3 +1,4 @@
+from collections.abc import Collection
 from dataclasses import dataclass, field
 from uuid import UUID
 
@@ -18,11 +19,11 @@ class Module:
 
     def _validate(self) -> None:
         if not self.title or not self.title.strip():
-            raise InvalidModuleError("Названия модуля не может быть пустым")
+            raise InvalidModuleError("Название модуля не может быть пустым")
         if not self.description or not self.description.strip():
             raise InvalidModuleError("Описание модуля не может быть пустым")
         if self.position < 1:
-            raise InvalidModuleError("Позиуия должна быть положительна")
+            raise InvalidModuleError("Позиция должна быть положительной")
 
     def update(self, title: str, description: str, position: int) -> None:
         self.title = title
@@ -37,3 +38,12 @@ class Module:
     def remove_section(self, section_id: UUID) -> None:
         if section_id in self.section_ids:
             self.section_ids.remove(section_id)
+    
+    def can_be_completed(self) -> bool:
+        return bool(self.section_ids)
+
+    def is_completed_by(self, completed_section_ids: Collection[UUID]) -> bool:
+        if not self.can_be_completed():
+            return False
+        return all(section_id in completed_section_ids for section_id in self.section_ids)
+    

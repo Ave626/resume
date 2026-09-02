@@ -51,11 +51,8 @@ class User:
     def can_manage_interactive_content(self) -> bool:
         return self.role in {UserRole.ADMIN, UserRole.AUTHOR}
 
-    def can_take_learning_activities(self) -> bool:
-        return self.is_student
-
     def can_view_own_learning_results(self) -> bool:
-        return self.is_student
+        return self.is_student()
 
     def can_view_all_learning_results(self) -> bool:
         return self.role in {UserRole.ADMIN, UserRole.AUTHOR}

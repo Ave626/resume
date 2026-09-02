@@ -1,6 +1,7 @@
 from collections.abc import Sequence
 from dataclasses import dataclass, field
 from enum import StrEnum
+from typing import TYPE_CHECKING
 from uuid import UUID
 
 from app.domain.entities.question_attempt import QuestionResultStatus
@@ -10,6 +11,9 @@ from app.domain.exceptions import (
     QuestionAlreadySolvedError,
     QuestionAttemptLimitExceededError,
 )
+
+if TYPE_CHECKING:
+    from app.domain.entities.answer_option import AnswerOption
 
 
 class QuestionType(StrEnum):
@@ -23,7 +27,7 @@ class Question:
     section_id: UUID
     text: str
     position: int
-    question_type = QuestionType = QuestionType.SINGLE_CHOICE
+    question_type: QuestionType = QuestionType.SINGLE_CHOICE
     answer_option_ids: list[UUID] = field(default_factory=list)
     max_attempts: int = 1
     reward_points: int = 1
@@ -42,21 +46,21 @@ class Question:
             raise InvalidQuestionError("Question reward_points must be positive.")
 
     def update(
-        self, text: str, positon: int, max_attempts: int, reward_points: int
+        self, text: str, position: int, max_attempts: int, reward_points: int
     ) -> None:
         self.text = text
-        self.position = positon
+        self.position = position
         self.max_attempts = max_attempts
         self.reward_points = reward_points
         self._validate()
 
     def add_answer_option(self, answer_option_id: UUID) -> None:
         if answer_option_id not in self.answer_option_ids:
-            self.answer_option_ids.append(self.answer_option_id)
+            self.answer_option_ids.append(answer_option_id)
 
     def remove_answer_option(self, answer_option_id: UUID) -> None:
         if answer_option_id in self.answer_option_ids:
-            self.answer_option_ids.remove(self.answer_option_id)
+            self.answer_option_ids.remove(answer_option_id)
 
     def has_answer_options(self) -> bool:
         return bool(self.answer_option_ids)
@@ -93,14 +97,11 @@ class Question:
                 "Multiple choice question must have at least two correct answer options."
             )
 
-    def can_start_attempt(self, existing_attempts_count: int) -> bool:
-        return existing_attempts_count < self.max_attempts
-
-    def ensure_attempt_available(self, existing_attempts_count: int) -> None:
-        if not self.can_start_attempt(existing_attempts_count):
-            raise QuestionAttemptLimitExceededError(
-                "Question attempt limit has been reached."
-            )
+    def validate_answer_options_configuration(
+        self,
+        answer_options: Sequence["AnswerOption"],
+    ) -> None:
+        self.validate_answer_configuration(answer_options)
 
     def is_correct_selection(
         self,
@@ -116,7 +117,7 @@ class Question:
                 "Answer options do not match question configuration"
             )
 
-        if not selected_ids.issubet(actual_option_ids):
+        if not selected_ids.issubset(actual_option_ids):
             raise InvalidQuestionResultError("Selected options contain unknown ids")
 
         correct_option_ids = {

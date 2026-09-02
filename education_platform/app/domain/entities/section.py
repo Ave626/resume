@@ -1,3 +1,4 @@
+from collections.abc import Collection
 from dataclasses import dataclass, field
 from uuid import UUID
 
@@ -44,14 +45,14 @@ class Section:
     def add_question(self, question_id: UUID) -> None:
         if question_id in self.question_ids:
             raise SectionQuestionAlreadyAttachedError(
-                "Section does not have this question attached"
+                "Section already has this question attached."
             )
         self.question_ids.append(question_id)
 
     def remove_question(self, question_id: UUID) -> None:
         if question_id not in self.question_ids:
             raise SectionQuestionNotAttachedError(
-                "Section does not have this question attached"
+                "Section does not have this question attached."
             )
         self.question_ids.remove(question_id)
 
@@ -60,3 +61,14 @@ class Section:
 
     def contains_question(self, question_id: UUID) -> bool:
         return question_id in self.question_ids
+
+    def can_be_complete(self) -> bool:
+        return bool(self.question_ids)
+
+    def can_be_completed(self) -> bool:
+        return self.can_be_complete()
+
+    def is_completed_by(self, completed_question_ids: Collection[UUID]) -> bool:
+        if not self.can_be_complete():
+            return False
+        return all(question_id in completed_question_ids for question_id in self.question_ids)

@@ -43,11 +43,14 @@ class QuestionAttempt:
     def is_first_attempt(self) -> bool:
         return self.attempt_number == 1
 
-    def is_repeat_attemot(self) -> bool:
+    def is_repeat_attempt(self) -> bool:
         return self.attempt_number > 1
 
+    def is_repeat_attemot(self) -> bool:
+        return self.is_repeat_attempt()
+
     def has_selected_options(self) -> bool:
-        return bool(self.has_selected_options_ids)
+        return bool(self.selected_option_ids)
 
     def selected_options_count(self) -> int:
         return len(self.selected_option_ids)
@@ -82,4 +85,4 @@ class QuestionAttempt:
 
         self.result_status = result_status
         self.awarded_points = awarded_points
-        self.checked_at = datetime.now
+        self.checked_at = datetime.now(UTC)

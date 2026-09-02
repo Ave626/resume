@@ -6,6 +6,7 @@ from app.domain.entities.question import Question, QuestionType
 from app.domain.entities.question_attempt import QuestionAttempt
 from app.domain.entities.section import Section
 from app.domain.entities.user import User, UserRole
+from app.domain.entities.progress import Progress
 
 __all__ = [
     "AnswerOption",
@@ -19,4 +20,5 @@ __all__ = [
     "Section",
     "User",
     "UserRole",
+    "Progress"
 ]
