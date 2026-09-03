@@ -1,9 +1,14 @@
 from uuid import UUID
-from fastapi import APIRouter, Depends, status
+
+from fastapi import APIRouter, Depends, Response, status
 
 from app.application.use_cases.answer_options.create_answer_option import (
     CreateAnswerOptionCommand,
     CreateAnswerOptionUseCase,
+)
+from app.application.use_cases.answer_options.delete_answer_option import (
+    DeleteAnswerOptionCommand,
+    DeleteAnswerOptionUseCase,
 )
 from app.application.use_cases.answer_options.update_answer_option import (
     UpdateAnswerOptionCommand,
@@ -13,15 +18,21 @@ from app.application.use_cases.questions.create_question import (
     CreateQuestionCommand,
     CreateQuestionUseCase,
 )
+from app.application.use_cases.questions.delete_question import (
+    DeleteQuestionCommand,
+    DeleteQuestionUseCase,
+)
 from app.application.use_cases.questions.update_question import (
     UpdateQuestionCommand,
     UpdateQuestionUseCase,
 )
 from app.domain.entities.user import User
-from app.presentation.api.dependencies import(
+from app.presentation.api.dependencies import (
     get_create_answer_option_use_case,
     get_create_question_use_case,
     get_current_author_or_admin,
+    get_delete_answer_option_use_case,
+    get_delete_question_use_case,
     get_update_answer_option_use_case,
     get_update_question_use_case,
 )
@@ -36,26 +47,27 @@ from app.presentation.api.schemas import (
 )
 
 router = APIRouter(
-    prefix='/admin',
-    tags=['Admin'],
+    prefix="/admin",
+    tags=["Admin"],
     responses={
         401: {
-            'description': 'Authentication credentials are missing or invalid.',
-            'model': ErrorResponse,
+            "description": "Authentication credentials are missing or invalid.",
+            "model": ErrorResponse,
         },
         403: {
-            'description': 'Author or admin access is required.',
-            'model': ErrorResponse,
+            "description": "Author or admin access is required.",
+            "model": ErrorResponse,
         },
     },
 )
 
+
 @router.post(
-    '/sections/{section_id}/questions',
+    "/sections/{section_id}/questions",
     response_model=QuestionResponse,
     status_code=status.HTTP_201_CREATED,
-    summary='Create question',
-    description='Creates a new interactive question inside the selected section.'
+    summary="Create question",
+    description="Creates a new interactive question inside the selected section.",
 )
 async def create_question(
     section_id: UUID,
@@ -78,10 +90,10 @@ async def create_question(
 
 
 @router.put(
-    '/questions/{question_id}',
+    "/questions/{question_id}",
     response_model=QuestionResponse,
-    summary='Update question',
-    description='Updates existing question text, position, question_type, max_attempts and reward_points.',
+    summary="Update question",
+    description="Updates existing question text, position, question_type, max_attempts and reward_points.",
 )
 async def update_question(
     question_id: UUID,
@@ -104,11 +116,11 @@ async def update_question(
 
 
 @router.post(
-    '/questions/{question_id}/answer-options',
+    "/questions/{question_id}/answer-options",
     response_model=AnswerOptionResponse,
     status_code=status.HTTP_201_CREATED,
-    summary='Create answer option',
-    description='Adds a new answer option to the selected question.',
+    summary="Create answer option",
+    description="Adds a new answer option to the selected question.",
 )
 async def create_answer_option(
     question_id: UUID,
@@ -129,10 +141,10 @@ async def create_answer_option(
 
 
 @router.put(
-    '/answer-options/{answer_option_id}',
+    "/answer-options/{answer_option_id}",
     response_model=AnswerOptionResponse,
-    summary='Update answer option',
-    description='Updates existing answer option text, position and correctness.',
+    summary="Update answer option",
+    description="Updates existing answer option text, position and correctness.",
 )
 async def update_answer_option(
     answer_option_id: UUID,
@@ -150,3 +162,38 @@ async def update_answer_option(
         )
     )
     return AnswerOptionResponse.model_validate(result)
+
+
+@router.delete(
+    "/questions/{question_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Delete question",
+    description="Deletes a question and its answer options if it has no attempts.",
+)
+async def delete_question(
+    question_id: UUID,
+    actor: User = Depends(get_current_author_or_admin),
+    use_case: DeleteQuestionUseCase = Depends(get_delete_question_use_case),
+) -> Response:
+    await use_case.execute(DeleteQuestionCommand(actor=actor, question_id=question_id))
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+@router.delete(
+    "/answer-options/{answer_option_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Delete answer option",
+    description="Deletes an answer option if question has no attempts and remains valid.",
+)
+async def delete_answer_option(
+    answer_option_id: UUID,
+    actor: User = Depends(get_current_author_or_admin),
+    use_case: DeleteAnswerOptionUseCase = Depends(get_delete_answer_option_use_case),
+) -> Response:
+    await use_case.execute(
+        DeleteAnswerOptionCommand(
+            actor=actor,
+            answer_option_id=answer_option_id,
+        )
+    )
+    return Response(status_code=status.HTTP_204_NO_CONTENT)

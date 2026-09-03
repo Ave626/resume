@@ -5,6 +5,15 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 from app.application.interfaces.services.password_hasher import PasswordHasher
 from app.application.interfaces.services.token_service import TokenService
+from app.application.use_cases.answer_options.create_answer_option import (
+    CreateAnswerOptionUseCase,
+)
+from app.application.use_cases.answer_options.delete_answer_option import (
+    DeleteAnswerOptionUseCase,
+)
+from app.application.use_cases.answer_options.update_answer_option import (
+    UpdateAnswerOptionUseCase,
+)
 from app.application.use_cases.auth.login_user import LoginUserUseCase
 from app.application.use_cases.auth.register_user import RegisterUserUseCase
 from app.application.use_cases.courses.create_course import CreateCourseUseCase
@@ -22,6 +31,20 @@ from app.application.use_cases.lectures.update_lecture import UpdateLectureUseCa
 from app.application.use_cases.modules.create_module import CreateModuleUseCase
 from app.application.use_cases.modules.delete_module import DeleteModuleUseCase
 from app.application.use_cases.modules.update_module import UpdateModuleUseCase
+from app.application.use_cases.question_attempt.get_question_attempt_result import (
+    GetQuestionAttemptResultUseCase,
+)
+from app.application.use_cases.question_attempt.start_question_attempt import (
+    StartQuestionAttemptUseCase,
+)
+from app.application.use_cases.question_attempt.submit_question_answer import (
+    SubmitQuestionAnswerUseCase,
+)
+from app.application.use_cases.questions.create_question import CreateQuestionUseCase
+from app.application.use_cases.questions.delete_question import (
+    DeleteQuestionUseCase,
+)
+from app.application.use_cases.questions.update_question import UpdateQuestionUseCase
 from app.application.use_cases.sections.create_section import CreateSectionUseCase
 from app.application.use_cases.sections.delete_section import DeleteSectionUseCase
 from app.application.use_cases.sections.update_section import UpdateSectionUseCase
@@ -33,24 +56,6 @@ from app.infrastructure.security.jwt_token_service import (
 )
 from app.infrastructure.security.password_hasher import PwdlibPasswordHasher
 from app.presentation.exceptions import AuthenticationError, PermissionDeniedError
-from app.application.use_cases.answer_options.create_answer_option import (
-    CreateAnswerOptionUseCase,
-)
-from app.application.use_cases.answer_options.update_answer_option import (
-    UpdateAnswerOptionUseCase,
-)
-from app.application.use_cases.questions.create_question import CreateQuestionUseCase
-from app.application.use_cases.questions.update_question import UpdateQuestionUseCase
-
-from app.application.use_cases.question_attempt.get_question_attempt_result import (
-    GetQuestionAttemptResultUseCase,
-)
-from app.application.use_cases.question_attempt.start_question_attempt import (
-    StartQuestionAttemptUseCase,
-)
-from app.application.use_cases.question_attempt.submit_question_answer import (
-    SubmitQuestionAnswerUseCase,
-)
 
 http_bearer = HTTPBearer(auto_error=False)
 
@@ -205,6 +210,7 @@ async def get_current_author_or_admin(
         raise PermissionDeniedError("Author or admin access is required")
     return current_user
 
+
 def get_create_question_use_case() -> CreateQuestionUseCase:
     return CreateQuestionUseCase(
         uow=SqlAlchemyUnitOfWork(session_factory=SessionFactory)
@@ -228,6 +234,7 @@ def get_update_answer_option_use_case() -> UpdateAnswerOptionUseCase:
         uow=SqlAlchemyUnitOfWork(session_factory=SessionFactory)
     )
 
+
 def get_start_question_attempt_use_case() -> StartQuestionAttemptUseCase:
     return StartQuestionAttemptUseCase(
         uow=SqlAlchemyUnitOfWork(session_factory=SessionFactory)
@@ -242,5 +249,17 @@ def get_submit_question_answer_use_case() -> SubmitQuestionAnswerUseCase:
 
 def get_get_question_attempt_result_use_case() -> GetQuestionAttemptResultUseCase:
     return GetQuestionAttemptResultUseCase(
+        uow=SqlAlchemyUnitOfWork(session_factory=SessionFactory)
+    )
+
+
+def get_delete_question_use_case() -> DeleteQuestionUseCase:
+    return DeleteQuestionUseCase(
+        uow=SqlAlchemyUnitOfWork(session_factory=SessionFactory)
+    )
+
+
+def get_delete_answer_option_use_case() -> DeleteAnswerOptionUseCase:
+    return DeleteAnswerOptionUseCase(
         uow=SqlAlchemyUnitOfWork(session_factory=SessionFactory)
     )

@@ -24,15 +24,15 @@ def create_app() -> FastAPI:
             },
             {
                 "name": "Admin",
-                "description": "Administrative endpoints for creating and updating content.",
+                "description": "Management endpoints for authors and administrators who create and modify learning content.",
             },
             {
                 "name": "Auth",
                 "description": "Endpoints for user registration and login with JWT token issuing.",
             },
             {
-                'name': 'Learning',
-                'description': 'Authenticated endpoints for question attempts, answer submission and learning results.',
+                "name": "Learning",
+                "description": "Authenticated endpoints for question attempts, answer submission and learning results.",
             },
         ],
     )

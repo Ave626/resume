@@ -2,20 +2,24 @@ from fastapi import FastAPI, Request, status
 from fastapi.responses import JSONResponse
 
 from app.application.exceptions import (
-    ApplicationError,
     AnswerOptionNotFoundError,
+    ApplicationError,
     CourseNotFoundError,
     LectureNotFoundError,
     ModuleNotFoundError,
-    PermissionDeniedError as ApplicationPermissionDeniedError,
     QuestionAttemptNotFoundError,
     QuestionNotFoundError,
     SectionNotFoundError,
+)
+from app.application.exceptions import (
+    PermissionDeniedError as ApplicationPermissionDeniedError,
 )
 from app.domain.exceptions import DomainError
 from app.presentation.api.schemas import ErrorResponse
 from app.presentation.exceptions import (
     AuthenticationError,
+)
+from app.presentation.exceptions import (
     PermissionDeniedError as PresentationPermissionDeniedError,
 )
 
@@ -73,7 +77,9 @@ async def lecture_not_found_handler(request: Request, exc: Exception) -> JSONRes
     )
 
 
-async def authentication_error_handler(request: Request, exc: Exception) -> JSONResponse:
+async def authentication_error_handler(
+    request: Request, exc: Exception
+) -> JSONResponse:
     return build_error_response(
         error="authentication_error",
         message=str(exc),
@@ -150,5 +156,9 @@ def register_exception_handlers(app: FastAPI) -> None:
     app.add_exception_handler(SectionNotFoundError, section_not_found_handler)
     app.add_exception_handler(LectureNotFoundError, lecture_not_found_handler)
     app.add_exception_handler(QuestionNotFoundError, question_not_found_handler)
-    app.add_exception_handler(AnswerOptionNotFoundError, answer_option_not_found_handler)
-    app.add_exception_handler(QuestionAttemptNotFoundError, question_attempt_not_found_handler)
+    app.add_exception_handler(
+        AnswerOptionNotFoundError, answer_option_not_found_handler
+    )
+    app.add_exception_handler(
+        QuestionAttemptNotFoundError, question_attempt_not_found_handler
+    )

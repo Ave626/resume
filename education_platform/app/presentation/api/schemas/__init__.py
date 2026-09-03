@@ -28,10 +28,10 @@ from app.presentation.api.schemas.modules import (
     ModuleResponse,
     UpdateModuleRequest,
 )
-from app.presentation.api.schemas.sections import (
-    CreateSectionRequest,
-    SectionResponse,
-    UpdateSectionRequest,
+from app.presentation.api.schemas.question_attempts import (
+    QuestionAttemptResultResponse,
+    StartQuestionAttemptResponse,
+    SubmitQuestionAnswerRequest,
 )
 from app.presentation.api.schemas.questions import (
     AnswerOptionResponse,
@@ -41,20 +41,22 @@ from app.presentation.api.schemas.questions import (
     UpdateAnswerOptionRequest,
     UpdateQuestionRequest,
 )
-from app.presentation.api.schemas.question_attempts import (
-    QuestionAttemptResultResponse,
-    StartQuestionAttemptResponse,
-    SubmitQuestionAnswerRequest,
+from app.presentation.api.schemas.sections import (
+    CreateSectionRequest,
+    SectionResponse,
+    UpdateSectionRequest,
 )
 
-
 __all__ = [
+    "AnswerOptionResponse",
     "CourseListItemResponse",
     "CourseResponse",
     "CourseStructureResponse",
+    "CreateAnswerOptionRequest",
     "CreateCourseRequest",
     "CreateLectureRequest",
     "CreateModuleRequest",
+    "CreateQuestionRequest",
     "CreateSectionRequest",
     "CurrentUserResponse",
     "ErrorResponse",
@@ -63,22 +65,19 @@ __all__ = [
     "LoginRequest",
     "ModuleResponse",
     "ModuleStructureResponse",
+    "QuestionAttemptResultResponse",
+    "QuestionResponse",
     "RegisterUserRequest",
     "RegisteredUserResponse",
     "SectionResponse",
     "SectionStructureResponse",
+    "StartQuestionAttemptResponse",
+    "SubmitQuestionAnswerRequest",
     "TokenResponse",
+    "UpdateAnswerOptionRequest",
     "UpdateCourseRequest",
     "UpdateLectureRequest",
     "UpdateModuleRequest",
+    "UpdateQuestionRequest",
     "UpdateSectionRequest",
-    'CreateQuestionRequest',
-    'UpdateQuestionRequest',
-    'QuestionResponse',
-    'CreateAnswerOptionRequest',
-    'UpdateAnswerOptionRequest',
-    'AnswerOptionResponse',
-    'StartQuestionAttemptResponse',
-    'SubmitQuestionAnswerRequest',
-    'QuestionAttemptResultResponse',
 ]
