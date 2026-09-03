@@ -3,10 +3,16 @@ from uuid import UUID
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.application.interfaces.repositories.question_attempt_repository import QuestionAttemptRepository
+from app.application.interfaces.repositories.question_attempt_repository import (
+    QuestionAttemptRepository,
+)
 from app.domain.entities.question_attempt import QuestionAttempt
-from app.infrastructure.database.mappers.question_attempt_mapper import QuestionAttemptMapper
-from app.infrastructure.database.models.question_attempt_model import QuestionAttemptModel
+from app.infrastructure.database.mappers.question_attempt_mapper import (
+    QuestionAttemptMapper,
+)
+from app.infrastructure.database.models.question_attempt_model import (
+    QuestionAttemptModel,
+)
 
 
 class SqlAlchemyQuestionAttemptRepository(QuestionAttemptRepository):
@@ -14,7 +20,9 @@ class SqlAlchemyQuestionAttemptRepository(QuestionAttemptRepository):
         self.session = session
 
     async def get_by_id(self, attempt_id: UUID) -> QuestionAttempt | None:
-        stmt = select(QuestionAttemptModel).where(QuestionAttemptModel.id == str(attempt_id))
+        stmt = select(QuestionAttemptModel).where(
+            QuestionAttemptModel.id == str(attempt_id)
+        )
         result = await self.session.execute(stmt)
         model = result.scalar_one_or_none()
         return None if model is None else QuestionAttemptMapper.to_domain(model)
@@ -33,7 +41,9 @@ class SqlAlchemyQuestionAttemptRepository(QuestionAttemptRepository):
             .order_by(QuestionAttemptModel.attempt_number)
         )
         result = await self.session.execute(stmt)
-        return [QuestionAttemptMapper.to_domain(model) for model in result.scalars().all()]
+        return [
+            QuestionAttemptMapper.to_domain(model) for model in result.scalars().all()
+        ]
 
     async def exists_by_question_id(self, question_id: UUID) -> bool:
         stmt = (

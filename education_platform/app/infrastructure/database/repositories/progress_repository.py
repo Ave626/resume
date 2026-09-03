@@ -1,10 +1,15 @@
 from uuid import UUID
+
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.application.interfaces.repositories.progress_repository import ProgressRepository
+
+from app.application.interfaces.repositories.progress_repository import (
+    ProgressRepository,
+)
 from app.domain.entities.progress import Progress
 from app.infrastructure.database.mappers.progress_mapper import ProgressMapper
 from app.infrastructure.database.models.progress_model import ProgressModel
+
 
 class SqlAlchemyProgressRepository(ProgressRepository):
     def __init__(self, session: AsyncSession) -> None:
@@ -32,8 +37,14 @@ class SqlAlchemyProgressRepository(ProgressRepository):
         if model is None:
             return
 
-        model.completed_question_ids = [str(item) for item in progress.completed_question_ids]
-        model.completed_section_ids = [str(item) for item in progress.completed_section_ids]
-        model.completed_module_ids = [str(item) for item in progress.completed_module_ids]
+        model.completed_question_ids = [
+            str(item) for item in progress.completed_question_ids
+        ]
+        model.completed_section_ids = [
+            str(item) for item in progress.completed_section_ids
+        ]
+        model.completed_module_ids = [
+            str(item) for item in progress.completed_module_ids
+        ]
         model.total_points = progress.total_points
         await self.session.flush()

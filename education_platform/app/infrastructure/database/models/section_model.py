@@ -13,10 +13,10 @@ class SectionModel(Base):
     position: Mapped[int] = mapped_column(Integer)
     module = relationship("ModuleModel", back_populates="sections")
     questions = relationship(
-        'QuestionModel',
-        back_populates='section',
-        cascade='all, delete-orphan',
-        order_by='QuestionModel.position',
+        "QuestionModel",
+        back_populates="section",
+        cascade="all, delete-orphan",
+        order_by="QuestionModel.position",
     )
     lectures = relationship(
         "LectureModel",

@@ -1,7 +1,9 @@
 from uuid import UUID
 
 from app.domain.entities.question_attempt import QuestionAttempt, QuestionResultStatus
-from app.infrastructure.database.models.question_attempt_model import QuestionAttemptModel
+from app.infrastructure.database.models.question_attempt_model import (
+    QuestionAttemptModel,
+)
 
 
 class QuestionAttemptMapper:
@@ -33,9 +35,7 @@ class QuestionAttemptMapper:
             selected_option_ids=[str(item) for item in entity.selected_option_ids],
             created_at=entity.created_at,
             result_status=(
-                str(entity.result_status)
-                if entity.result_status is not None
-                else None
+                str(entity.result_status) if entity.result_status is not None else None
             ),
             awarded_points=entity.awarded_points,
             checked_at=entity.checked_at,
