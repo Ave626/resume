@@ -21,7 +21,7 @@ class AnswerOption:
         if self.position < 1:
             raise InvalidAnswerOptionError("Answer option position must be positive.")
 
-    def update(self, text: str, position: str, is_correct: bool) -> None:
+    def update(self, text: str, position: int, is_correct: bool) -> None:
         self.text = text
         self.position = position
         self.is_correct = is_correct

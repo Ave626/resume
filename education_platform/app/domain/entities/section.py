@@ -71,4 +71,6 @@ class Section:
     def is_completed_by(self, completed_question_ids: Collection[UUID]) -> bool:
         if not self.can_be_complete():
             return False
-        return all(question_id in completed_question_ids for question_id in self.question_ids)
+        return all(
+            question_id in completed_question_ids for question_id in self.question_ids
+        )

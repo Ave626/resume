@@ -46,12 +46,19 @@ class Question:
             raise InvalidQuestionError("Question reward_points must be positive.")
 
     def update(
-        self, text: str, position: int, max_attempts: int, reward_points: int
+        self,
+        text: str,
+        position: int,
+        max_attempts: int,
+        reward_points: int,
+        question_type: QuestionType | None = None,
     ) -> None:
         self.text = text
         self.position = position
         self.max_attempts = max_attempts
         self.reward_points = reward_points
+        if question_type is not None:
+            self.question_type = question_type
         self._validate()
 
     def add_answer_option(self, answer_option_id: UUID) -> None:
