@@ -10,7 +10,7 @@ from app.domain.entities.user import User
 @dataclass(slots=True)
 class DeleteCourseCommand:
     course_id: UUID
-    actor : User
+    actor: User
 
 
 class DeleteCourseUseCase:
@@ -23,6 +23,8 @@ class DeleteCourseUseCase:
             course = await self.uow.courses.get_by_id(command.course_id)
             if course is None:
                 raise CourseNotFoundError("Course not found")
-            await self.course_access_service.ensure_can_manage_course(command.actor,course.id)
+            await self.course_access_service.ensure_can_manage_course(
+                command.actor, course.id
+            )
             await self.uow.courses.delete(course)
             await self.uow.commit()

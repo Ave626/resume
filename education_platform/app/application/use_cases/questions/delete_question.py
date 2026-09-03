@@ -1,39 +1,30 @@
 from dataclasses import dataclass
 from uuid import UUID
 
-from app.application.exceptions import (
-    QuestionAlreadyUsedError,
-    QuestionNotFoundError,
-)
+from app.application.exceptions import QuestionAlreadyUsedError, QuestionNotFoundError
 from app.application.interfaces.unit_of_work import UnitOfWork
 from app.application.services.course_access_service import CourseAccessService
-from app.domain.entities import Question, QuestionType, User
+from app.domain.entities import User
 
 
 @dataclass(slots=True)
-class UpdateQuestionCommand:
+class DeleteQuestionCommand:
     actor: User
     question_id: UUID
-    text: str
-    position: int
-    question_type: QuestionType
-    max_attempts: int
-    reward_points: int
 
 
-class UpdateQuestionUseCase:
+class DeleteQuestionUseCase:
     def __init__(self, uow: UnitOfWork):
         self.uow = uow
         self.course_access_service = CourseAccessService(uow)
 
-    async def execute(self, command: UpdateQuestionCommand) -> Question:
-
+    async def execute(self, command: DeleteQuestionCommand) -> None:
         async with self.uow:
             question = await self.uow.questions.get_by_id(command.question_id)
             if question is None:
                 raise QuestionNotFoundError("Question not found")
 
-            await self.course_access_service.ensure_can_manage_section(
+            section = await self.course_access_service.ensure_can_manage_section(
                 actor=command.actor,
                 section_id=question.section_id,
             )
@@ -43,16 +34,10 @@ class UpdateQuestionUseCase:
             )
             if has_attempts:
                 raise QuestionAlreadyUsedError(
-                    "Question alredy has student attempt and cannot be changed"
+                    "Question already has student attempts and cannot be deleted"
                 )
 
-            question.update(
-                text=command.text,
-                position=command.position,
-                question_type=command.question_type,
-                max_attempts=command.max_attempts,
-                reward_points=command.reward_points,
-            )
-            await self.uow.questions.update(question)
+            section.remove_question(question.id)
+            await self.uow.sections.update(section)
+            await self.uow.questions.remove(question.id)
             await self.uow.commit()
-            return question

@@ -3,13 +3,14 @@ from uuid import UUID
 
 from app.application.exceptions import ModuleNotFoundError
 from app.application.interfaces.unit_of_work import UnitOfWork
-from app.domain.entities.user import User
 from app.application.services.course_access_service import CourseAccessService
+from app.domain.entities.user import User
+
 
 @dataclass(slots=True)
 class DeleteModuleCommand:
     module_id: UUID
-    actor : User
+    actor: User
 
 
 class DeleteModuleUseCase:
@@ -22,7 +23,9 @@ class DeleteModuleUseCase:
             module = await self.uow.modules.get_by_id(command.module_id)
             if module is None:
                 raise ModuleNotFoundError("Module not found")
-            await self.course_access_service.ensure_can_manage_module(module_id=module.id,actor=command.actor)
+            await self.course_access_service.ensure_can_manage_module(
+                module_id=module.id, actor=command.actor
+            )
             course = await self.uow.courses.get_by_id(module.course_id)
             if course is not None:
                 course.remove_module(module.id)

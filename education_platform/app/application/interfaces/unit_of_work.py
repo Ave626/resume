@@ -5,11 +5,11 @@ from app.application.interfaces.repositories import (
     CourseRepository,
     LectureRepository,
     ModuleRepository,
+    ProgressRepository,
     QuestionAttemptRepository,
     QuestionRepository,
     SectionRepository,
     UserRepository,
-    ProgressRepository
 )
 
 

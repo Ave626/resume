@@ -12,6 +12,7 @@ class QuestionAttemptAnswerOptionDTO:
     text: str
     position: int
 
+
 @dataclass(slots=True)
 class StartQuestionAttemptDTO:
     question_id: UUID

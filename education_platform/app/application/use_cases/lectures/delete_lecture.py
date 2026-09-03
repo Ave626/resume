@@ -3,14 +3,14 @@ from uuid import UUID
 
 from app.application.exceptions import LectureNotFoundError
 from app.application.interfaces.unit_of_work import UnitOfWork
-from app.domain.entities import User
 from app.application.services.course_access_service import CourseAccessService
+from app.domain.entities import User
 
 
 @dataclass(slots=True)
 class DeleteLectureCommand:
     lecture_id: UUID
-    actor : User
+    actor: User
 
 
 class DeleteLectureUseCase:
@@ -25,7 +25,9 @@ class DeleteLectureUseCase:
                 raise LectureNotFoundError("Lecture not Found")
             section = await self.uow.sections.get_by_id(lecture.section_id)
             if section is not None:
-                await self.course_access_service.ensure_can_manage_section(command.actor,section.id)
+                await self.course_access_service.ensure_can_manage_section(
+                    command.actor, section.id
+                )
                 section.remove_lecture(lecture.id)
                 await self.uow.sections.update(section)
             await self.uow.lectures.delete(lecture)

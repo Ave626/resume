@@ -7,16 +7,18 @@ from app.application.interfaces.unit_of_work import UnitOfWork
 from app.application.services.course_access_service import CourseAccessService
 from app.domain.entities.user import User
 
+
 @dataclass(slots=True)
 class GetQuestionAttemptResultCommand:
     actor: User
     attempt_id: UUID
 
+
 class GetQuestionAttemptResultUseCase:
     def __init__(self, uow: UnitOfWork) -> None:
         self.uow = uow
         self.course_access_service = CourseAccessService(uow)
-    
+
     async def execute(
         self,
         command: GetQuestionAttemptResultCommand,
@@ -25,13 +27,13 @@ class GetQuestionAttemptResultUseCase:
             attempt = await self.uow.question_attempts.get_by_id(command.attempt_id)
             if attempt is None:
                 raise QuestionAttemptNotFoundError("QuestionAttempt not found")
-            
+
             if attempt.student_id != command.actor.id:
-                await self.course_access_service.ensure_can_view_question_results(
+                await self.course_access_service.ensure_can_view_question_result(
                     actor=command.actor,
                     question_id=attempt.question_id,
                 )
-            
+
             return QuestionAttemptResultDTO(
                 attempt_id=attempt.id,
                 question_id=attempt.question_id,

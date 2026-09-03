@@ -3,8 +3,8 @@ from uuid import UUID, uuid4
 
 from app.application.exceptions import CourseNotFoundError
 from app.application.interfaces.unit_of_work import UnitOfWork
-from app.domain.entities.module import Module
 from app.application.services.course_access_service import CourseAccessService
+from app.domain.entities.module import Module
 from app.domain.entities.user import User
 
 
@@ -14,7 +14,7 @@ class CreateModuleCommand:
     title: str
     description: str
     position: int
-    actor : User
+    actor: User
 
 
 class CreateModuleUseCase:
@@ -34,7 +34,9 @@ class CreateModuleUseCase:
                 description=command.description,
                 position=command.position,
             )
-            await self.course_access_service.ensure_can_manage_course(command.actor,course.id)
+            await self.course_access_service.ensure_can_manage_course(
+                command.actor, course.id
+            )
             course.module_ids.append(module.id)
             await self.uow.modules.add(module)
             await self.uow.courses.update(course)

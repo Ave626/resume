@@ -1,10 +1,10 @@
 from dataclasses import dataclass
 from uuid import UUID
 
-from app.application.exceptions import LectureNotFoundError,SectionNotFoundError
+from app.application.exceptions import LectureNotFoundError, SectionNotFoundError
 from app.application.interfaces.unit_of_work import UnitOfWork
-from app.domain.entities.lecture import Lecture
 from app.application.services.course_access_service import CourseAccessService
+from app.domain.entities.lecture import Lecture
 from app.domain.entities.user import User
 
 
@@ -14,7 +14,7 @@ class UpdateLectureCommand:
     title: str
     content: str
     position: int
-    actor : User
+    actor: User
 
 
 class UpdateLectureUseCase:
@@ -30,7 +30,9 @@ class UpdateLectureUseCase:
             section = await self.uow.sections.get_by_id(lecture.section_id)
             if section is None:
                 raise SectionNotFoundError("Section not found")
-            await self.course_access_service.ensure_can_manage_section(command.actor,section.id)
+            await self.course_access_service.ensure_can_manage_section(
+                command.actor, section.id
+            )
             lecture.update(
                 title=command.title, content=command.content, position=command.position
             )

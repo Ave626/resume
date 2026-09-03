@@ -3,9 +3,9 @@ from uuid import UUID, uuid4
 
 from app.application.exceptions import SectionNotFoundError
 from app.application.interfaces.unit_of_work import UnitOfWork
+from app.application.services.course_access_service import CourseAccessService
 from app.domain.entities.lecture import Lecture
 from app.domain.entities.user import User
-from app.application.services.course_access_service import CourseAccessService
 
 
 @dataclass(slots=True)
@@ -14,7 +14,7 @@ class CreateLectureCommand:
     title: str
     content: str
     position: int
-    actor : User
+    actor: User
 
 
 class CreateLectureUseCase:
@@ -27,7 +27,9 @@ class CreateLectureUseCase:
             section = await self.uow.sections.get_by_id(command.section_id)
             if section is None:
                 raise SectionNotFoundError("Такой секции нет")
-            await self.course_access_service.ensure_can_manage_section(command.actor,section.id)
+            await self.course_access_service.ensure_can_manage_section(
+                command.actor, section.id
+            )
             lecture = Lecture(
                 id=uuid4(),
                 section_id=command.section_id,

@@ -6,8 +6,10 @@ from app.application.exceptions import (
     QuestionAlreadyUsedError,
 )
 from app.application.interfaces.unit_of_work import UnitOfWork
-from app.domain.entities import User
 from app.application.services.course_access_service import CourseAccessService
+from app.domain.entities import AnswerOption, User
+
+
 @dataclass(slots=True)
 class UpdateAnswerOptionCommand:
     actor: User
@@ -22,7 +24,7 @@ class UpdateAnswerOptionUseCase:
         self.uow = uow
         self.course_access_service = CourseAccessService(uow)
 
-    async def execute(self, command: UpdateAnswerOptionCommand) -> None:
+    async def execute(self, command: UpdateAnswerOptionCommand) -> AnswerOption:
 
         async with self.uow:
             answer_option = await self.uow.answer_options.get_by_id(

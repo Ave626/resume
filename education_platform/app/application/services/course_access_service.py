@@ -4,15 +4,15 @@ from app.application.exceptions import (
     CourseNotFoundError,
     ModuleNotFoundError,
     PermissionDeniedError,
+    QuestionNotFoundError,
     SectionNotFoundError,
-    QuestionNotFoundError
 )
 from app.application.interfaces.unit_of_work import UnitOfWork
 from app.domain.entities.course import Course
 from app.domain.entities.module import Module
+from app.domain.entities.question import Question
 from app.domain.entities.section import Section
 from app.domain.entities.user import User
-from app.domain.entities.question import Question
 
 
 class CourseAccessService:
@@ -59,29 +59,29 @@ class CourseAccessService:
 
     async def ensure_can_view_question_result(
         self,
-        actor : User,
-        question_id : UUID,
+        actor: User,
+        question_id: UUID,
     ) -> Question:
-        question = await self.uow.question.get_by_id(question_id)
+        question = await self.uow.questions.get_by_id(question_id)
         if question is None:
             raise QuestionNotFoundError("Question not found")
 
         section = await self.uow.sections.get_by_id(question.section_id)
         if section is None:
             raise SectionNotFoundError("Section not found")
-        
+
         module = await self.uow.modules.get_by_id(section.module_id)
         if module is None:
             raise ModuleNotFoundError("Module not found")
-        
+
         course = await self.uow.courses.get_by_id(module.course_id)
         if course is None:
             raise CourseNotFoundError("Course not found")
-        
+
         if actor.is_admin():
             return question
-        
+
         if actor.is_author() and course.is_owned_by(actor.id):
             return question
-        
+
         raise PermissionDeniedError("User cannot view question results")
