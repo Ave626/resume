@@ -2,6 +2,7 @@ import pytest
 from sqlalchemy import select
 
 from app.infrastructure.database.models import (
+    AnswerOptionModel,
     ProgressModel,
     QuestionAttemptModel,
     QuestionModel,
@@ -179,6 +180,13 @@ async def test_author_can_delete_answer_option_and_question(
     assert missing_q_res.status_code == 404
     assert missing_q_res.json()["error"] == "question_not_found"
 
+    structure_res = await client.get(f"/api/courses/{course_id}/structure")
+    assert structure_res.status_code == 200
+    structure = structure_res.json()
+    module_data = next(m for m in structure["modules"] if m["id"] == module_id)
+    section_data = next(s for s in module_data["sections"] if s["id"] == section_id)
+    assert question_id not in section_data["question_ids"]
+
     async with session_factory() as session:
         questions_in_db = (
             (
@@ -275,3 +283,90 @@ async def test_cannot_delete_question_or_option_after_student_attempt(
     assert len(progress_items) == 1
     assert len(questions) == 1
     assert progress_items[0].total_points == 5
+
+
+@pytest.mark.asyncio
+async def test_cannot_delete_answer_option_when_question_becomes_invalid(
+    client,
+    author_auth_headers,
+    student_auth_headers,
+    session_factory,
+):
+    course_res = await client.post(
+        "/api/admin/courses",
+        headers=author_auth_headers,
+        json={"title": "Validation Course", "description": "Validation test"},
+    )
+    course_id = course_res.json()["id"]
+
+    module_res = await client.post(
+        f"/api/admin/courses/{course_id}/modules",
+        headers=author_auth_headers,
+        json={"title": "Validation Module", "description": "Desc", "position": 1},
+    )
+    module_id = module_res.json()["id"]
+
+    section_res = await client.post(
+        f"/api/admin/modules/{module_id}/sections",
+        headers=author_auth_headers,
+        json={"title": "Validation Section", "description": "Desc", "position": 1},
+    )
+    section_id = section_res.json()["id"]
+
+    question_res = await client.post(
+        f"/api/admin/sections/{section_id}/questions",
+        headers=author_auth_headers,
+        json={
+            "text": "Is Python dynamically typed?",
+            "position": 1,
+            "question_type": "single_choice",
+            "max_attempts": 3,
+            "reward_points": 5,
+        },
+    )
+    assert question_res.status_code == 201
+    question_id = question_res.json()["id"]
+
+    opt1_res = await client.post(
+        f"/api/admin/questions/{question_id}/answer-options",
+        headers=author_auth_headers,
+        json={"text": "Yes", "position": 1, "is_correct": True},
+    )
+    assert opt1_res.status_code == 201
+    opt1_id = opt1_res.json()["id"]
+
+    opt2_res = await client.post(
+        f"/api/admin/questions/{question_id}/answer-options",
+        headers=author_auth_headers,
+        json={"text": "No", "position": 2, "is_correct": False},
+    )
+    assert opt2_res.status_code == 201
+    opt2_id = opt2_res.json()["id"]
+
+    # Deleting one of only two options violates minimum answer options rule
+    del_opt_res = await client.delete(
+        f"/api/admin/answer-options/{opt2_id}",
+        headers=author_auth_headers,
+    )
+    assert del_opt_res.status_code == 400
+    assert del_opt_res.json()["error"] == "domain_error"
+
+    # Option must remain in database
+    async with session_factory() as session:
+        option_in_db = (
+            await session.execute(
+                select(AnswerOptionModel).where(AnswerOptionModel.id == opt2_id)
+            )
+        ).scalar_one_or_none()
+        assert option_in_db is not None
+
+    # Question attempt must still show both options
+    attempt_res = await client.get(
+        f"/api/learning/questions/{question_id}/attempt",
+        headers=student_auth_headers,
+    )
+    assert attempt_res.status_code == 200
+    active_option_ids = [opt["id"] for opt in attempt_res.json()["answer_options"]]
+    assert len(active_option_ids) == 2
+    assert opt2_id in active_option_ids
+

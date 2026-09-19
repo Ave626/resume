@@ -14,6 +14,8 @@ import app.presentation.api.dependencies as api_dependencies
 from app.infrastructure.database.models import (
     AnswerOptionModel,
     Base,
+    CodeSubmissionModel,
+    CodeTaskModel,
     CourseModel,
     LectureModel,
     ModuleModel,
@@ -21,6 +23,9 @@ from app.infrastructure.database.models import (
     QuestionAttemptModel,
     QuestionModel,
     SectionModel,
+    TaskAttemptModel,
+    TaskModel,
+    TestCaseModel,
     UserModel,
 )
 from app.infrastructure.security.password_hasher import PwdlibPasswordHasher
@@ -77,7 +82,12 @@ async def clear_database(session_factory) -> None:
         for model in [
             AnswerOptionModel,
             QuestionAttemptModel,
+            TaskAttemptModel,
+            CodeSubmissionModel,
             ProgressModel,
+            TestCaseModel,
+            CodeTaskModel,
+            TaskModel,
             QuestionModel,
             LectureModel,
             SectionModel,
@@ -337,3 +347,71 @@ async def seeded_interactive_tree(session_factory, seeded_author_user):
         wrong_option_id=wrong_option_id,
         correct_option_id=correct_option_id,
     )
+
+@pytest_asyncio.fixture
+async def seeded_tasks_tree(session_factory, seeded_author_user):
+    course_id = str(uuid4())
+    module_id = str(uuid4())
+    section_id = str(uuid4())
+    task_id = str(uuid4())
+    code_task_id = str(uuid4())
+
+    async with session_factory() as session:
+        course = CourseModel(
+            id=course_id,
+            author_id=seeded_author_user.id,
+            title='Tasks course',
+            description='Course with task activities.',
+        )
+        module = ModuleModel(
+            id=module_id,
+            course_id=course_id,
+            title='Tasks module',
+            description='Practice module.',
+            position=1,
+        )
+        section = SectionModel(
+            id=section_id,
+            module_id=module_id,
+            title='Tasks section',
+            description='Intro section.',
+            position=1,
+        )
+        task = TaskModel(
+            id=task_id,
+            section_id=section_id,
+            title='HTTP method',
+            statement='Enter GET.',
+            position=1,
+            check_type='exact_match',
+            expected_answer='GET',
+            accepted_answers=[],
+            answer_pattern='',
+            max_attempts=2,
+            reward_points=3,
+        )
+        code_task = CodeTaskModel(
+            id=code_task_id,
+            section_id=section_id,
+            title='Sum numbers',
+            statement='Read two integers and print their sum.',
+            position=2,
+            language='python',
+            starter_code='a, b = map(int, input().split())',
+            max_attempts=2,
+            reward_points=5,
+            time_limit_seconds=2,
+            memory_limit_mb=128,
+        )
+
+        session.add_all([course, module, section, task, code_task])
+        await session.commit()
+
+    return SimpleNamespace(
+        course_id=course_id,
+        module_id=module_id,
+        section_id=section_id,
+        task_id=task_id,
+        code_task_id=code_task_id,
+    )
+
