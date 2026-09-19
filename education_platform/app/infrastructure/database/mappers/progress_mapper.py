@@ -11,11 +11,11 @@ class ProgressMapper:
             id=UUID(model.id),
             student_id=UUID(model.student_id),
             course_id=UUID(model.course_id),
-            completed_question_ids=[
-                UUID(item) for item in model.completed_question_ids
-            ],
+            completed_question_ids=[UUID(item) for item in model.completed_question_ids],
+            completed_task_ids=[UUID(item) for item in model.completed_task_ids],
             completed_section_ids=[UUID(item) for item in model.completed_section_ids],
             completed_module_ids=[UUID(item) for item in model.completed_module_ids],
+            completed_code_task_ids=[UUID(item) for item in model.completed_code_task_ids],
             total_points=model.total_points,
         )
 
@@ -25,10 +25,10 @@ class ProgressMapper:
             id=str(entity.id),
             student_id=str(entity.student_id),
             course_id=str(entity.course_id),
-            completed_question_ids=[
-                str(item) for item in entity.completed_question_ids
-            ],
+            completed_question_ids=[str(item) for item in entity.completed_question_ids],
+            completed_task_ids=[str(item) for item in entity.completed_task_ids],
             completed_section_ids=[str(item) for item in entity.completed_section_ids],
             completed_module_ids=[str(item) for item in entity.completed_module_ids],
+            completed_code_task_ids=[str(item) for item in entity.completed_code_task_ids],
             total_points=entity.total_points,
         )

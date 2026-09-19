@@ -10,7 +10,12 @@ from app.infrastructure.database.repositories import (
     SqlAlchemyQuestionAttemptRepository,
     SqlAlchemyQuestionRepository,
     SqlAlchemySectionRepository,
+    SqlAlchemyTaskAttemptRepository,
+    SqlAlchemyTaskRepository,
     SqlAlchemyUserRepository,
+    SqlAlchemyCodeTaskRepository,
+    SqlAlchemyTestCaseRepository,
+    SqlAlchemyCodeSubmissionRepository,
 )
 
 
@@ -40,7 +45,13 @@ class SqlAlchemyUnitOfWork(UnitOfWork):
         self.questions = SqlAlchemyQuestionRepository(self.session)
         self.answer_options = SqlAlchemyAnswerOptionRepository(self.session)
         self.question_attempts = SqlAlchemyQuestionAttemptRepository(self.session)
+        self.tasks = SqlAlchemyTaskRepository(self.session)
+        self.task_attempts = SqlAlchemyTaskAttemptRepository(self.session)
         self.progress = SqlAlchemyProgressRepository(self.session)
+        self.code_tasks = SqlAlchemyCodeTaskRepository(self.session)
+        self.test_cases = SqlAlchemyTestCaseRepository(self.session)
+        self.code_submissions = SqlAlchemyCodeSubmissionRepository(self.session)
+        
         return self
 
     async def __aexit__(self, exc_type, exc, tb) -> None:
