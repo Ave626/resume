@@ -48,14 +48,36 @@ from app.application.use_cases.questions.update_question import UpdateQuestionUs
 from app.application.use_cases.sections.create_section import CreateSectionUseCase
 from app.application.use_cases.sections.delete_section import DeleteSectionUseCase
 from app.application.use_cases.sections.update_section import UpdateSectionUseCase
+from app.application.use_cases.tasks.create_task import CreateTaskUseCase
+from app.application.use_cases.tasks.update_task import UpdateTaskUseCase
+from app.application.use_cases.code_tasks.create_code_task import CreateCodeTaskUseCase
+from app.application.use_cases.code_tasks.update_code_task import UpdateCodeTaskUseCase
+from app.application.use_cases.test_cases.create_test_case import CreateTestCaseUseCase
+from app.application.use_cases.test_cases.update_test_case import UpdateTestCaseUseCase
 from app.domain.entities.user import User
 from app.infrastructure.database import SessionFactory, SqlAlchemyUnitOfWork
 from app.infrastructure.security.jwt_token_service import (
     InvalidTokenError,
     JwtTokenService,
 )
+from app.application.use_cases.task_attempts.submit_task_answer import SubmitTaskAnswerUseCase
+from app.application.use_cases.code_submissions.submit_code_submission import SubmitCodeSubmissionUseCase
+from app.bootstrap.build_submission_queue import build_submission_queue
+
 from app.infrastructure.security.password_hasher import PwdlibPasswordHasher
 from app.presentation.exceptions import AuthenticationError, PermissionDeniedError
+from app.application.use_cases.code_submissions.get_code_submission import (
+    GetCodeSubmissionUseCase,
+)
+from app.application.use_cases.code_submissions.list_code_submissions import (
+    ListCodeSubmissionsUseCase,
+)
+from app.application.use_cases.questions.get_question import GetQuestionUseCase
+from app.application.use_cases.tasks.get_task import GetTaskUseCase
+from app.application.use_cases.code_tasks.get_code_task import GetCodeTaskUseCase
+from app.application.use_cases.code_tasks.delete_code_task import DeleteCodeTaskCommand,DeleteCodeTaskUseCase
+from app.application.use_cases.test_cases.delete_test_case import DeleteTestCaseCommand,DeleteTestCaseUseCase
+from app.application.use_cases.tasks.delete_task import DeleteTaskCommand,DeleteTaskUseCase
 
 http_bearer = HTTPBearer(auto_error=False)
 
@@ -82,13 +104,15 @@ def get_get_course_use_case(
 
 
 def get_get_course_structure_use_case(
-    uow: SqlAlchemyUnitOfWork = Depends(get_uow),
+        uow: SqlAlchemyUnitOfWork = Depends(get_uow),
 ) -> GetCourseStructureUseCase:
     return GetCourseStructureUseCase(
         course_repository=uow.courses,
         module_repository=uow.modules,
         section_repository=uow.sections,
         lecture_repository=uow.lectures,
+        task_repository=uow.tasks,
+        code_task_repository=uow.code_tasks,
     )
 
 
@@ -261,5 +285,99 @@ def get_delete_question_use_case() -> DeleteQuestionUseCase:
 
 def get_delete_answer_option_use_case() -> DeleteAnswerOptionUseCase:
     return DeleteAnswerOptionUseCase(
+        uow=SqlAlchemyUnitOfWork(session_factory=SessionFactory)
+    )
+
+def get_create_task_use_case() -> CreateTaskUseCase:
+    return CreateTaskUseCase(
+        uow=SqlAlchemyUnitOfWork(session_factory=SessionFactory)
+    )
+
+
+def get_update_task_use_case() -> UpdateTaskUseCase:
+    return UpdateTaskUseCase(
+        uow=SqlAlchemyUnitOfWork(session_factory=SessionFactory)
+    )
+
+
+def get_create_code_task_use_case() -> CreateCodeTaskUseCase:
+    return CreateCodeTaskUseCase(
+        uow=SqlAlchemyUnitOfWork(session_factory=SessionFactory)
+    )
+
+
+def get_update_code_task_use_case() -> UpdateCodeTaskUseCase:
+    return UpdateCodeTaskUseCase(
+        uow=SqlAlchemyUnitOfWork(session_factory=SessionFactory)
+    )
+
+
+def get_create_test_case_use_case() -> CreateTestCaseUseCase:
+    return CreateTestCaseUseCase(
+        uow=SqlAlchemyUnitOfWork(session_factory=SessionFactory)
+    )
+
+
+def get_update_test_case_use_case() -> UpdateTestCaseUseCase:
+    return UpdateTestCaseUseCase(
+        uow=SqlAlchemyUnitOfWork(session_factory=SessionFactory)
+    )
+
+def get_get_code_submission_use_case() -> GetCodeSubmissionUseCase:
+    return GetCodeSubmissionUseCase(
+        uow=SqlAlchemyUnitOfWork(session_factory=SessionFactory)
+    )
+
+
+def get_list_code_submissions_use_case() -> ListCodeSubmissionsUseCase:
+    return ListCodeSubmissionsUseCase(
+        uow=SqlAlchemyUnitOfWork(session_factory=SessionFactory)
+    )
+
+def get_get_question_use_case(
+        uow: SqlAlchemyUnitOfWork = Depends(get_uow),
+) -> GetQuestionUseCase:
+    return GetQuestionUseCase(
+        question_repository=uow.questions,
+        answer_option_repository=uow.answer_options,
+    )
+
+
+def get_get_task_use_case(
+        uow: SqlAlchemyUnitOfWork = Depends(get_uow),
+) -> GetTaskUseCase:
+    return GetTaskUseCase(task_repository=uow.tasks)
+
+
+def get_get_code_task_use_case(
+        uow: SqlAlchemyUnitOfWork = Depends(get_uow),
+) -> GetCodeTaskUseCase:
+    return GetCodeTaskUseCase(code_task_repository=uow.code_tasks)
+
+
+def get_submit_task_answer_use_case() -> SubmitTaskAnswerUseCase:
+    return SubmitTaskAnswerUseCase(
+        uow=SqlAlchemyUnitOfWork(session_factory=SessionFactory),
+    )
+
+
+def get_submit_code_submission_use_case() -> SubmitCodeSubmissionUseCase:
+    return SubmitCodeSubmissionUseCase(
+        uow=SqlAlchemyUnitOfWork(session_factory=SessionFactory),
+        submission_queue=build_submission_queue(),
+    )
+
+def get_delete_code_task_use_case() -> DeleteCodeTaskUseCase:
+    return DeleteCodeTaskUseCase(
+        uow=SqlAlchemyUnitOfWork(session_factory=SessionFactory)
+    )
+
+def get_delete_test_case_use_case() -> DeleteTestCaseUseCase:
+    return DeleteTestCaseUseCase(
+        uow=SqlAlchemyUnitOfWork(session_factory=SessionFactory)
+    )
+
+def get_delete_task_use_case() -> DeleteTaskUseCase:
+    return DeleteTaskUseCase(
         uow=SqlAlchemyUnitOfWork(session_factory=SessionFactory)
     )

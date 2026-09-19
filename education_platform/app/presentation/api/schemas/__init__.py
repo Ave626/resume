@@ -6,13 +6,19 @@ from app.presentation.api.schemas.auth import (
     TokenResponse,
 )
 from app.presentation.api.schemas.content import (
+    AnswerOptionDetailsResponse,
+    CodeTaskDetailsResponse,
+    CodeTaskStructureResponse,
     CourseListItemResponse,
     CourseResponse,
     CourseStructureResponse,
     LectureResponse,
     LectureStructureResponse,
     ModuleStructureResponse,
+    QuestionDetailsResponse,
     SectionStructureResponse,
+    TaskDetailsResponse,
+    TaskStructureResponse,
 )
 from app.presentation.api.schemas.courses import (
     CreateCourseRequest,
@@ -46,6 +52,30 @@ from app.presentation.api.schemas.sections import (
     SectionResponse,
     UpdateSectionRequest,
 )
+from app.presentation.api.schemas.tasks import (
+    CreateTaskRequest,
+    TaskResponse,
+    UpdateTaskRequest,
+)
+from app.presentation.api.schemas.code_tasks import (
+    CodeTaskResponse,
+    CreateCodeTaskRequest,
+    UpdateCodeTaskRequest,
+)
+from app.presentation.api.schemas.test_cases import (
+    CreateTestCaseRequest,
+    TestCaseResponse,
+    UpdateTestCaseRequest,
+)
+from app.presentation.api.schemas.task_attempts import (
+    SubmitTaskAnswerRequest,
+    TaskAttemptResponse,
+)
+from app.presentation.api.schemas.code_submissions import (
+    CodeSubmissionResponse,
+    SubmitCodeSubmissionRequest,
+)
+
 
 __all__ = [
     "AnswerOptionResponse",
@@ -80,4 +110,23 @@ __all__ = [
     "UpdateModuleRequest",
     "UpdateQuestionRequest",
     "UpdateSectionRequest",
+    "CreateTaskRequest",
+    "TaskResponse",
+    "UpdateTaskRequest",
+    "CodeTaskResponse",
+    "CreateCodeTaskRequest",
+    "UpdateCodeTaskRequest",
+    "CreateTestCaseRequest",
+    "TestCaseResponse",
+    "UpdateTestCaseRequest",
+    "SubmitTaskAnswerRequest",
+    "TaskAttemptResponse",
+    "CodeSubmissionResponse",
+    "SubmitCodeSubmissionRequest",
+    "CodeTaskStructureResponse",
+    "TaskStructureResponse",
+    "AnswerOptionDetailsResponse",
+    "QuestionDetailsResponse",
+    "TaskDetailsResponse",
+    "CodeTaskDetailsResponse",
 ]
