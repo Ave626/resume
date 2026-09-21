@@ -180,7 +180,10 @@ async def test_author_can_delete_answer_option_and_question(
     assert missing_q_res.status_code == 404
     assert missing_q_res.json()["error"] == "question_not_found"
 
-    structure_res = await client.get(f"/api/courses/{course_id}/structure")
+    structure_res = await client.get(
+        f"/api/courses/{course_id}/structure",
+        headers=author_auth_headers,
+    )
     assert structure_res.status_code == 200
     structure = structure_res.json()
     module_data = next(m for m in structure["modules"] if m["id"] == module_id)

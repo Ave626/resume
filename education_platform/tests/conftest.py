@@ -277,50 +277,51 @@ async def seeded_interactive_tree(session_factory, seeded_author_user):
         course = CourseModel(
             id=course_id,
             author_id=seeded_author_user.id,
-            title="Interactive FastAPI",
-            description="Course with questions inside sections.",
+            title='Interactive FastAPI',
+            description='Course with questions inside sections.',
+            status='published',
         )
         module = ModuleModel(
             id=module_id,
             course_id=course_id,
-            title="HTTP",
-            description="Methods",
+            title='HTTP',
+            description='Methods',
             position=1,
         )
         section = SectionModel(
             id=section_id,
             module_id=module_id,
-            title="Basics",
-            description="Intro section",
+            title='Basics',
+            description='Intro section',
             position=1,
         )
         lecture = LectureModel(
             id=lecture_id,
             section_id=section_id,
-            title="GET and POST",
-            content="Lecture content",
+            title='GET and POST',
+            content='Lecture content',
             position=1,
         )
         question = QuestionModel(
             id=question_id,
             section_id=section_id,
-            text="Which method reads a resource?",
+            text='Which method reads a resource?',
             position=1,
-            question_type="single_choice",
+            question_type='single_choice',
             max_attempts=2,
             reward_points=5,
         )
         wrong_option = AnswerOptionModel(
             id=wrong_option_id,
             question_id=question_id,
-            text="POST",
+            text='POST',
             position=1,
             is_correct=False,
         )
         correct_option = AnswerOptionModel(
             id=correct_option_id,
             question_id=question_id,
-            text="GET",
+            text='GET',
             position=2,
             is_correct=True,
         )
@@ -349,6 +350,63 @@ async def seeded_interactive_tree(session_factory, seeded_author_user):
     )
 
 @pytest_asyncio.fixture
+async def seeded_course_tree(session_factory, seeded_admin_user):
+    course_id = str(uuid4())
+    module_id = str(uuid4())
+    section_id = str(uuid4())
+    lecture_id = str(uuid4())
+
+    async with session_factory() as session:
+        course = CourseModel(
+            id=course_id,
+            author_id=seeded_admin_user.id,
+            title='FastAPI course',
+            description='Clean architecture in practice.',
+            short_description='Build a production-ready learning backend.',
+            cover_image_url='https://example.com/fastapi-course-cover.png',
+            difficulty='intermediate',
+            tag_names=['fastapi', 'backend', 'architecture'],
+            status='published',
+        )
+        module = ModuleModel(
+            id=module_id,
+            course_id=course_id,
+            title='MVP stage',
+            description='Content, users and access.',
+            position=1,
+        )
+        section = SectionModel(
+            id=section_id,
+            module_id=module_id,
+            title='Auth section',
+            description='JWT and route protection.',
+            position=1,
+        )
+        lecture = LectureModel(
+            id=lecture_id,
+            section_id=section_id,
+            title='Bearer token in practice',
+            content='Lecture content',
+            position=1,
+        )
+        session.add_all([course, module, section, lecture])
+        await session.commit()
+
+    return SimpleNamespace(
+        course_id=course_id,
+        module_id=module_id,
+        section_id=section_id,
+        lecture_id=lecture_id,
+        course_title='FastAPI course',
+        course_short_description='Build a production-ready learning backend.',
+        course_cover_image_url='https://example.com/fastapi-course-cover.png',
+        course_difficulty='intermediate',
+        course_tag_names=['fastapi', 'backend', 'architecture'],
+        lecture_content='Lecture content',
+    )
+
+
+@pytest_asyncio.fixture
 async def seeded_tasks_tree(session_factory, seeded_author_user):
     course_id = str(uuid4())
     module_id = str(uuid4())
@@ -362,6 +420,7 @@ async def seeded_tasks_tree(session_factory, seeded_author_user):
             author_id=seeded_author_user.id,
             title='Tasks course',
             description='Course with task activities.',
+            status='published',
         )
         module = ModuleModel(
             id=module_id,
@@ -414,4 +473,3 @@ async def seeded_tasks_tree(session_factory, seeded_author_user):
         task_id=task_id,
         code_task_id=code_task_id,
     )
-

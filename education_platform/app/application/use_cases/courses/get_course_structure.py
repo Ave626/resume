@@ -22,11 +22,16 @@ from app.application.dto.course_structure import (
 )
 from app.application.interfaces.repositories.code_task_repository import CodeTaskRepository
 from app.application.interfaces.repositories.task_repository import TaskRepository
+from app.application.services.course_content_access_service import (
+    CourseContentAccessService,
+)
+from app.domain.entities.user import User
 
 
 @dataclass(slots=True)
 class GetCourseStructureQuery:
     course_id: UUID
+    actor: User | None = None
 
 
 class GetCourseStructureUseCase:
@@ -38,6 +43,7 @@ class GetCourseStructureUseCase:
         lecture_repository: LectureRepository,
         task_repository: TaskRepository,
         code_task_repository: CodeTaskRepository,
+        access_service: CourseContentAccessService,
     ) -> None:
         self.course_repository = course_repository
         self.module_repository = module_repository
@@ -45,13 +51,18 @@ class GetCourseStructureUseCase:
         self.lecture_repository = lecture_repository
         self.task_repository = task_repository
         self.code_task_repository = code_task_repository
+        self.access_service = access_service
 
-    async def execute(
-        self, query: GetCourseStructureQuery
-    ) -> CourseStructureDTO | None:
+    async def execute(self, query: GetCourseStructureQuery) -> CourseStructureDTO | None:
         course = await self.course_repository.get_by_id(query.course_id)
-        if course is None:
-            raise CourseNotFoundError("Курс не найден")
+        if course is None:   
+            raise CourseNotFoundError('Course not found.')
+        can_view = await self.access_service.can_view_course(
+            course_id=course.id,
+            actor=query.actor,
+        )
+        if not can_view:
+            raise CourseNotFoundError('Course not found.')
         modules = await self.module_repository.get_by_ids(course.module_ids)
         module_dtos: list[ModuleStructureDTO] = []
         for module in sorted(modules, key=lambda item: item.position):
@@ -115,5 +126,10 @@ class GetCourseStructureUseCase:
             id=course.id,
             title=course.title,
             description=course.description,
+            status=course.status,
+            short_description=course.short_description,
+            cover_image_url=course.cover_image_url,
+            difficulty=course.difficulty,
+            tag_names=list(course.tag_names),
             modules=module_dtos,
         )

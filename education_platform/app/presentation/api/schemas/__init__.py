@@ -75,7 +75,18 @@ from app.presentation.api.schemas.code_submissions import (
     CodeSubmissionResponse,
     SubmitCodeSubmissionRequest,
 )
-
+from app.presentation.api.schemas.course_publication import (
+    CoursePublicationErrorResponse,
+    CoursePublicationIssueResponse,
+    CoursePublicationReadinessResponse,
+)
+from app.presentation.api.schemas.catalog import (
+    CourseCatalogCardResponse,
+    CourseCatalogCountersResponse,
+    CourseCatalogItemResponse,
+    CourseCatalogModulePreviewResponse,
+    CourseCatalogSectionPreviewResponse,
+)
 
 __all__ = [
     "AnswerOptionResponse",
@@ -129,4 +140,12 @@ __all__ = [
     "QuestionDetailsResponse",
     "TaskDetailsResponse",
     "CodeTaskDetailsResponse",
+    'CoursePublicationIssueResponse',
+    'CoursePublicationReadinessResponse',
+    'CoursePublicationErrorResponse',
+    'CourseCatalogCountersResponse',
+    'CourseCatalogItemResponse',
+    'CourseCatalogSectionPreviewResponse',
+    'CourseCatalogModulePreviewResponse',
+    'CourseCatalogCardResponse',
 ]

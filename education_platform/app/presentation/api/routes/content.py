@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Security
 
 from app.application.use_cases.courses.get_course import (
     GetCourseQuery,
@@ -23,10 +23,18 @@ from app.presentation.api.dependencies import (
     get_get_course_use_case,
     get_get_courses_use_case,
     get_get_lecture_use_case,
+    get_current_user_or_none,
 )
 from app.presentation.api.schemas import (
     CourseListItemResponse,
     CourseResponse,
+    CourseStructureResponse,
+    ErrorResponse,
+    LectureResponse,
+)
+from app.presentation.api.schemas import (
+    CourseCatalogCardResponse,
+    CourseCatalogItemResponse,
     CourseStructureResponse,
     ErrorResponse,
     LectureResponse,
@@ -50,41 +58,47 @@ from app.presentation.api.schemas import (
     QuestionDetailsResponse,
     TaskDetailsResponse,
 )
+from app.domain.entities.user import User
 
 router = APIRouter(tags=["Content"])
 
 
 @router.get(
-    "/courses",
-    response_model=list[CourseListItemResponse],
-    summary="List available courses",
-    description="Returns a public list of courses available in the system.",
+    '/courses',
+    response_model=list[CourseCatalogItemResponse],
+    summary='Get public course catalog',
+    description='Returns published courses formatted for catalog listing.',
 )
 async def get_courses(
-    use_case: GetCoursesUseCase = Depends(get_get_courses_use_case),
-) -> list[CourseListItemResponse]:
+        use_case: GetCoursesUseCase = Depends(get_get_courses_use_case),
+) -> list[CourseCatalogItemResponse]:
     result = await use_case.execute(GetCoursesQuery())
-    return [CourseListItemResponse.model_validate(course) for course in result]
-
+    return [CourseCatalogItemResponse.model_validate(course) for course in result]
 
 @router.get(
-    "/courses/{course_id}",
-    response_model=CourseResponse,
-    summary="Get course by ID",
-    description="Returns a single course by its identifier.",
+    '/courses/{course_id}',
+    response_model=CourseCatalogCardResponse,
+    summary='Get public course page',
+    description='Returns a detailed course card for the catalog page.',
     responses={
         404: {
-            "description": "Course was not found.",
-            "model": ErrorResponse,
+            'description': 'Course was not found.',
+            'model': ErrorResponse,
         },
     },
 )
 async def get_course(
-    course_id: UUID,
-    use_case: GetCourseUseCase = Depends(get_get_course_use_case),
-) -> CourseResponse:
-    result = await use_case.execute(GetCourseQuery(course_id=course_id))
-    return CourseResponse.model_validate(result)
+        course_id: UUID,
+        current_user: User | None = Depends(get_current_user_or_none),
+        use_case: GetCourseUseCase = Depends(get_get_course_use_case),
+) -> CourseCatalogCardResponse:
+    result = await use_case.execute(
+        GetCourseQuery(
+            course_id=course_id,
+            actor=current_user,
+        )
+    )
+    return CourseCatalogCardResponse.model_validate(result)
 
 
 @router.get(
@@ -92,8 +106,8 @@ async def get_course(
     response_model=CourseStructureResponse,
     summary="Get course structure",
     description=(
-        "Returns the course navigation tree: modules, sections and lectures "
-        "without full lecture content."
+            "Returns the course navigation tree: modules, sections and lectures "
+            "without full lecture content."
     ),
     responses={
         404: {
@@ -103,10 +117,16 @@ async def get_course(
     },
 )
 async def get_course_structure(
-    course_id: UUID,
-    use_case: GetCourseStructureUseCase = Depends(get_get_course_structure_use_case),
+        course_id: UUID,
+        current_user: User | None = Depends(get_current_user_or_none),
+        use_case: GetCourseStructureUseCase = Depends(get_get_course_structure_use_case),
 ) -> CourseStructureResponse:
-    result = await use_case.execute(GetCourseStructureQuery(course_id=course_id))
+    result = await use_case.execute(
+        GetCourseStructureQuery(
+            course_id=course_id,
+            actor=current_user,
+        )
+    )
     return CourseStructureResponse.model_validate(result)
 
 
@@ -123,12 +143,17 @@ async def get_course_structure(
     },
 )
 async def get_lecture(
-    lecture_id: UUID,
-    use_case: GetLectureUseCase = Depends(get_get_lecture_use_case),
+        lecture_id: UUID,
+        current_user: User | None = Depends(get_current_user_or_none),
+        use_case: GetLectureUseCase = Depends(get_get_lecture_use_case),
 ) -> LectureResponse:
-    result = await use_case.execute(GetLectureQuery(lecture_id=lecture_id))
+    result = await use_case.execute(
+        GetLectureQuery(
+            lecture_id=lecture_id,
+            actor=current_user,
+        )
+    )
     return LectureResponse.model_validate(result)
-
 
 @router.get(
     '/questions/{question_id}',
@@ -138,11 +163,16 @@ async def get_lecture(
 )
 async def get_question(
     question_id: UUID,
+    current_user: User | None = Depends(get_current_user_or_none),
     use_case: GetQuestionUseCase = Depends(get_get_question_use_case),
 ) -> QuestionDetailsResponse:
-    result = await use_case.execute(GetQuestionQuery(question_id=question_id))
+    result = await use_case.execute(
+        GetQuestionQuery(
+            question_id=question_id,
+            actor=current_user,
+        )
+    )
     return QuestionDetailsResponse.model_validate(result)
-
 
 @router.get(
     '/tasks/{task_id}',
@@ -153,8 +183,14 @@ async def get_question(
 async def get_task(
     task_id: UUID,
     use_case: GetTaskUseCase = Depends(get_get_task_use_case),
+    current_user : User | None = Depends(get_current_user_or_none)
 ) -> TaskDetailsResponse:
-    result = await use_case.execute(GetTaskQuery(task_id=task_id))
+    result = await use_case.execute(
+        GetTaskQuery(
+            task_id=task_id,
+            actor=current_user
+            )
+        )
     return TaskDetailsResponse.model_validate(result)
 
 
@@ -166,7 +202,13 @@ async def get_task(
 )
 async def get_code_task(
     code_task_id: UUID,
+    current_user: User | None = Depends(get_current_user_or_none),
     use_case: GetCodeTaskUseCase = Depends(get_get_code_task_use_case),
 ) -> CodeTaskDetailsResponse:
-    result = await use_case.execute(GetCodeTaskQuery(code_task_id=code_task_id))
+    result = await use_case.execute(
+        GetCodeTaskQuery(
+            code_task_id=code_task_id,
+            actor=current_user,
+        )
+    )
     return CodeTaskDetailsResponse.model_validate(result)

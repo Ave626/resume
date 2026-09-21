@@ -190,7 +190,8 @@ class CodeTask:
                 'CodeTask test cases cannot be changed after submissions.'
             )
 
-
-    
+    def ensure_has_test_cases(self) -> None:
+        if not self.has_test_case():
+            raise InvalidCodeTaskError('Code task must have at least one test case')
 
         

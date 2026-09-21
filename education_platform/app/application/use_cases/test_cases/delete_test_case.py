@@ -31,6 +31,9 @@ class DeleteTestCaseUseCase:
             if code_task is None:
                 raise CodeTaskNotFoundError("Code_Task not found")
             
+            test_cases = await self.uow.test_cases.list_by_code_task_id(code_task.id)
+            code_task.test_case_ids = [item.id for item in test_cases]
+            
             has_submissions = await self.uow.code_submissions.exists_by_code_task_id(code_task.id)
             if has_submissions:
                 raise CodeTaskAlreadyUsedError(
@@ -43,6 +46,7 @@ class DeleteTestCaseUseCase:
             )
 
             code_task.remove_test_case(test_case.id)
+            code_task.ensure_has_test_cases()
             await self.uow.code_tasks.update(code_task)
             await self.uow.test_cases.delete(test_case)
             await self.uow.commit()

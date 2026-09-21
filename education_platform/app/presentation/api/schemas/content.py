@@ -4,12 +4,20 @@ from pydantic import BaseModel, ConfigDict
 
 from app.domain.entities.question import QuestionType
 
+from app.domain.entities.course import CourseDifficulty, CourseStatus
+
 
 class CourseBaseResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
+
     id: UUID
     title: str
     description: str
+    status: CourseStatus
+    short_description: str
+    cover_image_url: str | None
+    difficulty: CourseDifficulty
+    tag_names: list[str]
 
 
 class ModuleBaseResponse(BaseModel):

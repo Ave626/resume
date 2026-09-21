@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from uuid import UUID
 
 from sqlalchemy import select
@@ -5,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.application.interfaces.repositories.course_repository import CourseRepository
-from app.domain.entities.course import Course
+from app.domain.entities.course import Course, CourseStatus
 from app.infrastructure.database.mappers.course_mapper import CourseMapper
 from app.infrastructure.database.models.course_model import CourseModel
 
@@ -39,6 +41,11 @@ class SqlAlchemyCourseRepository(CourseRepository):
             return
         model.title = course.title
         model.description = course.description
+        model.status = str(course.status)
+        model.cover_image_url = course.cover_image_url
+        model.short_description = course.short_description
+        model.difficulty = str(course.difficulty)
+        model.tag_names = list(course.tag_names)
         await self.session.flush()
 
     async def delete(self, course: Course) -> None:
@@ -46,6 +53,15 @@ class SqlAlchemyCourseRepository(CourseRepository):
         if model is not None:
             await self.session.delete(model)
             await self.session.flush()
+
+    async def list_published(self) -> list[Course]:
+        stmt = (
+            select(CourseModel)
+            .options(selectinload(CourseModel.modules))
+            .where(CourseModel.status == CourseStatus.PUBLISHED.value)
+        )
+        result = await self.session.execute(stmt)
+        return [CourseMapper.to_domain(model) for model in result.scalars().all()]
 
 
 SQLAlchemyCourseRepository = SqlAlchemyCourseRepository

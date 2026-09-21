@@ -2,7 +2,10 @@ from unittest.mock import AsyncMock
 
 import pytest
 
+from app.infrastructure.database.models.test_case_model import TestCaseModel
 from app.infrastructure.queues.redis_submission_queues import RedisSubmissionQueue
+
+TestCaseModel.__test__ = False
 
 
 @pytest.mark.asyncio
@@ -120,7 +123,7 @@ async def test_delete_test_case_before_and_after_submission(
 ):
     monkeypatch.setattr(RedisSubmissionQueue, 'enqueue', AsyncMock())
 
-    create_response = await client.post(
+    first_create_response = await client.post(
         f'/api/admin/code-tasks/{seeded_tasks_tree.code_task_id}/test-cases',
         headers=author_auth_headers,
         json={
@@ -131,20 +134,14 @@ async def test_delete_test_case_before_and_after_submission(
             'explanation': '',
         },
     )
-    assert create_response.status_code == 201
-    test_case_id = create_response.json()['id']
-
-    delete_response = await client.delete(
-        f'/api/admin/test-cases/{test_case_id}',
-        headers=author_auth_headers,
-    )
-    assert delete_response.status_code == 204
+    assert first_create_response.status_code == 201
+    first_test_case_id = first_create_response.json()['id']
 
     second_create_response = await client.post(
         f'/api/admin/code-tasks/{seeded_tasks_tree.code_task_id}/test-cases',
         headers=author_auth_headers,
         json={
-            'position': 1,
+            'position': 2,
             'input_data': '2 2',
             'expected_output': '4',
             'is_hidden': False,
@@ -153,6 +150,12 @@ async def test_delete_test_case_before_and_after_submission(
     )
     assert second_create_response.status_code == 201
     second_test_case_id = second_create_response.json()['id']
+
+    delete_response = await client.delete(
+        f'/api/admin/test-cases/{first_test_case_id}',
+        headers=author_auth_headers,
+    )
+    assert delete_response.status_code == 204
 
     submission_response = await client.post(
         f'/api/learning/code-tasks/{seeded_tasks_tree.code_task_id}/submissions',
@@ -166,3 +169,35 @@ async def test_delete_test_case_before_and_after_submission(
         headers=author_auth_headers,
     )
     assert delete_blocked_response.status_code == 400
+
+
+@pytest.mark.asyncio
+async def test_cannot_delete_single_test_case(
+    client,
+    author_auth_headers,
+    seeded_tasks_tree,
+    session_factory,
+):
+    create_response = await client.post(
+        f'/api/admin/code-tasks/{seeded_tasks_tree.code_task_id}/test-cases',
+        headers=author_auth_headers,
+        json={
+            'position': 1,
+            'input_data': '10 20',
+            'expected_output': '30',
+            'is_hidden': False,
+            'explanation': '',
+        },
+    )
+    assert create_response.status_code == 201
+    test_case_id = create_response.json()['id']
+
+    delete_response = await client.delete(
+        f'/api/admin/test-cases/{test_case_id}',
+        headers=author_auth_headers,
+    )
+    assert delete_response.status_code == 400
+
+    async with session_factory() as session:
+        model = await session.get(TestCaseModel, str(test_case_id))
+        assert model is not None
