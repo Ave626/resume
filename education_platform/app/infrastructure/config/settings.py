@@ -4,6 +4,14 @@ from pydantic import BaseModel, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
+class S3Settings(BaseModel):
+    endpoint_url: str
+    access_key: str
+    secret_key: str
+    bucket_name: str
+    public_url_base: str
+
+
 class ApiSettings(BaseModel):
     title: str
     debug: bool
@@ -52,6 +60,10 @@ class Settings(BaseSettings):
         default='code-submissions',
         validation_alias='SUBMISSION_QUEUE_NAME',
     )
+    s3_endpoint_url: str = Field(default="http://localhost:9000", validation_alias="S3_ENDPOINT_URL")
+    s3_access_key: str = Field(default="minioadmin", validation_alias="S3_ACCESS_KEY")
+    s3_secret_key: str = Field(default="minioadmin", validation_alias="S3_SECRET_KEY")
+    s3_bucket_name: str = Field(default="course-covers", validation_alias="S3_BUCKET_NAME")
 
     @property
     def api(self) -> ApiSettings:
@@ -74,6 +86,16 @@ class Settings(BaseSettings):
             secret_key=self.jwt_secret_key,
             algorithm=self.jwt_algorithm,
             access_token_expire_minutes=self.jwt_access_token_expire_minutes,
+        )
+    
+    @property
+    def s3(self) -> S3Settings:
+        return S3Settings(
+            endpoint_url=self.s3_endpoint_url,
+            access_key=self.s3_access_key,
+            secret_key=self.s3_secret_key,
+            bucket_name=self.s3_bucket_name,
+            public_url_base=f"{self.s3_endpoint_url.rstrip('/')}/{self.s3_bucket_name}",
         )
 
 

@@ -5,17 +5,23 @@ from app.application.exceptions import (
     AnswerOptionNotFoundError,
     ApplicationError,
     CourseNotFoundError,
+    CoursePublicationNotReadyError,
     LectureNotFoundError,
     ModuleNotFoundError,
     QuestionAttemptNotFoundError,
     QuestionNotFoundError,
     SectionNotFoundError,
+    InvalidCourseCoverFileError,
 )
 from app.application.exceptions import (
     PermissionDeniedError as ApplicationPermissionDeniedError,
 )
 from app.domain.exceptions import DomainError
-from app.presentation.api.schemas import ErrorResponse
+from app.presentation.api.schemas import (
+    CoursePublicationErrorResponse,
+    CoursePublicationIssueResponse,
+    ErrorResponse,
+)
 from app.presentation.exceptions import (
     AuthenticationError,
 )
@@ -184,6 +190,36 @@ async def question_attempt_not_found_handler(
         status_code=status.HTTP_404_NOT_FOUND,
     )
 
+async def course_publication_not_ready_handler(
+    request: Request,
+    exc: Exception,
+) -> JSONResponse:
+    payload = CoursePublicationErrorResponse(
+        error='course_publication_not_ready',
+        message=str(exc),
+        issues=[
+            CoursePublicationIssueResponse(
+                code=str(issue.code),
+                message=issue.message,
+                entity_id=issue.entity_id,
+            )
+            for issue in exc.readiness.issues
+        ],
+    )
+    return JSONResponse(
+        status_code=status.HTTP_400_BAD_REQUEST,
+        content=payload.model_dump(mode='json'),
+    )
+
+async def invalid_course_cover_file_handler(
+    request : Request,
+    exc : Exception,
+) -> JSONResponse:
+    return build_error_response(
+        error="invalid_course_cover_file",
+        message=str(exc),
+        status_code=status.HTTP_400_BAD_REQUEST,
+    )
 
 def register_exception_handlers(app: FastAPI) -> None:
     app.add_exception_handler(DomainError, domain_error_handler)
@@ -208,4 +244,5 @@ def register_exception_handlers(app: FastAPI) -> None:
     app.add_exception_handler(CodeTaskNotFoundError, code_task_not_found_handler)
     app.add_exception_handler(TestCaseNotFoundError, test_case_not_found_handler)
     app.add_exception_handler(CodeSubmissionNotFoundError, code_submission_not_found_handler)
-
+    app.add_exception_handler(CoursePublicationNotReadyError, course_publication_not_ready_handler)
+    app.add_exception_handler(InvalidCourseCoverFileError,invalid_course_cover_file_handler)
