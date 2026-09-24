@@ -87,6 +87,17 @@ from app.presentation.api.schemas.catalog import (
     CourseCatalogModulePreviewResponse,
     CourseCatalogSectionPreviewResponse,
 )
+from app.presentation.api.schemas.profile import (
+    UpdateMyProfileRequest,
+    UserProfileResponse,
+)
+from app.presentation.api.schemas.student_analytics import (
+    StudentCourseAnalyticsResponse,
+    StudentModuleAnalyticsResponse,
+    StudentWeakQuestionResponse,
+    StudentWeakTaskResponse,
+    StudentWeakCodeTaskResponse,
+)
 
 __all__ = [
     "AnswerOptionResponse",
@@ -148,4 +159,11 @@ __all__ = [
     'CourseCatalogSectionPreviewResponse',
     'CourseCatalogModulePreviewResponse',
     'CourseCatalogCardResponse',
+    'UserProfileResponse',
+    'UpdateMyProfileRequest',
+    'StudentCourseAnalyticsResponse',
+    'StudentModuleAnalyticsResponse',
+    'StudentWeakQuestionResponse',
+    'StudentWeakTaskResponse',
+    'StudentWeakCodeTaskResponse',
 ]

@@ -93,6 +93,10 @@ from app.application.use_cases.courses.upload_course_cover import (
 )
 from app.infrastructure.config.settings import get_settings
 from app.infrastructure.storage.s3_storage import S3FileStorage
+from app.application.use_cases.profile.get_my_profile import GetMyProfileUseCase
+from app.application.use_cases.profile.update_my_profile import UpdateMyProfileUseCase
+from app.application.use_cases.profile.get_my_course_analytics import GetMyCourseAnalyticsUseCase
+
 
 http_bearer = HTTPBearer(auto_error=False)
 
@@ -504,4 +508,20 @@ async def get_current_user_or_none(
 def get_get_course_publication_readiness_use_case() -> GetCoursePublicationReadinessUseCase:
     return GetCoursePublicationReadinessUseCase(
         uow=SqlAlchemyUnitOfWork(session_factory=SessionFactory)
+    )
+
+def get_get_my_profile_use_case() -> GetMyProfileUseCase:
+    return GetMyProfileUseCase()
+
+
+def get_update_my_profile_use_case(
+        uow: SqlAlchemyUnitOfWork = Depends(get_uow),
+) -> UpdateMyProfileUseCase:
+    return UpdateMyProfileUseCase(uow=uow)
+
+def get_get_my_course_analytics(
+        uow : SqlAlchemyUnitOfWork = Depends(get_uow)
+) -> GetMyCourseAnalyticsUseCase:
+    return GetMyCourseAnalyticsUseCase(
+        uow=uow
     )

@@ -17,7 +17,7 @@ class SqlAlchemyUserRepository(UserRepository):
         model = await self.session.get(UserModel, str(user_id))
         return None if model is None else UserMapper.to_domain(model)
 
-    async def get_by_email(self, email) -> User | None:
+    async def get_by_email(self, email: str) -> User | None:
         stmt = select(UserModel).where(UserModel.email == email)
         result = await self.session.execute(stmt)
         model = result.scalar_one_or_none()
@@ -25,4 +25,17 @@ class SqlAlchemyUserRepository(UserRepository):
 
     async def add(self, user: User) -> None:
         self.session.add(UserMapper.to_model(user))
+        await self.session.flush()
+
+    async def update(self, user: User) -> None:
+        model = await self.session.get(UserModel, str(user.id))
+        if model is None:
+            return
+
+        model.email = user.email
+        model.hashed_password = user.hashed_password
+        model.role = str(user.role)
+        model.full_name = user.full_name
+        model.bio = user.bio
+        model.avatar_url = user.avatar_url
         await self.session.flush()

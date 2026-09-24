@@ -44,3 +44,16 @@ class SqlAlchemyCodeSubmissionRepository(CodeSubmissionRepository):
         ).limit(1)
         result = await self.session.execute(stmt)
         return result.scalar_one_or_none() is not None
+    
+    async def list_by_student_and_code_task(
+        self,
+        student_id: UUID,
+        code_task_id: UUID,
+    ) -> list[CodeSubmission]:
+        stmt = select(CodeSubmissionModel).where(
+            CodeSubmissionModel.student_id == str(student_id),
+            CodeSubmissionModel.code_task_id == str(code_task_id),
+        )
+        result = await self.session.execute(stmt)
+        return [CodeSubmissionMapper.to_domain(model) for model in result.scalars().all()]
+        
