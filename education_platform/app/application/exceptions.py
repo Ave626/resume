@@ -85,3 +85,7 @@ class CoursePublicationNotReadyError(ApplicationError):
 
 class InvalidCourseCoverFileError(ApplicationError):
     pass
+
+
+class CommentNotFoundError(ApplicationError):
+    pass

@@ -10,6 +10,7 @@ from app.presentation.api.routes.interactive_admin import (
 from app.presentation.api.routes.learning import router as learning_router
 from app.presentation.api.routes.task_admin import router as task_admin_router
 from app.presentation.api.routes.profile import router as profile_router
+from app.presentation.api.routes.comments import router as comments_router
 
 settings = get_settings()
 
@@ -25,3 +26,4 @@ router.include_router(interactive_admin_router)
 router.include_router(learning_router)
 
 router.include_router(task_admin_router)
+router.include_router(comments_router)

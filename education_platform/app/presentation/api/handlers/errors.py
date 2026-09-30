@@ -12,6 +12,7 @@ from app.application.exceptions import (
     QuestionNotFoundError,
     SectionNotFoundError,
     InvalidCourseCoverFileError,
+    CommentNotFoundError,
 )
 from app.application.exceptions import (
     PermissionDeniedError as ApplicationPermissionDeniedError,
@@ -225,6 +226,17 @@ async def invalid_course_cover_file_handler(
     )
 
 
+async def comment_not_found_handler(
+    request: Request,
+    exc: Exception,
+) -> JSONResponse:
+    return build_error_response(
+        error="comment_not_found",
+        message=str(exc),
+        status_code=status.HTTP_404_NOT_FOUND,
+    )
+
+
 def register_exception_handlers(app: FastAPI) -> None:
     app.add_exception_handler(DomainError, domain_error_handler)
     app.add_exception_handler(ApplicationError, application_error_handler)
@@ -260,3 +272,4 @@ def register_exception_handlers(app: FastAPI) -> None:
     app.add_exception_handler(
         InvalidCourseCoverFileError, invalid_course_cover_file_handler
     )
+    app.add_exception_handler(CommentNotFoundError, comment_not_found_handler)

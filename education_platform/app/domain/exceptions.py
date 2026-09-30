@@ -120,3 +120,7 @@ class InvalidCourseStatusTransitionError(DomainError):
 
 class InvalidCourseReviewError(DomainError):
     pass
+
+
+class InvalidCommentError(DomainError):
+    pass

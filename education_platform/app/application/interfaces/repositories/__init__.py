@@ -1,12 +1,10 @@
-from app.application.interfaces.repositories.course_review_repository import (
-    CourseReviewRepository,
-)
 from app.application.interfaces.repositories.answer_option_repository import (
     AnswerOptionRepository,
 )
 from app.application.interfaces.repositories.code_task_repository import (
     CodeTaskRepository,
 )
+from app.application.interfaces.repositories.comment_repository import CommentRepository
 from app.application.interfaces.repositories.course_repository import CourseRepository
 from app.application.interfaces.repositories.lecture_repository import LectureRepository
 from app.application.interfaces.repositories.module_repository import ModuleRepository
@@ -31,6 +29,9 @@ from app.application.interfaces.repositories.user_repository import UserReposito
 from app.application.interfaces.repositories.code_submission_repository import (
     CodeSubmissionRepository,
 )
+from app.application.interfaces.repositories.course_review_repository import (
+    CourseReviewRepository,
+)
 
 __all__ = [
     "CourseRepository",
@@ -48,4 +49,5 @@ __all__ = [
     "TestCaseRepository",
     "CodeSubmissionRepository",
     "CourseReviewRepository",
+    "CommentRepository",
 ]

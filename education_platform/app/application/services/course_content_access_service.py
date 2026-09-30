@@ -28,20 +28,26 @@ class CourseContentAccessService:
             return False
         return self._can_view_course(course, actor)
 
+    async def get_course_by_section_id(
+        self,
+        section_id: UUID,
+    ) -> Course | None:
+        section = await self.section_repository.get_by_id(section_id)
+        if section is None:
+            return None
+
+        module = await self.module_repository.get_by_id(section.module_id)
+        if module is None:
+            return None
+
+        return await self.course_repository.get_by_id(module.course_id)
+
     async def can_view_section_content(
         self,
         section_id: UUID,
         actor: User | None,
     ) -> bool:
-        section = await self.section_repository.get_by_id(section_id)
-        if section is None:
-            return False
-
-        module = await self.module_repository.get_by_id(section.module_id)
-        if module is None:
-            return False
-
-        course = await self.course_repository.get_by_id(module.course_id)
+        course = await self.get_course_by_section_id(section_id)
         if course is None:
             return False
 

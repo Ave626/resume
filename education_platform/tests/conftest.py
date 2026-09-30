@@ -1,10 +1,9 @@
 import os
 from collections.abc import AsyncIterator
-from datetime import UTC, datetime
 from pathlib import Path
 from types import SimpleNamespace
 from uuid import uuid4
-
+from datetime import UTC, datetime
 import pytest
 import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
@@ -17,6 +16,7 @@ from app.infrastructure.database.models import (
     Base,
     CodeSubmissionModel,
     CodeTaskModel,
+    CommentModel,
     CourseModel,
     CourseReviewModel,
     LectureModel,
@@ -90,6 +90,7 @@ async def clear_database(session_factory) -> None:
             TestCaseModel,
             CodeTaskModel,
             TaskModel,
+            CommentModel,
             QuestionModel,
             LectureModel,
             SectionModel,
@@ -853,4 +854,97 @@ async def seeded_review_eligibility(
     return SimpleNamespace(
         eligible_course_id=eligible_course_id,
         ineligible_course_id=ineligible_course_id,
+    )
+
+
+@pytest_asyncio.fixture
+async def seeded_comments_tree(session_factory, seeded_author_user):
+    course_id = str(uuid4())
+    module_id = str(uuid4())
+    section_id = str(uuid4())
+    lecture_id = str(uuid4())
+
+    course = CourseModel(
+        id=course_id,
+        author_id=seeded_author_user.id,
+        title="Comments test course",
+        description="Testing comment scenarios.",
+        status="published",
+    )
+    module = ModuleModel(
+        id=module_id,
+        course_id=course_id,
+        title="Comments module",
+        description="Module for comments testing.",
+        position=1,
+    )
+    section = SectionModel(
+        id=section_id,
+        module_id=module_id,
+        title="Comments section",
+        description="Section for comments testing.",
+        position=1,
+    )
+    lecture = LectureModel(
+        id=lecture_id,
+        section_id=section_id,
+        title="Lecture with comments",
+        content="Content for discussion.",
+        position=1,
+    )
+
+    draft_course_id = str(uuid4())
+    draft_module_id = str(uuid4())
+    draft_section_id = str(uuid4())
+    draft_lecture_id = str(uuid4())
+
+    draft_course = CourseModel(
+        id=draft_course_id,
+        author_id=seeded_author_user.id,
+        title="Draft comments course",
+        description="Inaccessible draft course.",
+        status="draft",
+    )
+    draft_module = ModuleModel(
+        id=draft_module_id,
+        course_id=draft_course_id,
+        title="Draft module",
+        description="Draft module.",
+        position=1,
+    )
+    draft_section = SectionModel(
+        id=draft_section_id,
+        module_id=draft_module_id,
+        title="Draft section",
+        description="Draft section.",
+        position=1,
+    )
+    draft_lecture = LectureModel(
+        id=draft_lecture_id,
+        section_id=draft_section_id,
+        title="Draft lecture",
+        content="Draft content.",
+        position=1,
+    )
+
+    async with session_factory() as session:
+        session.add_all(
+            [
+                course,
+                module,
+                section,
+                lecture,
+                draft_course,
+                draft_module,
+                draft_section,
+                draft_lecture,
+            ]
+        )
+        await session.commit()
+
+    return SimpleNamespace(
+        course_id=course_id,
+        lecture_id=lecture_id,
+        draft_course_id=draft_course_id,
+        draft_lecture_id=draft_lecture_id,
     )

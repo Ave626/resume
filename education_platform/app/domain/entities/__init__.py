@@ -13,7 +13,8 @@ from app.domain.entities.code_task import CodeTask, CodeTaskLanguage
 from app.domain.entities.code_submission import CodeSubmission, CodeSubmissionStatus
 from app.domain.entities.test_case import TestCase
 from app.domain.entities.execution_result import ExecutionResult, ExecutionStatus
-
+from app.domain.entities.course_review import CourseReview
+from app.domain.entities.comment import Comment
 
 __all__ = [
     "AnswerOption",
@@ -39,4 +40,6 @@ __all__ = [
     "TestCase",
     "ExecutionResult",
     "ExecutionStatus",
+    "CourseReview",
+    "Comment",
 ]

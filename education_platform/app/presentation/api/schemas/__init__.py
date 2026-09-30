@@ -29,6 +29,12 @@ from app.presentation.api.schemas.code_tasks import (
     CreateCodeTaskRequest,
     UpdateCodeTaskRequest,
 )
+from app.presentation.api.schemas.comments import (
+    CommentResponse,
+    CreateCommentRequest,
+    CreateLectureCommentRequest,
+    UpdateCommentRequest,
+)
 from app.presentation.api.schemas.content import (
     AnswerOptionDetailsResponse,
     CodeTaskDetailsResponse,
@@ -120,6 +126,7 @@ __all__ = [
     "CodeTaskDetailsResponse",
     "CodeTaskResponse",
     "CodeTaskStructureResponse",
+    "CommentResponse",
     "CourseCatalogCardResponse",
     "CourseCatalogCountersResponse",
     "CourseCatalogItemResponse",
@@ -135,7 +142,9 @@ __all__ = [
     "CourseStructureResponse",
     "CreateAnswerOptionRequest",
     "CreateCodeTaskRequest",
+    "CreateCommentRequest",
     "CreateCourseRequest",
+    "CreateLectureCommentRequest",
     "CreateLectureRequest",
     "CreateModuleRequest",
     "CreateQuestionRequest",
@@ -176,6 +185,7 @@ __all__ = [
     "TokenResponse",
     "UpdateAnswerOptionRequest",
     "UpdateCodeTaskRequest",
+    "UpdateCommentRequest",
     "UpdateCourseRequest",
     "UpdateLectureRequest",
     "UpdateModuleRequest",

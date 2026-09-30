@@ -1,6 +1,3 @@
-from app.infrastructure.database.repositories.course_review_repository import (
-    SqlAlchemyCourseReviewRepository,
-)
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from app.application.interfaces.unit_of_work import UnitOfWork
@@ -19,6 +16,8 @@ from app.infrastructure.database.repositories import (
     SqlAlchemyCodeTaskRepository,
     SqlAlchemyTestCaseRepository,
     SqlAlchemyCodeSubmissionRepository,
+    SqlAlchemyCourseReviewRepository,
+    SqlAlchemyCommentRepository,
 )
 
 
@@ -55,6 +54,7 @@ class SqlAlchemyUnitOfWork(UnitOfWork):
         self.test_cases = SqlAlchemyTestCaseRepository(self.session)
         self.code_submissions = SqlAlchemyCodeSubmissionRepository(self.session)
         self.course_reviews = SqlAlchemyCourseReviewRepository(self.session)
+        self.comments = SqlAlchemyCommentRepository(self.session)
 
         return self
 
