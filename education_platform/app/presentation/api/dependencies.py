@@ -1,13 +1,18 @@
-from app.application.use_cases.profile.get_my_teaching_course_analytics import (
-    GetMyTeachingCourseAnalyticsUseCase,
-)
 from collections.abc import AsyncGenerator
 
 from fastapi import Depends, Security
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
+from app.application.interfaces.services.file_storage import FileStorage
 from app.application.interfaces.services.password_hasher import PasswordHasher
 from app.application.interfaces.services.token_service import TokenService
+from app.application.services.course_catalog_read_service import (
+    CourseCatalogReadService,
+)
+from app.application.services.course_content_access_service import (
+    CourseContentAccessService,
+)
+from app.application.services.course_rating_read_service import CourseRatingReadService
 from app.application.use_cases.answer_options.create_answer_option import (
     CreateAnswerOptionUseCase,
 )
@@ -19,14 +24,43 @@ from app.application.use_cases.answer_options.update_answer_option import (
 )
 from app.application.use_cases.auth.login_user import LoginUserUseCase
 from app.application.use_cases.auth.register_user import RegisterUserUseCase
+from app.application.use_cases.code_submissions.get_code_submission import (
+    GetCodeSubmissionUseCase,
+)
+from app.application.use_cases.code_submissions.list_code_submissions import (
+    ListCodeSubmissionsUseCase,
+)
+from app.application.use_cases.code_submissions.submit_code_submission import (
+    SubmitCodeSubmissionUseCase,
+)
+from app.application.use_cases.code_tasks.create_code_task import CreateCodeTaskUseCase
+from app.application.use_cases.code_tasks.delete_code_task import (
+    DeleteCodeTaskUseCase,
+)
+from app.application.use_cases.code_tasks.get_code_task import GetCodeTaskUseCase
+from app.application.use_cases.code_tasks.update_code_task import UpdateCodeTaskUseCase
+from app.application.use_cases.course_reviews.get_course_reviews import (
+    GetCourseReviewsUseCase,
+)
+from app.application.use_cases.course_reviews.upsert_course_review import (
+    UpsertCourseReviewUseCase,
+)
+from app.application.use_cases.courses.archive_course import ArchiveCourseUseCase
 from app.application.use_cases.courses.create_course import CreateCourseUseCase
 from app.application.use_cases.courses.delete_course import DeleteCourseUseCase
 from app.application.use_cases.courses.get_course import GetCourseUseCase
+from app.application.use_cases.courses.get_course_publication_readiness import (
+    GetCoursePublicationReadinessUseCase,
+)
 from app.application.use_cases.courses.get_course_structure import (
     GetCourseStructureUseCase,
 )
 from app.application.use_cases.courses.get_courses import GetCoursesUseCase
+from app.application.use_cases.courses.publish_course import PublishCourseUseCase
 from app.application.use_cases.courses.update_course import UpdateCourseUseCase
+from app.application.use_cases.courses.upload_course_cover import (
+    UploadCourseCoverUseCase,
+)
 from app.application.use_cases.lectures.create_lecture import CreateLectureUseCase
 from app.application.use_cases.lectures.delete_lecture import DeleteLectureUseCase
 from app.application.use_cases.lectures.get_lecture import GetLectureUseCase
@@ -34,6 +68,14 @@ from app.application.use_cases.lectures.update_lecture import UpdateLectureUseCa
 from app.application.use_cases.modules.create_module import CreateModuleUseCase
 from app.application.use_cases.modules.delete_module import DeleteModuleUseCase
 from app.application.use_cases.modules.update_module import UpdateModuleUseCase
+from app.application.use_cases.profile.get_my_course_analytics import (
+    GetMyCourseAnalyticsUseCase,
+)
+from app.application.use_cases.profile.get_my_profile import GetMyProfileUseCase
+from app.application.use_cases.profile.get_my_teaching_course_analytics import (
+    GetMyTeachingCourseAnalyticsUseCase,
+)
+from app.application.use_cases.profile.update_my_profile import UpdateMyProfileUseCase
 from app.application.use_cases.question_attempt.get_question_attempt_result import (
     GetQuestionAttemptResultUseCase,
 )
@@ -47,78 +89,50 @@ from app.application.use_cases.questions.create_question import CreateQuestionUs
 from app.application.use_cases.questions.delete_question import (
     DeleteQuestionUseCase,
 )
+from app.application.use_cases.questions.get_question import GetQuestionUseCase
 from app.application.use_cases.questions.update_question import UpdateQuestionUseCase
 from app.application.use_cases.sections.create_section import CreateSectionUseCase
 from app.application.use_cases.sections.delete_section import DeleteSectionUseCase
 from app.application.use_cases.sections.update_section import UpdateSectionUseCase
+from app.application.use_cases.task_attempts.submit_task_answer import (
+    SubmitTaskAnswerUseCase,
+)
 from app.application.use_cases.tasks.create_task import CreateTaskUseCase
+from app.application.use_cases.tasks.delete_task import (
+    DeleteTaskUseCase,
+)
+from app.application.use_cases.tasks.get_task import GetTaskUseCase
 from app.application.use_cases.tasks.update_task import UpdateTaskUseCase
-from app.application.use_cases.code_tasks.create_code_task import CreateCodeTaskUseCase
-from app.application.use_cases.code_tasks.update_code_task import UpdateCodeTaskUseCase
 from app.application.use_cases.test_cases.create_test_case import CreateTestCaseUseCase
+from app.application.use_cases.test_cases.delete_test_case import (
+    DeleteTestCaseUseCase,
+)
 from app.application.use_cases.test_cases.update_test_case import UpdateTestCaseUseCase
+from app.bootstrap.build_submission_queue import build_submission_queue
 from app.domain.entities.user import User
+from app.infrastructure.config.settings import get_settings
 from app.infrastructure.database import SessionFactory, SqlAlchemyUnitOfWork
 from app.infrastructure.security.jwt_token_service import (
     InvalidTokenError,
     JwtTokenService,
 )
-from app.application.use_cases.task_attempts.submit_task_answer import (
-    SubmitTaskAnswerUseCase,
-)
-from app.application.use_cases.code_submissions.submit_code_submission import (
-    SubmitCodeSubmissionUseCase,
-)
-from app.bootstrap.build_submission_queue import build_submission_queue
-
 from app.infrastructure.security.password_hasher import PwdlibPasswordHasher
-from app.presentation.exceptions import AuthenticationError, PermissionDeniedError
-from app.application.use_cases.code_submissions.get_code_submission import (
-    GetCodeSubmissionUseCase,
-)
-from app.application.use_cases.code_submissions.list_code_submissions import (
-    ListCodeSubmissionsUseCase,
-)
-from app.application.use_cases.questions.get_question import GetQuestionUseCase
-from app.application.use_cases.tasks.get_task import GetTaskUseCase
-from app.application.use_cases.code_tasks.get_code_task import GetCodeTaskUseCase
-from app.application.use_cases.code_tasks.delete_code_task import (
-    DeleteCodeTaskCommand,
-    DeleteCodeTaskUseCase,
-)
-from app.application.use_cases.test_cases.delete_test_case import (
-    DeleteTestCaseCommand,
-    DeleteTestCaseUseCase,
-)
-from app.application.use_cases.tasks.delete_task import (
-    DeleteTaskCommand,
-    DeleteTaskUseCase,
-)
-from app.application.use_cases.courses.archive_course import ArchiveCourseUseCase
-from app.application.use_cases.courses.publish_course import PublishCourseUseCase
-from app.application.services.course_content_access_service import (
-    CourseContentAccessService,
-)
-from app.application.use_cases.courses.get_course_publication_readiness import (
-    GetCoursePublicationReadinessUseCase,
-)
-from app.application.services.course_catalog_read_service import (
-    CourseCatalogReadService,
-)
-from app.application.interfaces.services.file_storage import FileStorage
-from app.application.use_cases.courses.upload_course_cover import (
-    UploadCourseCoverUseCase,
-)
-from app.infrastructure.config.settings import get_settings
 from app.infrastructure.storage.s3_storage import S3FileStorage
-from app.application.use_cases.profile.get_my_profile import GetMyProfileUseCase
-from app.application.use_cases.profile.update_my_profile import UpdateMyProfileUseCase
-from app.application.use_cases.profile.get_my_course_analytics import (
-    GetMyCourseAnalyticsUseCase,
-)
-
+from app.presentation.exceptions import AuthenticationError, PermissionDeniedError
 
 http_bearer = HTTPBearer(auto_error=False)
+
+
+def get_upsert_course_review_use_case() -> UpsertCourseReviewUseCase:
+    return UpsertCourseReviewUseCase(
+        uow=SqlAlchemyUnitOfWork(session_factory=SessionFactory)
+    )
+
+
+def get_get_course_reviews_use_case() -> GetCourseReviewsUseCase:
+    return GetCourseReviewsUseCase(
+        uow=SqlAlchemyUnitOfWork(session_factory=SessionFactory)
+    )
 
 
 def get_file_storage() -> FileStorage:
@@ -162,6 +176,9 @@ def get_get_courses_use_case(
             question_repository=uow.questions,
             task_repository=uow.tasks,
             code_task_repository=uow.code_tasks,
+            rating_read_service=CourseRatingReadService(
+                review_repository=uow.course_reviews,
+            ),
         ),
     )
 
@@ -183,6 +200,9 @@ def get_get_course_use_case(
             question_repository=uow.questions,
             task_repository=uow.tasks,
             code_task_repository=uow.code_tasks,
+            rating_read_service=CourseRatingReadService(
+                review_repository=uow.course_reviews
+            ),  # New
         ),
     )
 

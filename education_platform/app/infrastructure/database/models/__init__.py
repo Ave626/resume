@@ -1,3 +1,4 @@
+from app.infrastructure.database.models.course_review_model import CourseReviewModel
 from app.infrastructure.database.models.answer_option_model import AnswerOptionModel
 from app.infrastructure.database.models.base import Base
 from app.infrastructure.database.models.course_model import CourseModel

@@ -1,3 +1,6 @@
+from app.application.interfaces.repositories.course_review_repository import (
+    CourseReviewRepository,
+)
 from abc import ABC, abstractmethod
 
 from app.application.interfaces.repositories import (
@@ -33,6 +36,7 @@ class UnitOfWork(ABC):
     code_tasks: CodeTaskRepository
     test_cases: TestCaseRepository
     code_submissions: CodeSubmissionRepository
+    course_reviews: CourseReviewRepository
 
     @abstractmethod
     async def __aenter__(self) -> "UnitOfWork":

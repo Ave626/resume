@@ -1,3 +1,6 @@
+from app.application.interfaces.repositories.course_review_repository import (
+    CourseReviewRepository,
+)
 from app.application.interfaces.repositories.answer_option_repository import (
     AnswerOptionRepository,
 )
@@ -44,4 +47,5 @@ __all__ = [
     "CodeTaskRepository",
     "TestCaseRepository",
     "CodeSubmissionRepository",
+    "CourseReviewRepository",
 ]

@@ -18,6 +18,7 @@ from app.presentation.api.schemas.catalog import (
     CourseCatalogItemResponse,
     CourseCatalogModulePreviewResponse,
     CourseCatalogSectionPreviewResponse,
+    CourseRatingSummaryResponse,
 )
 from app.presentation.api.schemas.code_submissions import (
     CodeSubmissionResponse,
@@ -47,6 +48,10 @@ from app.presentation.api.schemas.course_publication import (
     CoursePublicationErrorResponse,
     CoursePublicationIssueResponse,
     CoursePublicationReadinessResponse,
+)
+from app.presentation.api.schemas.course_reviews import (
+    CourseReviewResponse,
+    UpsertCourseReviewRequest,
 )
 from app.presentation.api.schemas.courses import (
     CreateCourseRequest,
@@ -124,7 +129,9 @@ __all__ = [
     "CoursePublicationErrorResponse",
     "CoursePublicationIssueResponse",
     "CoursePublicationReadinessResponse",
+    "CourseRatingSummaryResponse",
     "CourseResponse",
+    "CourseReviewResponse",
     "CourseStructureResponse",
     "CreateAnswerOptionRequest",
     "CreateCodeTaskRequest",
@@ -177,5 +184,6 @@ __all__ = [
     "UpdateSectionRequest",
     "UpdateTaskRequest",
     "UpdateTestCaseRequest",
+    "UpsertCourseReviewRequest",
     "UserProfileResponse",
 ]
