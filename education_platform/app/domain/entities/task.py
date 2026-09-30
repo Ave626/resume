@@ -12,9 +12,9 @@ from app.domain.exceptions import (
 
 
 class TaskCheckType(StrEnum):
-    EXACT_MATCH = 'exact_match'
-    ANY_OF = 'any_of'
-    REGEX = 'regex'
+    EXACT_MATCH = "exact_match"
+    ANY_OF = "any_of"
+    REGEX = "regex"
 
 
 @dataclass(slots=True)
@@ -25,9 +25,9 @@ class Task:
     statement: str
     position: int
     check_type: TaskCheckType = TaskCheckType.EXACT_MATCH
-    expected_answer: str = ''
+    expected_answer: str = ""
     accepted_answers: list[str] = field(default_factory=list)
-    answer_pattern: str = ''
+    answer_pattern: str = ""
     max_attempts: int = 1
     reward_points: int = 1
 
@@ -36,38 +36,38 @@ class Task:
 
     def _validate(self) -> None:
         if not self.title or not self.title.strip():
-            raise InvalidTaskError('Task title cannot be empty.')
+            raise InvalidTaskError("Task title cannot be empty.")
         if not self.statement or not self.statement.strip():
-            raise InvalidTaskError('Task statement cannot be empty.')
+            raise InvalidTaskError("Task statement cannot be empty.")
         if self.position < 1:
-            raise InvalidTaskError('Task position must be positive.')
+            raise InvalidTaskError("Task position must be positive.")
         if self.max_attempts < 1:
-            raise InvalidTaskError('Task max_attempts must be positive.')
+            raise InvalidTaskError("Task max_attempts must be positive.")
         if self.reward_points < 1:
-            raise InvalidTaskError('Task reward_points must be positive.')
+            raise InvalidTaskError("Task reward_points must be positive.")
 
         if self.check_type is TaskCheckType.EXACT_MATCH:
             if not self.expected_answer or not self.expected_answer.strip():
-                raise InvalidTaskError('Exact-match task must define expected_answer.')
+                raise InvalidTaskError("Exact-match task must define expected_answer.")
 
         if self.check_type is TaskCheckType.ANY_OF:
             if len(self.normalized_accepted_answers()) == 0:
-                raise InvalidTaskError('Any-of task must define accepted_answers.')
+                raise InvalidTaskError("Any-of task must define accepted_answers.")
 
         if self.check_type is TaskCheckType.REGEX:
             if not self.answer_pattern or not self.answer_pattern.strip():
-                raise InvalidTaskError('Regex task must define answer_pattern.')
+                raise InvalidTaskError("Regex task must define answer_pattern.")
             try:
                 re.compile(self.answer_pattern)
             except re.error as exc:
-                raise InvalidTaskError('Task answer_pattern is invalid.') from exc
+                raise InvalidTaskError("Task answer_pattern is invalid.") from exc
 
     def update(self, title: str, statement: str, position: int) -> None:
         self.title = title
         self.statement = statement
         self.position = position
         self._validate()
-        
+
     def allows_multiple_attempts(self) -> bool:
         return self.max_attempts > 1
 
@@ -79,10 +79,10 @@ class Task:
 
     def is_single_attempts(self) -> bool:
         return self.is_single_attempt()
-    
+
     def requires_submission(self) -> bool:
         return True
-    
+
     def can_start_attempt(
         self,
         existing_attempts_count: int,
@@ -91,17 +91,17 @@ class Task:
         if has_correct_attempt:
             return False
         return existing_attempts_count < self.max_attempts
-    
+
     def ensure_attempt_available(
         self,
         existing_attempts_count: int,
         has_correct_attempt: bool = False,
     ) -> None:
         if has_correct_attempt:
-            raise TaskAlreadySolvedError('Task has already been solved successfully.')
+            raise TaskAlreadySolvedError("Task has already been solved successfully.")
         if not self.can_start_attempt(existing_attempts_count):
-            raise TaskAttemptLimitExceededError('Task attempt limit has been reached.')
-    
+            raise TaskAttemptLimitExceededError("Task attempt limit has been reached.")
+
     def normalize_answer(self, answer: str) -> str:
         return answer.strip()
 
@@ -118,7 +118,7 @@ class Task:
         if self.check_type is TaskCheckType.REGEX:
             return re.fullmatch(self.answer_pattern, normalized_actual) is not None
 
-        raise InvalidTaskError('Unsupported task check type.')
+        raise InvalidTaskError("Unsupported task check type.")
 
     def normalized_accepted_answers(self) -> list[str]:
         normalized: list[str] = []
@@ -132,10 +132,10 @@ class Task:
 
     def normalize_accepted_answer(self) -> list[str]:
         return self.normalized_accepted_answers()
-    
+
     def next_attempt_number(self, existing_attempts_count: int) -> int:
         if existing_attempts_count < 0:
-            raise InvalidTaskError('Existing attempts count cannot be negative.')
+            raise InvalidTaskError("Existing attempts count cannot be negative.")
         return existing_attempts_count + 1
 
     def create_attempt(
@@ -157,17 +157,14 @@ class Task:
             submitted_answer=submitted_answer,
             attempt_number=self.next_attempt_number(existing_attempts_count),
         )
-    
+
     def check_answer(self, attempt: TaskAttempt) -> None:
         if attempt.task_id != self.id:
-            raise InvalidTaskError('Task attempt does not belong to this task.')
-        
+            raise InvalidTaskError("Task attempt does not belong to this task.")
+
         is_correct = self.is_correct_answer(attempt.submitted_answer)
         status = (
-            TaskAttemptStatus.CORRECT
-            if is_correct
-            else TaskAttemptStatus.INCORRECT
+            TaskAttemptStatus.CORRECT if is_correct else TaskAttemptStatus.INCORRECT
         )
         awarded_points = self.reward_points if is_correct else 0
         attempt.apply_result(status=status, awarded_points=awarded_points)
-

@@ -31,8 +31,8 @@ from app.domain.entities.user import User, UserRole
 def make_author() -> User:
     return User(
         id=uuid4(),
-        email='author@example.com',
-        hashed_password='hashed-password',
+        email="author@example.com",
+        hashed_password="hashed-password",
         role=UserRole.AUTHOR,
     )
 
@@ -40,8 +40,8 @@ def make_author() -> User:
 def make_student() -> User:
     return User(
         id=uuid4(),
-        email='student@example.com',
-        hashed_password='hashed-password',
+        email="student@example.com",
+        hashed_password="hashed-password",
         role=UserRole.STUDENT,
     )
 
@@ -50,9 +50,10 @@ def make_owned_course(author: User) -> Course:
     return Course(
         id=uuid4(),
         author_id=author.id,
-        title='Course',
-        description='Description',
+        title="Course",
+        description="Description",
     )
+
 
 async def seed_course_tree_for_code_task(
     uow,
@@ -63,15 +64,15 @@ async def seed_course_tree_for_code_task(
     module = Module(
         id=uuid4(),
         course_id=course.id,
-        title='Module',
-        description='Description',
+        title="Module",
+        description="Description",
         position=1,
     )
     section = Section(
         id=code_task.section_id,
         module_id=module.id,
-        title='Section',
-        description='Description',
+        title="Section",
+        description="Description",
         position=1,
     )
 
@@ -82,6 +83,7 @@ async def seed_course_tree_for_code_task(
     await uow.modules.add(module)
     await uow.sections.add(section)
     return section
+
 
 class FakeCourseRepository:
     def __init__(self) -> None:
@@ -162,8 +164,7 @@ class FakeTestCaseRepository:
 
     async def list_by_code_task_id(self, code_task_id):
         return [
-            item for item in self.items.values()
-            if item.code_task_id == code_task_id
+            item for item in self.items.values() if item.code_task_id == code_task_id
         ]
 
     async def add(self, test_case) -> None:
@@ -182,8 +183,7 @@ class FakeCodeSubmissionRepository:
 
     async def list_by_code_task_id(self, code_task_id):
         return [
-            item for item in self.items.values()
-            if item.code_task_id == code_task_id
+            item for item in self.items.values() if item.code_task_id == code_task_id
         ]
 
     async def add(self, submission) -> None:
@@ -214,12 +214,14 @@ class FakeProgressRepository:
     async def update(self, progress: Progress) -> None:
         self.items[(progress.student_id, progress.course_id)] = progress
 
+
 class FakeSubmissionQueue:
     def __init__(self) -> None:
         self.items = []
 
     async def enqueue(self, submission_id) -> None:
         self.items.append(submission_id)
+
 
 class FakeTasksUnitOfWork(UnitOfWork):
     def __init__(self) -> None:
@@ -248,6 +250,7 @@ class FakeTasksUnitOfWork(UnitOfWork):
     async def rollback(self) -> None:
         self.rolled_back = True
 
+
 @pytest.mark.asyncio
 async def test_create_task_adds_task_and_updates_section() -> None:
     uow = FakeTasksUnitOfWork()
@@ -256,15 +259,15 @@ async def test_create_task_adds_task_and_updates_section() -> None:
     module = Module(
         id=uuid4(),
         course_id=course.id,
-        title='Module',
-        description='Description',
+        title="Module",
+        description="Description",
         position=1,
     )
     section = Section(
         id=uuid4(),
         module_id=module.id,
-        title='Section',
-        description='Description',
+        title="Section",
+        description="Description",
         position=1,
     )
     module.add_section(section.id)
@@ -278,11 +281,11 @@ async def test_create_task_adds_task_and_updates_section() -> None:
         CreateTaskCommand(
             actor=actor,
             section_id=section.id,
-            title='HTTP method',
-            statement='Enter GET.',
+            title="HTTP method",
+            statement="Enter GET.",
             position=1,
             check_type=TaskCheckType.EXACT_MATCH,
-            expected_answer='GET',
+            expected_answer="GET",
             max_attempts=2,
             reward_points=3,
         )
@@ -292,6 +295,7 @@ async def test_create_task_adds_task_and_updates_section() -> None:
     assert result.id in section.task_ids
     assert uow.committed is True
 
+
 @pytest.mark.asyncio
 async def test_create_code_task_adds_code_task_and_updates_section() -> None:
     uow = FakeTasksUnitOfWork()
@@ -300,15 +304,15 @@ async def test_create_code_task_adds_code_task_and_updates_section() -> None:
     module = Module(
         id=uuid4(),
         course_id=course.id,
-        title='Module',
-        description='Description',
+        title="Module",
+        description="Description",
         position=1,
     )
     section = Section(
         id=uuid4(),
         module_id=module.id,
-        title='Section',
-        description='Description',
+        title="Section",
+        description="Description",
         position=1,
     )
     module.add_section(section.id)
@@ -322,11 +326,11 @@ async def test_create_code_task_adds_code_task_and_updates_section() -> None:
         CreateCodeTaskCommand(
             actor=actor,
             section_id=section.id,
-            title='Sum numbers',
-            statement='Print sum.',
+            title="Sum numbers",
+            statement="Print sum.",
             position=1,
             language=CodeTaskLanguage.PYTHON,
-            starter_code='print(1)',
+            starter_code="print(1)",
             max_attempts=2,
             reward_points=5,
             time_limit_seconds=2,
@@ -338,6 +342,7 @@ async def test_create_code_task_adds_code_task_and_updates_section() -> None:
     assert result.id in section.code_task_ids
     assert uow.committed is True
 
+
 @pytest.mark.asyncio
 async def test_create_test_case_adds_test_case_and_updates_code_task() -> None:
     uow = FakeTasksUnitOfWork()
@@ -345,11 +350,11 @@ async def test_create_test_case_adds_test_case_and_updates_code_task() -> None:
     code_task = CodeTask(
         id=uuid4(),
         section_id=uuid4(),
-        title='Sum numbers',
-        statement='Print sum.',
+        title="Sum numbers",
+        statement="Print sum.",
         position=1,
         language=CodeTaskLanguage.PYTHON,
-        starter_code='print(1)',
+        starter_code="print(1)",
         max_attempts=2,
         reward_points=5,
         time_limit_seconds=2,
@@ -365,16 +370,17 @@ async def test_create_test_case_adds_test_case_and_updates_code_task() -> None:
             actor=actor,
             code_task_id=code_task.id,
             position=1,
-            input_data='2 3',
-            expected_output='5',
+            input_data="2 3",
+            expected_output="5",
             is_hidden=False,
-            explanation='basic case',
+            explanation="basic case",
         )
     )
 
     assert result.id in uow.test_cases.items
     assert result.id in code_task.test_case_ids
     assert uow.committed is True
+
 
 @pytest.mark.asyncio
 async def test_submit_code_submission_creates_submission_and_enqueues_id() -> None:
@@ -384,11 +390,11 @@ async def test_submit_code_submission_creates_submission_and_enqueues_id() -> No
     code_task = CodeTask(
         id=uuid4(),
         section_id=uuid4(),
-        title='Sum numbers',
-        statement='Print sum.',
+        title="Sum numbers",
+        statement="Print sum.",
         position=1,
         language=CodeTaskLanguage.PYTHON,
-        starter_code='print(1)',
+        starter_code="print(1)",
         max_attempts=2,
         reward_points=5,
         time_limit_seconds=2,
@@ -403,7 +409,7 @@ async def test_submit_code_submission_creates_submission_and_enqueues_id() -> No
         SubmitCodeSubmissionCommand(
             actor=student,
             code_task_id=code_task.id,
-            source_code='print(1)',
+            source_code="print(1)",
         )
     )
 

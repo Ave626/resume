@@ -25,17 +25,27 @@ class Progress:
 
     def _validate(self) -> None:
         if len(self.completed_question_ids) != len(set(self.completed_question_ids)):
-            raise InvalidProgressError('Progress cannot contain duplicate completed questions.')
+            raise InvalidProgressError(
+                "Progress cannot contain duplicate completed questions."
+            )
         if len(self.completed_task_ids) != len(set(self.completed_task_ids)):
-            raise InvalidProgressError('Progress cannot contain duplicate completed tasks.')
+            raise InvalidProgressError(
+                "Progress cannot contain duplicate completed tasks."
+            )
         if len(self.completed_section_ids) != len(set(self.completed_section_ids)):
-            raise InvalidProgressError('Progress cannot contain duplicate completed sections.')
+            raise InvalidProgressError(
+                "Progress cannot contain duplicate completed sections."
+            )
         if len(self.completed_module_ids) != len(set(self.completed_module_ids)):
-            raise InvalidProgressError('Progress cannot contain duplicate completed modules.')
+            raise InvalidProgressError(
+                "Progress cannot contain duplicate completed modules."
+            )
         if len(self.completed_code_task_ids) != len(set(self.completed_code_task_ids)):
-            raise InvalidProgressError('Progress cannot contain duplicate completed code tasks.')
+            raise InvalidProgressError(
+                "Progress cannot contain duplicate completed code tasks."
+            )
         if self.total_points < 0:
-            raise InvalidProgressError('Progress total points cannot be negative.')
+            raise InvalidProgressError("Progress total points cannot be negative.")
 
     def has_completed_question(self, question_id: UUID) -> bool:
         return question_id in self.completed_question_ids
@@ -48,7 +58,7 @@ class Progress:
 
     def has_completed_modules(self, module_id: UUID) -> bool:
         return self.has_completed_module(module_id)
-    
+
     def has_completed_task(self, task_id: UUID) -> bool:
         return task_id in self.completed_task_ids
 
@@ -140,10 +150,10 @@ class Progress:
             and not self.completed_module_ids
             and self.total_points == 0
         )
-    
+
     def apply_correct_task_attempt(self, attempt: TaskAttempt) -> bool:
         if attempt.student_id != self.student_id:
-            raise InvalidProgressError('Task attempt does not belong to this student.')
+            raise InvalidProgressError("Task attempt does not belong to this student.")
 
         if not attempt.is_correct():
             return False

@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, Security,Query
+from fastapi import APIRouter, Depends, Security, Query
 
 from app.application.use_cases.courses.get_course import (
     GetCourseQuery,
@@ -65,16 +65,16 @@ router = APIRouter(tags=["Content"])
 
 
 @router.get(
-    '/courses',
+    "/courses",
     response_model=list[CourseCatalogItemResponse],
-    summary='Get public course catalog',
-    description='Returns published courses formatted for catalog listing.',
+    summary="Get public course catalog",
+    description="Returns published courses formatted for catalog listing.",
 )
 async def get_courses(
-        search: str = Query(default=''),
-        difficulty: CourseDifficulty | None = Query(default=None),
-        tag: list[str] = Query(default=[]),
-        use_case: GetCoursesUseCase = Depends(get_get_courses_use_case),
+    search: str = Query(default=""),
+    difficulty: CourseDifficulty | None = Query(default=None),
+    tag: list[str] = Query(default=[]),
+    use_case: GetCoursesUseCase = Depends(get_get_courses_use_case),
 ) -> list[CourseCatalogItemResponse]:
     result = await use_case.execute(
         GetCoursesQuery(
@@ -85,22 +85,23 @@ async def get_courses(
     )
     return [CourseCatalogItemResponse.model_validate(course) for course in result]
 
+
 @router.get(
-    '/courses/{course_id}',
+    "/courses/{course_id}",
     response_model=CourseCatalogCardResponse,
-    summary='Get public course page',
-    description='Returns a detailed course card for the catalog page.',
+    summary="Get public course page",
+    description="Returns a detailed course card for the catalog page.",
     responses={
         404: {
-            'description': 'Course was not found.',
-            'model': ErrorResponse,
+            "description": "Course was not found.",
+            "model": ErrorResponse,
         },
     },
 )
 async def get_course(
-        course_id: UUID,
-        current_user: User | None = Depends(get_current_user_or_none),
-        use_case: GetCourseUseCase = Depends(get_get_course_use_case),
+    course_id: UUID,
+    current_user: User | None = Depends(get_current_user_or_none),
+    use_case: GetCourseUseCase = Depends(get_get_course_use_case),
 ) -> CourseCatalogCardResponse:
     result = await use_case.execute(
         GetCourseQuery(
@@ -116,8 +117,8 @@ async def get_course(
     response_model=CourseStructureResponse,
     summary="Get course structure",
     description=(
-            "Returns the course navigation tree: modules, sections and lectures "
-            "without full lecture content."
+        "Returns the course navigation tree: modules, sections and lectures "
+        "without full lecture content."
     ),
     responses={
         404: {
@@ -127,9 +128,9 @@ async def get_course(
     },
 )
 async def get_course_structure(
-        course_id: UUID,
-        current_user: User | None = Depends(get_current_user_or_none),
-        use_case: GetCourseStructureUseCase = Depends(get_get_course_structure_use_case),
+    course_id: UUID,
+    current_user: User | None = Depends(get_current_user_or_none),
+    use_case: GetCourseStructureUseCase = Depends(get_get_course_structure_use_case),
 ) -> CourseStructureResponse:
     result = await use_case.execute(
         GetCourseStructureQuery(
@@ -153,9 +154,9 @@ async def get_course_structure(
     },
 )
 async def get_lecture(
-        lecture_id: UUID,
-        current_user: User | None = Depends(get_current_user_or_none),
-        use_case: GetLectureUseCase = Depends(get_get_lecture_use_case),
+    lecture_id: UUID,
+    current_user: User | None = Depends(get_current_user_or_none),
+    use_case: GetLectureUseCase = Depends(get_get_lecture_use_case),
 ) -> LectureResponse:
     result = await use_case.execute(
         GetLectureQuery(
@@ -165,11 +166,12 @@ async def get_lecture(
     )
     return LectureResponse.model_validate(result)
 
+
 @router.get(
-    '/questions/{question_id}',
+    "/questions/{question_id}",
     response_model=QuestionDetailsResponse,
-    summary='Get question by ID',
-    description='Returns the content of a single question with public answer options.',
+    summary="Get question by ID",
+    description="Returns the content of a single question with public answer options.",
 )
 async def get_question(
     question_id: UUID,
@@ -184,31 +186,27 @@ async def get_question(
     )
     return QuestionDetailsResponse.model_validate(result)
 
+
 @router.get(
-    '/tasks/{task_id}',
+    "/tasks/{task_id}",
     response_model=TaskDetailsResponse,
-    summary='Get task by ID',
-    description='Returns the content of a single task without author check configuration.',
+    summary="Get task by ID",
+    description="Returns the content of a single task without author check configuration.",
 )
 async def get_task(
     task_id: UUID,
     use_case: GetTaskUseCase = Depends(get_get_task_use_case),
-    current_user : User | None = Depends(get_current_user_or_none)
+    current_user: User | None = Depends(get_current_user_or_none),
 ) -> TaskDetailsResponse:
-    result = await use_case.execute(
-        GetTaskQuery(
-            task_id=task_id,
-            actor=current_user
-            )
-        )
+    result = await use_case.execute(GetTaskQuery(task_id=task_id, actor=current_user))
     return TaskDetailsResponse.model_validate(result)
 
 
 @router.get(
-    '/code-tasks/{code_task_id}',
+    "/code-tasks/{code_task_id}",
     response_model=CodeTaskDetailsResponse,
-    summary='Get code task by ID',
-    description='Returns the content of a single code task and its editor configuration.',
+    summary="Get code task by ID",
+    description="Returns the content of a single code task and its editor configuration.",
 )
 async def get_code_task(
     code_task_id: UUID,

@@ -38,7 +38,7 @@ from app.application.exceptions import (
 
 async def task_not_found_handler(request: Request, exc: Exception) -> JSONResponse:
     return build_error_response(
-        error='task_not_found',
+        error="task_not_found",
         message=str(exc),
         status_code=status.HTTP_404_NOT_FOUND,
     )
@@ -49,7 +49,7 @@ async def code_task_not_found_handler(
     exc: Exception,
 ) -> JSONResponse:
     return build_error_response(
-        error='code_task_not_found',
+        error="code_task_not_found",
         message=str(exc),
         status_code=status.HTTP_404_NOT_FOUND,
     )
@@ -60,7 +60,7 @@ async def test_case_not_found_handler(
     exc: Exception,
 ) -> JSONResponse:
     return build_error_response(
-        error='test_case_not_found',
+        error="test_case_not_found",
         message=str(exc),
         status_code=status.HTTP_404_NOT_FOUND,
     )
@@ -71,10 +71,11 @@ async def code_submission_not_found_handler(
     exc: Exception,
 ) -> JSONResponse:
     return build_error_response(
-        error='code_submission_not_found',
+        error="code_submission_not_found",
         message=str(exc),
         status_code=status.HTTP_404_NOT_FOUND,
     )
+
 
 def build_error_response(error: str, message: str, status_code: int) -> JSONResponse:
     payload = ErrorResponse(error=error, message=message)
@@ -190,12 +191,13 @@ async def question_attempt_not_found_handler(
         status_code=status.HTTP_404_NOT_FOUND,
     )
 
+
 async def course_publication_not_ready_handler(
     request: Request,
     exc: Exception,
 ) -> JSONResponse:
     payload = CoursePublicationErrorResponse(
-        error='course_publication_not_ready',
+        error="course_publication_not_ready",
         message=str(exc),
         issues=[
             CoursePublicationIssueResponse(
@@ -208,18 +210,20 @@ async def course_publication_not_ready_handler(
     )
     return JSONResponse(
         status_code=status.HTTP_400_BAD_REQUEST,
-        content=payload.model_dump(mode='json'),
+        content=payload.model_dump(mode="json"),
     )
 
+
 async def invalid_course_cover_file_handler(
-    request : Request,
-    exc : Exception,
+    request: Request,
+    exc: Exception,
 ) -> JSONResponse:
     return build_error_response(
         error="invalid_course_cover_file",
         message=str(exc),
         status_code=status.HTTP_400_BAD_REQUEST,
     )
+
 
 def register_exception_handlers(app: FastAPI) -> None:
     app.add_exception_handler(DomainError, domain_error_handler)
@@ -238,11 +242,21 @@ def register_exception_handlers(app: FastAPI) -> None:
     app.add_exception_handler(SectionNotFoundError, section_not_found_handler)
     app.add_exception_handler(LectureNotFoundError, lecture_not_found_handler)
     app.add_exception_handler(QuestionNotFoundError, question_not_found_handler)
-    app.add_exception_handler(AnswerOptionNotFoundError, answer_option_not_found_handler)
-    app.add_exception_handler(QuestionAttemptNotFoundError, question_attempt_not_found_handler)
+    app.add_exception_handler(
+        AnswerOptionNotFoundError, answer_option_not_found_handler
+    )
+    app.add_exception_handler(
+        QuestionAttemptNotFoundError, question_attempt_not_found_handler
+    )
     app.add_exception_handler(TaskNotFoundError, task_not_found_handler)
     app.add_exception_handler(CodeTaskNotFoundError, code_task_not_found_handler)
     app.add_exception_handler(TestCaseNotFoundError, test_case_not_found_handler)
-    app.add_exception_handler(CodeSubmissionNotFoundError, code_submission_not_found_handler)
-    app.add_exception_handler(CoursePublicationNotReadyError, course_publication_not_ready_handler)
-    app.add_exception_handler(InvalidCourseCoverFileError,invalid_course_cover_file_handler)
+    app.add_exception_handler(
+        CodeSubmissionNotFoundError, code_submission_not_found_handler
+    )
+    app.add_exception_handler(
+        CoursePublicationNotReadyError, course_publication_not_ready_handler
+    )
+    app.add_exception_handler(
+        InvalidCourseCoverFileError, invalid_course_cover_file_handler
+    )

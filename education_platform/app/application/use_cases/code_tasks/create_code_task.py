@@ -6,6 +6,7 @@ from app.application.services.course_access_service import CourseAccessService
 from app.domain.entities.code_task import CodeTask, CodeTaskLanguage
 from app.domain.entities.user import User
 
+
 @dataclass(slots=True)
 class CreateCodeTaskCommand:
     actor: User
@@ -14,7 +15,7 @@ class CreateCodeTaskCommand:
     statement: str
     position: int
     language: CodeTaskLanguage
-    starter_code: str = ''
+    starter_code: str = ""
     max_attempts: int = 1
     reward_points: int = 1
     time_limit_seconds: int = 2

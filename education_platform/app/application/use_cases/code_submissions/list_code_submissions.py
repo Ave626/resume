@@ -17,13 +17,17 @@ class ListCodeSubmissionsUseCase:
     def __init__(self, uow: UnitOfWork) -> None:
         self.uow = uow
 
-    async def execute(self, command: ListCodeSubmissionsCommand) -> list[CodeSubmission]:
+    async def execute(
+        self, command: ListCodeSubmissionsCommand
+    ) -> list[CodeSubmission]:
         async with self.uow:
             code_task = await self.uow.code_tasks.get_by_id(command.code_task_id)
             if code_task is None:
-                raise CodeTaskNotFoundError('CodeTask not found.')
+                raise CodeTaskNotFoundError("CodeTask not found.")
 
-            submissions = await self.uow.code_submissions.list_by_code_task_id(code_task.id)
+            submissions = await self.uow.code_submissions.list_by_code_task_id(
+                code_task.id
+            )
             result = [
                 submission
                 for submission in submissions

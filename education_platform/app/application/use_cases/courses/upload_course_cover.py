@@ -11,7 +11,7 @@ from app.domain.entities.user import User
 
 ALLOWED_CONTENT_TYPES = {"image/jpeg", "image/png", "image/webp"}
 ALLOWED_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp"}
-MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024  
+MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024
 
 
 @dataclass(slots=True)

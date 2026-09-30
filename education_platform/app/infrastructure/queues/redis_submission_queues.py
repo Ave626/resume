@@ -14,7 +14,7 @@ class RedisSubmissionQueue(SubmissionQueue):
     async def dequeue(self) -> UUID:
         result = await self.client.blpop(self.queue_name, timeout=0)
         if result is None:
-            raise RuntimeError('Redis queue returned no message.')
+            raise RuntimeError("Redis queue returned no message.")
 
         _, raw_submission_id = result
-        return UUID(raw_submission_id.decode('utf-8'))
+        return UUID(raw_submission_id.decode("utf-8"))

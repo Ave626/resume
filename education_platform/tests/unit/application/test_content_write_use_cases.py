@@ -232,6 +232,7 @@ class FakeUnitOfWork(UnitOfWork):
     async def rollback(self) -> None:
         self.rolled_back = True
 
+
 class EmptyCollectionRepository:
     def __init__(self) -> None:
         self.items = {}
@@ -240,7 +241,9 @@ class EmptyCollectionRepository:
         return self.items.get(entity_id)
 
     async def get_by_ids(self, entity_ids):
-        return [self.items[entity_id] for entity_id in entity_ids if entity_id in self.items]
+        return [
+            self.items[entity_id] for entity_id in entity_ids if entity_id in self.items
+        ]
 
     async def add(self, entity) -> None:
         self.items[entity.id] = entity
@@ -258,12 +261,12 @@ class EmptyTestCaseRepository:
 
     async def list_by_code_task_id(self, code_task_id):
         return [
-            item for item in self.items.values()
-            if item.code_task_id == code_task_id
+            item for item in self.items.values() if item.code_task_id == code_task_id
         ]
 
     async def add(self, entity) -> None:
         self.items[entity.id] = entity
+
 
 @pytest.mark.asyncio
 async def test_create_course_adds_course_and_commits() -> None:
@@ -717,6 +720,7 @@ async def test_delete_lecture_raises_not_found_when_lecture_is_missing() -> None
     with pytest.raises(LectureNotFoundError):
         await use_case.execute(DeleteLectureCommand(actor=actor, lecture_id=uuid4()))
 
+
 @pytest.mark.asyncio
 async def test_publish_course_raises_error_for_not_ready_course() -> None:
     uow = FakeUnitOfWork()
@@ -756,6 +760,7 @@ async def test_archive_course_changes_status_to_archived() -> None:
     assert result.status is CourseStatus.ARCHIVED
     assert uow.committed is True
 
+
 @pytest.mark.asyncio
 async def test_publish_course_changes_status_to_published_for_ready_course() -> None:
     uow = FakeUnitOfWork()
@@ -765,22 +770,22 @@ async def test_publish_course_changes_status_to_published_for_ready_course() -> 
     module = Module(
         id=uuid4(),
         course_id=course.id,
-        title='Module 1',
-        description='Description',
+        title="Module 1",
+        description="Description",
         position=1,
     )
     section = Section(
         id=uuid4(),
         module_id=module.id,
-        title='Section 1',
-        description='Description',
+        title="Section 1",
+        description="Description",
         position=1,
     )
     lecture = Lecture(
         id=uuid4(),
         section_id=section.id,
-        title='Lecture 1',
-        content='Lecture content',
+        title="Lecture 1",
+        content="Lecture content",
         position=1,
     )
 

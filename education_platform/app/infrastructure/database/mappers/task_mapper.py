@@ -1,6 +1,7 @@
 from uuid import UUID
-from app.domain.entities.task import Task,TaskCheckType
+from app.domain.entities.task import Task, TaskCheckType
 from app.infrastructure.database.models.task_model import TaskModel
+
 
 class TaskMapper:
     @staticmethod
@@ -18,7 +19,7 @@ class TaskMapper:
             max_attempts=model.max_attempts,
             reward_points=model.reward_points,
         )
-        
+
     @staticmethod
     def to_model(entity: Task) -> TaskModel:
         return TaskModel(

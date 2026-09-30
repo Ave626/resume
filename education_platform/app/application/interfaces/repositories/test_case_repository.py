@@ -20,8 +20,7 @@ class TestCaseRepository(ABC):
     @abstractmethod
     async def list_by_code_task_id(self, code_task_id: UUID) -> list[TestCase]:
         raise NotImplementedError
-    
+
     @abstractmethod
-    async def delete(self,test_case : TestCase) -> None:
+    async def delete(self, test_case: TestCase) -> None:
         raise NotImplementedError
-    

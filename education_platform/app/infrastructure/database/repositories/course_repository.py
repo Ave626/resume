@@ -62,13 +62,13 @@ class SqlAlchemyCourseRepository(CourseRepository):
         )
         result = await self.session.execute(stmt)
         return [CourseMapper.to_domain(model) for model in result.scalars().all()]
-    
+
     async def find_published_catalog_courses(
-            self,
-            *,
-            search: str = '',
-            difficulty: CourseDifficulty | None = None,
-    ) -> 'list[Course]':
+        self,
+        *,
+        search: str = "",
+        difficulty: CourseDifficulty | None = None,
+    ) -> "list[Course]":
         stmt = (
             select(CourseModel)
             .options(selectinload(CourseModel.modules))
@@ -76,7 +76,7 @@ class SqlAlchemyCourseRepository(CourseRepository):
         )
 
         if search:
-            pattern = f'%{search}%'
+            pattern = f"%{search}%"
             stmt = stmt.where(
                 or_(
                     CourseModel.title.ilike(pattern),

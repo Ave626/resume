@@ -12,7 +12,7 @@ class CreateCourseCommand:
     actor: User
     title: str
     description: str
-    short_description: str = ''
+    short_description: str = ""
     cover_image_url: str | None = None
     difficulty: CourseDifficulty = CourseDifficulty.BEGINNER
     tag_names: list[str] | None = None
@@ -24,7 +24,7 @@ class CreateCourseUseCase:
 
     async def execute(self, command: CreateCourseCommand) -> Course:
         if not command.actor.can_manage_learning_content():
-            raise PermissionDeniedError('User cannot create courses.')
+            raise PermissionDeniedError("User cannot create courses.")
 
         async with self.uow:
             course = Course(

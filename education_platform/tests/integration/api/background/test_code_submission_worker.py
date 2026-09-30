@@ -17,7 +17,7 @@ class FakeSubmissionQueue:
 
     async def dequeue(self):
         if not self.items:
-            raise AssertionError('Queue is empty in test.')
+            raise AssertionError("Queue is empty in test.")
         return self.items.pop(0)
 
 
@@ -27,6 +27,7 @@ class FakeProcessUseCase:
 
     async def execute(self, command) -> None:
         self.received_submission_ids.append(command.submission_id)
+
 
 @pytest.mark.asyncio
 async def test_worker_processes_submission_from_queue() -> None:
@@ -41,13 +42,15 @@ async def test_worker_processes_submission_from_queue() -> None:
 
     assert process_use_case.received_submission_ids == [submission_id]
 
+
 class RetryableProcessUseCase:
     def __init__(self) -> None:
         self.calls = 0
 
     async def execute(self, command) -> None:
         self.calls += 1
-        raise RetryableExecutionError('Temporary failure')
+        raise RetryableExecutionError("Temporary failure")
+
 
 @pytest.mark.asyncio
 async def test_worker_requeues_submission_on_retryable_error() -> None:

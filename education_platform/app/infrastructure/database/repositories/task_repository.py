@@ -38,18 +38,20 @@ class SqlAlchemyTaskRepository(TaskRepository):
         model.max_attempts = task.max_attempts
         model.reward_points = task.reward_points
         await self.session.flush()
-    
+
     async def get_by_ids(self, task_ids: list[UUID]) -> list[Task]:
         if not task_ids:
             return []
 
-        stmt = select(TaskModel).where(TaskModel.id.in_([str(task_id) for task_id in task_ids]))
+        stmt = select(TaskModel).where(
+            TaskModel.id.in_([str(task_id) for task_id in task_ids])
+        )
         result = await self.session.execute(stmt)
         models = result.scalars().all()
         return [TaskMapper.to_domain(model) for model in models]
-    
-    async def delete(self,task : Task) -> None:
-        model = await self.session.get(TaskModel,str(task.id))
+
+    async def delete(self, task: Task) -> None:
+        model = await self.session.get(TaskModel, str(task.id))
         if model is not None:
             await self.session.delete(model)
             await self.session.flush()

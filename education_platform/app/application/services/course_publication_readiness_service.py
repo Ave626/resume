@@ -22,7 +22,7 @@ class CoursePublicationReadinessService:
             issues.append(
                 CoursePublicationIssueDTO(
                     code=CoursePublicationIssueCode.COURSE_WITHOUT_MODULES,
-                    message='Course must contain at least one module before publication.',
+                    message="Course must contain at least one module before publication.",
                     entity_id=course.id,
                 )
             )
@@ -37,7 +37,7 @@ class CoursePublicationReadinessService:
                 issues.append(
                     CoursePublicationIssueDTO(
                         code=CoursePublicationIssueCode.MODULE_WITHOUT_SECTIONS,
-                        message='Module must contain at least one section before publication.',
+                        message="Module must contain at least one section before publication.",
                         entity_id=module.id,
                     )
                 )
@@ -54,15 +54,15 @@ class CoursePublicationReadinessService:
         )
 
     async def _inspect_section(
-            self,
-            section,
-            issues: list[CoursePublicationIssueDTO],
+        self,
+        section,
+        issues: list[CoursePublicationIssueDTO],
     ) -> None:
         if len(section.lecture_ids) == 0:
             issues.append(
                 CoursePublicationIssueDTO(
                     code=CoursePublicationIssueCode.SECTION_WITHOUT_LECTURES,
-                    message='Section must contain at least one lecture before publication.',
+                    message="Section must contain at least one lecture before publication.",
                     entity_id=section.id,
                 )
             )
@@ -76,11 +76,13 @@ class CoursePublicationReadinessService:
             await self._inspect_code_task(code_task, issues)
 
     async def _inspect_question(
-            self,
-            question: Question,
-            issues: list[CoursePublicationIssueDTO],
+        self,
+        question: Question,
+        issues: list[CoursePublicationIssueDTO],
     ) -> None:
-        answer_options = await self.uow.answer_options.get_by_ids(question.answer_option_ids)
+        answer_options = await self.uow.answer_options.get_by_ids(
+            question.answer_option_ids
+        )
         try:
             question.validate_answer_options_configuration(answer_options)
         except InvalidQuestionError as exc:
@@ -93,16 +95,16 @@ class CoursePublicationReadinessService:
             )
 
     async def _inspect_code_task(
-            self,
-            code_task: CodeTask,
-            issues: list[CoursePublicationIssueDTO],
+        self,
+        code_task: CodeTask,
+        issues: list[CoursePublicationIssueDTO],
     ) -> None:
         test_cases = await self.uow.test_cases.list_by_code_task_id(code_task.id)
         if len(test_cases) == 0:
             issues.append(
                 CoursePublicationIssueDTO(
                     code=CoursePublicationIssueCode.CODE_TASK_WITHOUT_TEST_CASES,
-                    message='CodeTask must contain at least one test case before publication.',
+                    message="CodeTask must contain at least one test case before publication.",
                     entity_id=code_task.id,
                 )
             )

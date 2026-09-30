@@ -13,11 +13,12 @@ class UpdateTaskCommand:
     statement: str
     position: int
     check_type: TaskCheckType
-    expected_answer: str = ''
+    expected_answer: str = ""
     accepted_answers: list[str] | None = None
-    answer_pattern: str = ''
+    answer_pattern: str = ""
     max_attempts: int = 1
     reward_points: int = 1
+
 
 from app.application.exceptions import TaskAlreadyUsedError, TaskNotFoundError
 from app.application.interfaces.unit_of_work import UnitOfWork
@@ -34,7 +35,7 @@ class UpdateTaskUseCase:
         async with self.uow:
             task = await self.uow.tasks.get_by_id(command.task_id)
             if task is None:
-                raise TaskNotFoundError('Task not found.')
+                raise TaskNotFoundError("Task not found.")
 
             await self.course_access_service.ensure_can_manage_section(
                 actor=command.actor,
@@ -56,7 +57,7 @@ class UpdateTaskUseCase:
 
             if has_attempts and (checking_changed or policy_changed):
                 raise TaskAlreadyUsedError(
-                    'Task already has student attempts and cannot be reconfigured safely.'
+                    "Task already has student attempts and cannot be reconfigured safely."
                 )
 
             task.update(

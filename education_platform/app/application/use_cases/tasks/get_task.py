@@ -28,13 +28,13 @@ class GetTaskUseCase:
     async def execute(self, query: GetTaskQuery) -> Task:
         task = await self.task_repository.get_by_id(query.task_id)
         if task is None:
-            raise TaskNotFoundError('Task not found.')
+            raise TaskNotFoundError("Task not found.")
 
         can_view = await self.access_service.can_view_section_content(
             section_id=task.section_id,
             actor=query.actor,
         )
         if not can_view:
-            raise TaskNotFoundError('Task not found.')
+            raise TaskNotFoundError("Task not found.")
 
         return task

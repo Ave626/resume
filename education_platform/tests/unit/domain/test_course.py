@@ -2,24 +2,24 @@ from uuid import uuid4
 
 import pytest
 
-from app.domain.entities.course import Course,CourseStatus
-from app.domain.exceptions import InvalidCourseError,InvalidCourseStatusTransitionError
+from app.domain.entities.course import Course, CourseStatus
+from app.domain.exceptions import InvalidCourseError, InvalidCourseStatusTransitionError
 
 
 def build_course() -> Course:
     return Course(
         id=uuid4(),
         author_id=uuid4(),
-        title='FastAPI course',
-        description='Clean architecture in practice.',
+        title="FastAPI course",
+        description="Clean architecture in practice.",
     )
 
 
 def test_course_is_created_with_valid_data() -> None:
     course = build_course()
 
-    assert course.title == 'FastAPI course'
-    assert course.description == 'Clean architecture in practice.'
+    assert course.title == "FastAPI course"
+    assert course.description == "Clean architecture in practice."
     assert course.status is CourseStatus.DRAFT
     assert course.module_ids == []
     assert course.is_publicly_visible() is False
@@ -30,8 +30,8 @@ def test_course_raises_error_when_title_is_blank() -> None:
         Course(
             id=uuid4(),
             author_id=uuid4(),
-            title='   ',
-            description='Valid description',
+            title="   ",
+            description="Valid description",
         )
 
 
@@ -40,18 +40,18 @@ def test_course_raises_error_when_description_is_blank() -> None:
         Course(
             id=uuid4(),
             author_id=uuid4(),
-            title='Valid title',
-            description='   ',
+            title="Valid title",
+            description="   ",
         )
 
 
 def test_course_update_changes_state() -> None:
     course = build_course()
 
-    course.update(title='New title', description='New description')
+    course.update(title="New title", description="New description")
 
-    assert course.title == 'New title'
-    assert course.description == 'New description'
+    assert course.title == "New title"
+    assert course.description == "New description"
 
 
 def test_draft_course_can_be_published() -> None:

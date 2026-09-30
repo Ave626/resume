@@ -13,7 +13,7 @@ class UpdateCourseCommand:
     course_id: UUID
     title: str
     description: str
-    short_description: str = ''
+    short_description: str = ""
     cover_image_url: str | None = None
     difficulty: CourseDifficulty = CourseDifficulty.BEGINNER
     tag_names: list[str] | None = None
@@ -27,10 +27,12 @@ class UpdateCourseUseCase:
         async with self.uow:
             course = await self.uow.courses.get_by_id(command.course_id)
             if course is None:
-                raise CourseNotFoundError('Course not found.')
+                raise CourseNotFoundError("Course not found.")
 
-            if not command.actor.can_manage_platform() and not course.is_owned_by(command.actor.id):
-                raise PermissionDeniedError('User cannot manage this course.')
+            if not command.actor.can_manage_platform() and not course.is_owned_by(
+                command.actor.id
+            ):
+                raise PermissionDeniedError("User cannot manage this course.")
 
             course.update(title=command.title, description=command.description)
             course.update_metadata(

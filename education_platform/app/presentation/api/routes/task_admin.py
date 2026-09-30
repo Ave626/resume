@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, status,Response
+from fastapi import APIRouter, Depends, status, Response
 
 from app.application.use_cases.code_tasks.create_code_task import (
     CreateCodeTaskCommand,
@@ -28,11 +28,11 @@ from app.application.use_cases.test_cases.update_test_case import (
 )
 from app.application.use_cases.code_tasks.delete_code_task import (
     DeleteCodeTaskCommand,
-    DeleteCodeTaskUseCase
+    DeleteCodeTaskUseCase,
 )
 from app.application.use_cases.test_cases.delete_test_case import (
     DeleteTestCaseCommand,
-    DeleteTestCaseUseCase
+    DeleteTestCaseUseCase,
 )
 from app.application.use_cases.tasks.delete_task import (
     DeleteTaskCommand,
@@ -65,26 +65,26 @@ from app.presentation.api.schemas import (
 )
 
 router = APIRouter(
-    prefix='/admin',
-    tags=['Admin'],
+    prefix="/admin",
+    tags=["Admin"],
     responses={
         401: {
-            'description': 'Authentication credentials are missing or invalid.',
-            'model': ErrorResponse,
+            "description": "Authentication credentials are missing or invalid.",
+            "model": ErrorResponse,
         },
         403: {
-            'description': 'Author or admin access is required.',
-            'model': ErrorResponse,
+            "description": "Author or admin access is required.",
+            "model": ErrorResponse,
         },
     },
 )
 
 
 @router.post(
-    '/sections/{section_id}/tasks',
+    "/sections/{section_id}/tasks",
     response_model=TaskResponse,
     status_code=status.HTTP_201_CREATED,
-    summary='Create task',
+    summary="Create task",
 )
 async def create_task(
     section_id: UUID,
@@ -111,9 +111,9 @@ async def create_task(
 
 
 @router.put(
-    '/tasks/{task_id}',
+    "/tasks/{task_id}",
     response_model=TaskResponse,
-    summary='Update task',
+    summary="Update task",
 )
 async def update_task(
     task_id: UUID,
@@ -140,10 +140,10 @@ async def update_task(
 
 
 @router.post(
-    '/sections/{section_id}/code-tasks',
+    "/sections/{section_id}/code-tasks",
     response_model=CodeTaskResponse,
     status_code=status.HTTP_201_CREATED,
-    summary='Create code task',
+    summary="Create code task",
 )
 async def create_code_task(
     section_id: UUID,
@@ -170,9 +170,9 @@ async def create_code_task(
 
 
 @router.put(
-    '/code-tasks/{code_task_id}',
+    "/code-tasks/{code_task_id}",
     response_model=CodeTaskResponse,
-    summary='Update code task',
+    summary="Update code task",
 )
 async def update_code_task(
     code_task_id: UUID,
@@ -199,10 +199,10 @@ async def update_code_task(
 
 
 @router.post(
-    '/code-tasks/{code_task_id}/test-cases',
+    "/code-tasks/{code_task_id}/test-cases",
     response_model=TestCaseResponse,
     status_code=status.HTTP_201_CREATED,
-    summary='Create test case',
+    summary="Create test case",
 )
 async def create_test_case(
     code_task_id: UUID,
@@ -225,14 +225,15 @@ async def create_test_case(
 
 
 @router.put(
-    '/test-cases/{test_case_id}',
+    "/test-cases/{test_case_id}",
     response_model=TestCaseResponse,
-    summary='Update test case',
+    summary="Update test case",
 )
 async def update_test_case(
     test_case_id: UUID,
     request: UpdateTestCaseRequest,
-    actor: User = Depends(get_current_author_or_admin),   use_case: UpdateTestCaseUseCase = Depends(get_update_test_case_use_case),
+    actor: User = Depends(get_current_author_or_admin),
+    use_case: UpdateTestCaseUseCase = Depends(get_update_test_case_use_case),
 ) -> TestCaseResponse:
     result = await use_case.execute(
         UpdateTestCaseCommand(
@@ -249,15 +250,14 @@ async def update_test_case(
 
 
 @router.delete(
-    '/code-tasks/{code_task_id}',
+    "/code-tasks/{code_task_id}",
     status_code=status.HTTP_204_NO_CONTENT,
     summary="Delete code_task",
 )
-
 async def delete_code_task(
-    code_task_id : UUID,
-    actor : User = Depends(get_current_author_or_admin),
-    use_case : DeleteCodeTaskUseCase = Depends(get_delete_code_task_use_case),
+    code_task_id: UUID,
+    actor: User = Depends(get_current_author_or_admin),
+    use_case: DeleteCodeTaskUseCase = Depends(get_delete_code_task_use_case),
 ) -> Response:
     await use_case.execute(
         DeleteCodeTaskCommand(
@@ -267,26 +267,28 @@ async def delete_code_task(
     )
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
+
 @router.delete(
-    '/test-cases/{test_case_id}',
+    "/test-cases/{test_case_id}",
     summary="Delete Test-case",
-    status_code=status.HTTP_204_NO_CONTENT
+    status_code=status.HTTP_204_NO_CONTENT,
 )
 async def delete_test_case(
-    test_case_id : UUID,
-    actor : User = Depends(get_current_author_or_admin),
-    use_case : DeleteTestCaseUseCase = Depends(get_delete_test_case_use_case)
+    test_case_id: UUID,
+    actor: User = Depends(get_current_author_or_admin),
+    use_case: DeleteTestCaseUseCase = Depends(get_delete_test_case_use_case),
 ) -> Response:
     await use_case.execute(
         DeleteTestCaseCommand(
             test_case_id=test_case_id,
-            actor = actor,
+            actor=actor,
         )
     )
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
+
 @router.delete(
-    '/tasks/{task_id}',
+    "/tasks/{task_id}",
     status_code=status.HTTP_204_NO_CONTENT,
     summary="Delete task",
 )

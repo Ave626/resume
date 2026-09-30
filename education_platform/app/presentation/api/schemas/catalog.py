@@ -47,7 +47,6 @@ class CourseCatalogModulePreviewResponse(BaseModel):
     sections: list[CourseCatalogSectionPreviewResponse]
 
 
-
 class CourseCatalogCardResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 

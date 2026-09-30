@@ -20,3 +20,7 @@ class ProgressRepository(ABC):
     @abstractmethod
     async def update(self, progress: Progress) -> None:
         raise NotImplementedError
+
+    @abstractmethod
+    async def list_by_course_id(self, course_id: UUID) -> list[Progress]:
+        raise NotImplementedError

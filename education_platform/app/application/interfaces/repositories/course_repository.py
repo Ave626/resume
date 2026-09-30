@@ -24,16 +24,16 @@ class CourseRepository(ABC):
     @abstractmethod
     async def delete(self, course: Course) -> None:
         raise NotImplementedError
-    
+
     @abstractmethod
-    async def list_published(self) -> 'list[Course]':  
+    async def list_published(self) -> "list[Course]":
         raise NotImplementedError
-    
+
     @abstractmethod
     async def find_published_catalog_courses(
         self,
         *,
-        search: str = '',
+        search: str = "",
         difficulty: CourseDifficulty | None = None,
-    ) -> 'list[Course]':
+    ) -> "list[Course]":
         raise NotImplementedError

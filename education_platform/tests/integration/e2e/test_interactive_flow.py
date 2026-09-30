@@ -372,4 +372,3 @@ async def test_cannot_delete_answer_option_when_question_becomes_invalid(
     active_option_ids = [opt["id"] for opt in attempt_res.json()["answer_options"]]
     assert len(active_option_ids) == 2
     assert opt2_id in active_option_ids
-

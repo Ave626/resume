@@ -5,7 +5,9 @@ from app.domain.entities.code_task import CodeTask
 from app.domain.entities.execution_result import ExecutionResult, ExecutionStatus
 from app.domain.entities.test_case import TestCase
 from app.infrastructure.execution.docker_runner import DockerRunResult, DockerRunner
-from app.infrastructure.execution.execution_profile_registry import ExecutionProfileRegistry
+from app.infrastructure.execution.execution_profile_registry import (
+    ExecutionProfileRegistry,
+)
 
 
 class DockerCodeExecutionGateway(CodeExecutionGateway):
@@ -16,7 +18,7 @@ class DockerCodeExecutionGateway(CodeExecutionGateway):
     ) -> None:
         self.runner = runner
         self.profile_registry = profile_registry
-    
+
     async def execute(
         self,
         code_task: CodeTask,
@@ -42,6 +44,7 @@ class DockerCodeExecutionGateway(CodeExecutionGateway):
             run_result=run_result,
             total_test_cases=len(test_cases),
         )
+
     def _to_execution_result(
         self,
         submission_id: UUID,
@@ -56,7 +59,7 @@ class DockerCodeExecutionGateway(CodeExecutionGateway):
                 total_test_cases=total_test_cases,
                 stdout=run_result.stdout,
                 stderr=run_result.stderr,
-                error_message='',
+                error_message="",
                 exit_code=run_result.exit_code,
             )
 
@@ -68,7 +71,7 @@ class DockerCodeExecutionGateway(CodeExecutionGateway):
                 total_test_cases=total_test_cases,
                 stdout=run_result.stdout,
                 stderr=run_result.stderr,
-                error_message='Execution timed out.',
+                error_message="Execution timed out.",
                 exit_code=run_result.exit_code,
             )
 
@@ -80,5 +83,5 @@ class DockerCodeExecutionGateway(CodeExecutionGateway):
             stdout=run_result.stdout,
             stderr=run_result.stderr,
             error_message=run_result.stderr.strip(),
-            exit_code=run_result.exit_code
+            exit_code=run_result.exit_code,
         )

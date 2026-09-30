@@ -30,13 +30,13 @@ class GetCodeTaskUseCase:
     async def execute(self, query: GetCodeTaskQuery) -> CodeTask:
         code_task = await self.code_task_repository.get_by_id(query.code_task_id)
         if code_task is None:
-            raise CodeTaskNotFoundError('CodeTask not found.')
+            raise CodeTaskNotFoundError("CodeTask not found.")
 
         can_view = await self.access_service.can_view_section_content(
             section_id=code_task.section_id,
             actor=query.actor,
         )
         if not can_view:
-            raise CodeTaskNotFoundError('CodeTask not found.')
+            raise CodeTaskNotFoundError("CodeTask not found.")
 
         return code_task

@@ -13,10 +13,21 @@ class SectionMapper:
             title=model.title,
             description=model.description,
             position=model.position,
-            lecture_ids=[UUID(lecture.id) for lecture in sorted(model.lectures, key=lambda x: x.position)],
-            question_ids=[UUID(question.id) for question in sorted(model.questions, key=lambda x: x.position)],
-            task_ids=[UUID(task.id) for task in sorted(model.tasks, key=lambda x: x.position)],
-            code_task_ids=[UUID(code_task.id) for code_task in sorted(model.code_tasks, key=lambda x: x.position)],
+            lecture_ids=[
+                UUID(lecture.id)
+                for lecture in sorted(model.lectures, key=lambda x: x.position)
+            ],
+            question_ids=[
+                UUID(question.id)
+                for question in sorted(model.questions, key=lambda x: x.position)
+            ],
+            task_ids=[
+                UUID(task.id) for task in sorted(model.tasks, key=lambda x: x.position)
+            ],
+            code_task_ids=[
+                UUID(code_task.id)
+                for code_task in sorted(model.code_tasks, key=lambda x: x.position)
+            ],
         )
 
     @staticmethod

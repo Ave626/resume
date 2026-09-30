@@ -6,27 +6,28 @@ from app.application.interfaces.repositories.section_repository import SectionRe
 from app.domain.entities.course import Course
 from app.domain.entities.user import User
 
+
 class CourseContentAccessService:
     def __init__(
         self,
-        course_repository : CourseRepository,
-        module_repository : ModuleRepository,
-        section_repository : SectionRepository,
+        course_repository: CourseRepository,
+        module_repository: ModuleRepository,
+        section_repository: SectionRepository,
     ) -> None:
         self.course_repository = course_repository
         self.module_repository = module_repository
         self.section_repository = section_repository
-    
+
     async def can_view_course(
         self,
-        course_id : UUID,
-        actor : User | None,
+        course_id: UUID,
+        actor: User | None,
     ) -> bool:
         course = await self.course_repository.get_by_id(course_id)
         if course is None:
             return False
-        return self._can_view_course(course,actor)
-    
+        return self._can_view_course(course, actor)
+
     async def can_view_section_content(
         self,
         section_id: UUID,
@@ -45,7 +46,7 @@ class CourseContentAccessService:
             return False
 
         return self._can_view_course(course=course, actor=actor)
-    
+
     def _can_view_course(
         self,
         course: Course,

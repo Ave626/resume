@@ -1,13 +1,14 @@
-from dataclasses import dataclass,field
+from dataclasses import dataclass, field
 from uuid import UUID
+
 
 @dataclass(slots=True)
 class StudentModuleAnalyticsDTO:
-    module_id : UUID
-    title : str
-    completed_sections_count : int
-    total_sections_count : int
-    is_completed : bool
+    module_id: UUID
+    title: str
+    completed_sections_count: int
+    total_sections_count: int
+    is_completed: bool
 
 
 @dataclass(slots=True)
@@ -23,11 +24,13 @@ class StudentWeakTaskDTO:
     section_id: UUID
     attempts_count: int
 
-@dataclass(slots = True)
+
+@dataclass(slots=True)
 class StudentWeakCodeTaskDTO:
-    code_task_id : UUID
-    section_id : UUID
-    attempts_count : int
+    code_task_id: UUID
+    section_id: UUID
+    attempts_count: int
+
 
 @dataclass(slots=True)
 class StudentCourseAnalyticsDTO:

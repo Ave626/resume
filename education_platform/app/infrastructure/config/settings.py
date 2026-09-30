@@ -51,19 +51,23 @@ class Settings(BaseSettings):
         default=30,
         validation_alias="JWT_ACCESS_TOKEN_EXPIRE_MINUTES",
     )
-    
+
     redis_url: str = Field(
-        default='redis://localhost:6379/0',
-        validation_alias='REDIS_URL',
+        default="redis://localhost:6379/0",
+        validation_alias="REDIS_URL",
     )
     submission_queue_name: str = Field(
-        default='code-submissions',
-        validation_alias='SUBMISSION_QUEUE_NAME',
+        default="code-submissions",
+        validation_alias="SUBMISSION_QUEUE_NAME",
     )
-    s3_endpoint_url: str = Field(default="http://localhost:9000", validation_alias="S3_ENDPOINT_URL")
+    s3_endpoint_url: str = Field(
+        default="http://localhost:9000", validation_alias="S3_ENDPOINT_URL"
+    )
     s3_access_key: str = Field(default="minioadmin", validation_alias="S3_ACCESS_KEY")
     s3_secret_key: str = Field(default="minioadmin", validation_alias="S3_SECRET_KEY")
-    s3_bucket_name: str = Field(default="course-covers", validation_alias="S3_BUCKET_NAME")
+    s3_bucket_name: str = Field(
+        default="course-covers", validation_alias="S3_BUCKET_NAME"
+    )
 
     @property
     def api(self) -> ApiSettings:
@@ -87,7 +91,7 @@ class Settings(BaseSettings):
             algorithm=self.jwt_algorithm,
             access_token_expire_minutes=self.jwt_access_token_expire_minutes,
         )
-    
+
     @property
     def s3(self) -> S3Settings:
         return S3Settings(

@@ -17,7 +17,10 @@ class CourseMapper:
             short_description=model.short_description,
             difficulty=CourseDifficulty(model.difficulty),
             tag_names=list(model.tag_names or []),
-            module_ids=[UUID(module.id) for module in sorted(model.modules, key=lambda x: x.position)],
+            module_ids=[
+                UUID(module.id)
+                for module in sorted(model.modules, key=lambda x: x.position)
+            ],
         )
 
     @staticmethod

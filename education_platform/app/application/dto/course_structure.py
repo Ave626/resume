@@ -1,6 +1,7 @@
 from dataclasses import dataclass, field
 from uuid import UUID
-from app.domain.entities.course import CourseStatus,CourseDifficulty
+from app.domain.entities.course import CourseStatus, CourseDifficulty
+
 
 @dataclass(slots=True)
 class LectureStructureDTO:
@@ -45,7 +46,6 @@ class ModuleStructureDTO:
     description: str
     position: int
     sections: list[SectionStructureDTO] = field(default_factory=list)
-
 
 
 @dataclass(slots=True)

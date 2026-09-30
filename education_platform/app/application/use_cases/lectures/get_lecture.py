@@ -28,13 +28,13 @@ class GetLectureUseCase:
     async def execute(self, query: GetLectureQuery) -> Lecture:
         lecture = await self.lecture_repository.get_by_id(query.lecture_id)
         if lecture is None:
-            raise LectureNotFoundError('Lecture not found.')
+            raise LectureNotFoundError("Lecture not found.")
 
         can_view = await self.access_service.can_view_section_content(
             section_id=lecture.section_id,
             actor=query.actor,
         )
         if not can_view:
-            raise LectureNotFoundError('Lecture not found.')
+            raise LectureNotFoundError("Lecture not found.")
 
         return lecture

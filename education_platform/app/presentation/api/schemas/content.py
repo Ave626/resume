@@ -96,6 +96,7 @@ class ModuleStructureResponse(ModuleBaseResponse):
 class CourseStructureResponse(CourseBaseResponse):
     modules: list[ModuleStructureResponse]
 
+
 class AnswerOptionDetailsResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 

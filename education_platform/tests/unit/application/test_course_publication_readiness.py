@@ -22,7 +22,9 @@ class DictRepository:
         return self.items.get(entity_id)
 
     async def get_by_ids(self, entity_ids):
-        return [self.items[entity_id] for entity_id in entity_ids if entity_id in self.items]
+        return [
+            self.items[entity_id] for entity_id in entity_ids if entity_id in self.items
+        ]
 
     async def add(self, entity):
         self.items[entity.id] = entity
@@ -36,7 +38,9 @@ class FakeTestCaseRepository:
         self.items[entity.id] = entity
 
     async def list_by_code_task_id(self, code_task_id):
-        return [item for item in self.items.values() if item.code_task_id == code_task_id]
+        return [
+            item for item in self.items.values() if item.code_task_id == code_task_id
+        ]
 
 
 class FakePublicationUnitOfWork:
@@ -54,9 +58,10 @@ def build_course() -> Course:
     return Course(
         id=uuid4(),
         author_id=uuid4(),
-        title='FastAPI course',
-        description='Clean architecture in practice.',
+        title="FastAPI course",
+        description="Clean architecture in practice.",
     )
+
 
 @pytest.mark.asyncio
 async def test_readiness_reports_missing_modules() -> None:
@@ -67,7 +72,7 @@ async def test_readiness_reports_missing_modules() -> None:
     readiness = await service.inspect_course(course)
 
     assert readiness.is_ready is False
-    assert readiness.issues[0].code == 'course_without_modules'
+    assert readiness.issues[0].code == "course_without_modules"
 
 
 @pytest.mark.asyncio
@@ -79,28 +84,28 @@ async def test_readiness_reports_question_and_code_task_problems() -> None:
     module = Module(
         id=uuid4(),
         course_id=course.id,
-        title='Module 1',
-        description='Description',
+        title="Module 1",
+        description="Description",
         position=1,
     )
     section = Section(
         id=uuid4(),
         module_id=module.id,
-        title='Section 1',
-        description='Description',
+        title="Section 1",
+        description="Description",
         position=1,
     )
     lecture = Lecture(
         id=uuid4(),
         section_id=section.id,
-        title='Lecture 1',
-        content='Lecture content',
+        title="Lecture 1",
+        content="Lecture content",
         position=1,
     )
     question = Question(
         id=uuid4(),
         section_id=section.id,
-        text='Choose the correct option.',
+        text="Choose the correct option.",
         position=1,
         question_type=QuestionType.SINGLE_CHOICE,
         max_attempts=2,
@@ -109,18 +114,18 @@ async def test_readiness_reports_question_and_code_task_problems() -> None:
     option = AnswerOption(
         id=uuid4(),
         question_id=question.id,
-        text='Only option',
+        text="Only option",
         position=1,
         is_correct=True,
     )
     code_task = CodeTask(
         id=uuid4(),
         section_id=section.id,
-        title='Code task',
-        statement='Solve it.',
+        title="Code task",
+        statement="Solve it.",
         position=2,
         language=CodeTaskLanguage.PYTHON,
-        starter_code='print(1)',
+        starter_code="print(1)",
         max_attempts=2,
         reward_points=5,
         time_limit_seconds=2,
@@ -145,5 +150,5 @@ async def test_readiness_reports_question_and_code_task_problems() -> None:
 
     codes = {str(issue.code) for issue in readiness.issues}
     assert readiness.is_ready is False
-    assert 'question_with_invalid_options' in codes
-    assert 'code_task_without_test_cases' in codes
+    assert "question_with_invalid_options" in codes
+    assert "code_task_without_test_cases" in codes

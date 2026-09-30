@@ -9,15 +9,15 @@ from app.domain.exceptions import (
 
 
 class CourseStatus(StrEnum):
-    DRAFT = 'draft'
-    PUBLISHED = 'published'
-    ARCHIVED = 'archived'
+    DRAFT = "draft"
+    PUBLISHED = "published"
+    ARCHIVED = "archived"
 
 
 class CourseDifficulty(StrEnum):
-    BEGINNER = 'beginner'
-    INTERMEDIATE = 'intermediate'
-    ADVANCED = 'advanced'
+    BEGINNER = "beginner"
+    INTERMEDIATE = "intermediate"
+    ADVANCED = "advanced"
 
 
 @dataclass(slots=True)
@@ -28,7 +28,7 @@ class Course:
     description: str
     status: CourseStatus = CourseStatus.DRAFT
     cover_image_url: str | None = None
-    short_description: str = ''
+    short_description: str = ""
     difficulty: CourseDifficulty = CourseDifficulty.BEGINNER
     tag_names: list[str] = field(default_factory=list)
     module_ids: list[UUID] = field(default_factory=list)
@@ -39,15 +39,19 @@ class Course:
 
     def _validate(self) -> None:
         if not self.title or not self.title.strip():
-            raise InvalidCourseError('Course title cannot be empty.')
+            raise InvalidCourseError("Course title cannot be empty.")
         if not self.description or not self.description.strip():
-            raise InvalidCourseError('Course description cannot be empty.')
+            raise InvalidCourseError("Course description cannot be empty.")
         if self.cover_image_url is not None and not self.cover_image_url.strip():
-            raise InvalidCourseError('Course cover image URL cannot be empty when provided.')
+            raise InvalidCourseError(
+                "Course cover image URL cannot be empty when provided."
+            )
         if len(self.short_description) > 280:
-            raise InvalidCourseError('Course short description cannot be longer than 280 characters.')
+            raise InvalidCourseError(
+                "Course short description cannot be longer than 280 characters."
+            )
         if len(self.tag_names) > 10:
-            raise InvalidCourseError('Course cannot have more than 10 tags.')
+            raise InvalidCourseError("Course cannot have more than 10 tags.")
 
     def _normalize_tag_names(self, tag_names: list[str]) -> list[str]:
         normalized: list[str] = []
@@ -58,7 +62,9 @@ class Course:
             if not tag:
                 continue
             if len(tag) > 32:
-                raise InvalidCourseError('Course tag cannot be longer than 32 characters.')
+                raise InvalidCourseError(
+                    "Course tag cannot be longer than 32 characters."
+                )
             if tag not in seen:
                 seen.add(tag)
                 normalized.append(tag)
@@ -104,15 +110,13 @@ class Course:
 
     def publish(self) -> None:
         if self.is_published():
-            raise InvalidCourseStatusTransitionError(
-                'Course is already published.'
-            )
+            raise InvalidCourseStatusTransitionError("Course is already published.")
         self.status = CourseStatus.PUBLISHED
 
     def archive(self) -> None:
         if not self.is_published():
             raise InvalidCourseStatusTransitionError(
-                'Only published courses can be archived.'
+                "Only published courses can be archived."
             )
         self.status = CourseStatus.ARCHIVED
 

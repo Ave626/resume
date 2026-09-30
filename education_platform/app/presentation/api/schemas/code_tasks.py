@@ -10,7 +10,7 @@ class CodeTaskWriteRequest(BaseModel):
     statement: str = Field(min_length=1)
     position: int = Field(ge=1)
     language: CodeTaskLanguage
-    starter_code: str = ''
+    starter_code: str = ""
     max_attempts: int = Field(ge=1)
     reward_points: int = Field(ge=1)
     time_limit_seconds: int = Field(ge=1)

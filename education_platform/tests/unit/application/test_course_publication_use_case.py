@@ -62,8 +62,8 @@ class FakePublicationUnitOfWork(UnitOfWork):
 def make_author() -> User:
     return User(
         id=uuid4(),
-        email='author@example.com',
-        hashed_password='hashed-password',
+        email="author@example.com",
+        hashed_password="hashed-password",
         role=UserRole.AUTHOR,
     )
 
@@ -72,8 +72,8 @@ def make_course(author: User) -> Course:
     return Course(
         id=uuid4(),
         author_id=author.id,
-        title='Course',
-        description='Description',
+        title="Course",
+        description="Description",
     )
 
 

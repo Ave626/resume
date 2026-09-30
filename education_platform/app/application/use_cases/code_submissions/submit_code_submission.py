@@ -22,14 +22,16 @@ class SubmitCodeSubmissionUseCase:
 
     async def execute(self, command: SubmitCodeSubmissionCommand) -> CodeSubmission:
         if not command.actor.can_submit_task_solutions():
-            raise PermissionDeniedError('User cannot submit code solutions.')
+            raise PermissionDeniedError("User cannot submit code solutions.")
 
         async with self.uow:
             code_task = await self.uow.code_tasks.get_by_id(command.code_task_id)
             if code_task is None:
-                raise CodeTaskNotFoundError('CodeTask not found.')
+                raise CodeTaskNotFoundError("CodeTask not found.")
 
-            submissions = await self.uow.code_submissions.list_by_code_task_id(code_task.id)
+            submissions = await self.uow.code_submissions.list_by_code_task_id(
+                code_task.id
+            )
             student_submissions = [
                 submission
                 for submission in submissions
@@ -37,7 +39,7 @@ class SubmitCodeSubmissionUseCase:
             ]
             existing_submissions_count = len(student_submissions)
             has_passed_submission = any(
-                submission.status.value == 'passed'
+                submission.status.value == "passed"
                 for submission in student_submissions
             )
             submission = code_task.create_submission(

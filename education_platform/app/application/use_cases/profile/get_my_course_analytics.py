@@ -7,10 +7,11 @@ from app.application.dto.student_course_analytics import (
     StudentWeakQuestionDTO,
     StudentWeakTaskDTO,
 )
-from app.application.exceptions import CourseNotFoundError,PermissionDeniedError
+from app.application.exceptions import CourseNotFoundError, PermissionDeniedError
 from app.application.interfaces.unit_of_work import UnitOfWork
 from app.domain.entities.code_submission import CodeSubmissionStatus
 from app.domain.entities.user import User
+
 
 @dataclass(slots=True)
 class GetMyCourseAnalyticsQuery:
@@ -22,18 +23,19 @@ class GetMyCourseAnalyticsUseCase:
     def __init__(self, uow: UnitOfWork) -> None:
         self.uow = uow
 
-    async def execute(self,query : GetMyCourseAnalyticsQuery) -> StudentModuleAnalyticsDTO:
+    async def execute(
+        self, query: GetMyCourseAnalyticsQuery
+    ) -> StudentModuleAnalyticsDTO:
         if not query.actor.can_view_own_learning_results():
-            raise PermissionDeniedError('User cannot view own learning analytics.')
-        
+            raise PermissionDeniedError("User cannot view own learning analytics.")
+
         async with self.uow:
             course = await self.uow.courses.get_by_id(query.course_id)
             if course is None:
-                raise CourseNotFoundError('Course not found')
-            
+                raise CourseNotFoundError("Course not found")
+
             progress = await self.uow.progress.get_by_student_and_course(
-                student_id=query.actor.id,
-                course_id=query.course_id
+                student_id=query.actor.id, course_id=query.course_id
             )
             modules = await self.uow.modules.get_by_ids(course.module_ids)
             total_modules_count = len(modules)
@@ -42,10 +44,14 @@ class GetMyCourseAnalyticsUseCase:
             weak_question_dtos: list[StudentWeakQuestionDTO] = []
             weak_task_dtos: list[StudentWeakTaskDTO] = []
             weak_code_task_dtos: list[StudentWeakCodeTaskDTO] = []
-            completed_module_ids = set(progress.completed_module_ids if progress else [])
-            completed_section_ids = set(progress.completed_section_ids if progress else [])
+            completed_module_ids = set(
+                progress.completed_module_ids if progress else []
+            )
+            completed_section_ids = set(
+                progress.completed_section_ids if progress else []
+            )
 
-            for module in sorted(modules,key=lambda item : item.position):
+            for module in sorted(modules, key=lambda item: item.position):
                 sections = await self.uow.sections.get_by_ids(module.section_ids)
                 total_sections_count += len(sections)
                 completed_sections_in_module = 0
@@ -87,7 +93,8 @@ class GetMyCourseAnalyticsUseCase:
                         )
                         has_multiple_attempts = len(submissions) > 1
                         has_unsuccessful_runs = any(
-                            submission.status in (CodeSubmissionStatus.FAILED, CodeSubmissionStatus.ERROR)
+                            submission.status
+                            in (CodeSubmissionStatus.FAILED, CodeSubmissionStatus.ERROR)
                             for submission in submissions
                         )
                         if has_multiple_attempts or has_unsuccessful_runs:
@@ -99,7 +106,6 @@ class GetMyCourseAnalyticsUseCase:
                                 )
                             )
 
-
                 module_dtos.append(
                     StudentModuleAnalyticsDTO(
                         module_id=module.id,
@@ -109,12 +115,24 @@ class GetMyCourseAnalyticsUseCase:
                         is_completed=module.id in completed_module_ids,
                     )
                 )
-                
-            completion_ratio = 0.0 if progress is None else progress.course_completion_ratio(total_sections_count)
-            is_completed = False if progress is None else progress.is_course_completed(total_sections_count)
+
+            completion_ratio = (
+                0.0
+                if progress is None
+                else progress.course_completion_ratio(total_sections_count)
+            )
+            is_completed = (
+                False
+                if progress is None
+                else progress.is_course_completed(total_sections_count)
+            )
             total_points = 0 if progress is None else progress.total_points
-            completed_modules_count = 0 if progress is None else progress.completed_modules_count()
-            completed_sections_count = 0 if progress is None else progress.completed_sections_count()
+            completed_modules_count = (
+                0 if progress is None else progress.completed_modules_count()
+            )
+            completed_sections_count = (
+                0 if progress is None else progress.completed_sections_count()
+            )
 
             return StudentCourseAnalyticsDTO(
                 course_id=course.id,

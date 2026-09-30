@@ -12,50 +12,50 @@ async def test_task_flow_from_author_setup_to_student_progress(
     session_factory,
 ):
     course_response = await client.post(
-        '/api/admin/courses',
+        "/api/admin/courses",
         headers=author_auth_headers,
         json={
-            'title': 'Tasks course',
-            'description': 'Course with tasks.',
+            "title": "Tasks course",
+            "description": "Course with tasks.",
         },
     )
-    course_id = course_response.json()['id']
+    course_id = course_response.json()["id"]
 
     module_response = await client.post(
-        f'/api/admin/courses/{course_id}/modules',
+        f"/api/admin/courses/{course_id}/modules",
         headers=author_auth_headers,
-        json={'title': 'HTTP', 'description': 'Practice', 'position': 1},
+        json={"title": "HTTP", "description": "Practice", "position": 1},
     )
-    module_id = module_response.json()['id']
+    module_id = module_response.json()["id"]
 
     section_response = await client.post(
-        f'/api/admin/modules/{module_id}/sections',
+        f"/api/admin/modules/{module_id}/sections",
         headers=author_auth_headers,
-        json={'title': 'Basics', 'description': 'Intro', 'position': 1},
+        json={"title": "Basics", "description": "Intro", "position": 1},
     )
-    section_id = section_response.json()['id']
+    section_id = section_response.json()["id"]
 
     task_response = await client.post(
-        f'/api/admin/sections/{section_id}/tasks',
+        f"/api/admin/sections/{section_id}/tasks",
         headers=author_auth_headers,
         json={
-            'title': 'HTTP method',
-            'statement': 'Enter GET.',
-            'position': 1,
-            'check_type': 'exact_match',
-            'expected_answer': 'GET',
-            'accepted_answers': [],
-            'answer_pattern': '',
-            'max_attempts': 2,
-            'reward_points': 3,
+            "title": "HTTP method",
+            "statement": "Enter GET.",
+            "position": 1,
+            "check_type": "exact_match",
+            "expected_answer": "GET",
+            "accepted_answers": [],
+            "answer_pattern": "",
+            "max_attempts": 2,
+            "reward_points": 3,
         },
     )
-    task_id = task_response.json()['id']
+    task_id = task_response.json()["id"]
 
     submit_response = await client.post(
-        f'/api/learning/tasks/{task_id}/attempts',
+        f"/api/learning/tasks/{task_id}/attempts",
         headers=student_auth_headers,
-        json={'submitted_answer': 'GET'},
+        json={"submitted_answer": "GET"},
     )
     assert submit_response.status_code == 201
 

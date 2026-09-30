@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, Response, status,UploadFile,File
+from fastapi import APIRouter, Depends, Response, status, UploadFile, File
 
 from app.application.use_cases.courses.create_course import (
     CreateCourseCommand,
@@ -65,8 +65,8 @@ from app.presentation.api.dependencies import (
     get_update_lecture_use_case,
     get_update_module_use_case,
     get_update_section_use_case,
-    get_archive_course_use_case,  
-    get_publish_course_use_case, 
+    get_archive_course_use_case,
+    get_publish_course_use_case,
     get_get_course_publication_readiness_use_case,
     get_upload_course_cover_use_case,
 )
@@ -84,8 +84,8 @@ from app.presentation.api.schemas import (
     UpdateLectureRequest,
     UpdateModuleRequest,
     UpdateSectionRequest,
-    CoursePublicationErrorResponse,   
-    CoursePublicationReadinessResponse,   
+    CoursePublicationErrorResponse,
+    CoursePublicationReadinessResponse,
 )
 from app.application.use_cases.courses.archive_course import (
     ArchiveCourseCommand,
@@ -134,9 +134,9 @@ router = APIRouter(
     },
 )
 async def create_course(
-        request: CreateCourseRequest,
-        actor: User = Depends(get_current_author_or_admin),
-        use_case: CreateCourseUseCase = Depends(get_create_course_use_case),
+    request: CreateCourseRequest,
+    actor: User = Depends(get_current_author_or_admin),
+    use_case: CreateCourseUseCase = Depends(get_create_course_use_case),
 ) -> CourseResponse:
     result = await use_case.execute(
         CreateCourseCommand(
@@ -144,7 +144,9 @@ async def create_course(
             title=request.title,
             description=request.description,
             short_description=request.short_description,
-            cover_image_url=str(request.cover_image_url) if request.cover_image_url is not None else None,
+            cover_image_url=str(request.cover_image_url)
+            if request.cover_image_url is not None
+            else None,
             difficulty=request.difficulty,
             tag_names=list(request.tag_names),
         )
@@ -169,10 +171,10 @@ async def create_course(
     },
 )
 async def update_course(
-        course_id: UUID,
-        request: UpdateCourseRequest,
-        actor: User = Depends(get_current_author_or_admin),
-        use_case: UpdateCourseUseCase = Depends(get_update_course_use_case),
+    course_id: UUID,
+    request: UpdateCourseRequest,
+    actor: User = Depends(get_current_author_or_admin),
+    use_case: UpdateCourseUseCase = Depends(get_update_course_use_case),
 ) -> CourseResponse:
     result = await use_case.execute(
         UpdateCourseCommand(
@@ -181,7 +183,9 @@ async def update_course(
             title=request.title,
             description=request.description,
             short_description=request.short_description,
-            cover_image_url=str(request.cover_image_url) if request.cover_image_url is not None else None,
+            cover_image_url=str(request.cover_image_url)
+            if request.cover_image_url is not None
+            else None,
             difficulty=request.difficulty,
             tag_names=list(request.tag_names),
         )
@@ -499,19 +503,20 @@ async def delete_lecture(
     )
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
+
 @router.post(
-    '/courses/{course_id}/publish',
+    "/courses/{course_id}/publish",
     response_model=CourseResponse,
-    summary='Publish course',
-    description='Publishes the course if it is complete and ready for students.',
+    summary="Publish course",
+    description="Publishes the course if it is complete and ready for students.",
     responses={
         400: {
-            'description': 'Course is not ready for publication.',
-            'model': CoursePublicationErrorResponse,
+            "description": "Course is not ready for publication.",
+            "model": CoursePublicationErrorResponse,
         },
         404: {
-            'description': 'Course was not found.',
-            'model': ErrorResponse,
+            "description": "Course was not found.",
+            "model": ErrorResponse,
         },
     },
 )
@@ -528,19 +533,20 @@ async def publish_course(
     )
     return CourseResponse.model_validate(result)
 
+
 @router.post(
-    '/courses/{course_id}/archive',
+    "/courses/{course_id}/archive",
     response_model=CourseResponse,
-    summary='Archive course',
-    description='Removes the course from public visibility without deleting it.',
+    summary="Archive course",
+    description="Removes the course from public visibility without deleting it.",
     responses={
         400: {
-            'description': 'Domain or application validation error.',
-            'model': ErrorResponse,
+            "description": "Domain or application validation error.",
+            "model": ErrorResponse,
         },
         404: {
-            'description': 'Course was not found.',
-            'model': ErrorResponse,
+            "description": "Course was not found.",
+            "model": ErrorResponse,
         },
     },
 )
@@ -557,15 +563,16 @@ async def archive_course(
     )
     return CourseResponse.model_validate(result)
 
+
 @router.get(
-    '/courses/{course_id}/publication-readiness',
+    "/courses/{course_id}/publication-readiness",
     response_model=CoursePublicationReadinessResponse,
-    summary='Get course publication readiness',
-    description='Returns diagnostics that explain whether the course can be published.',
+    summary="Get course publication readiness",
+    description="Returns diagnostics that explain whether the course can be published.",
     responses={
         404: {
-            'description': 'Course was not found.',
-            'model': ErrorResponse,
+            "description": "Course was not found.",
+            "model": ErrorResponse,
         },
     },
 )
@@ -584,6 +591,7 @@ async def get_course_publication_readiness(
     )
     return CoursePublicationReadinessResponse.model_validate(result)
 
+
 @router.post(
     "/courses/{course_id}/cover",
     response_model=CourseResponse,
@@ -601,10 +609,10 @@ async def get_course_publication_readiness(
     },
 )
 async def upload_course_cover(
-    course_id : UUID,
-    file : UploadFile = File(...),
-    actor : User = Depends(get_current_author_or_admin),
-    use_case : UploadCourseCoverUseCase = Depends(get_upload_course_cover_use_case),
+    course_id: UUID,
+    file: UploadFile = File(...),
+    actor: User = Depends(get_current_author_or_admin),
+    use_case: UploadCourseCoverUseCase = Depends(get_upload_course_cover_use_case),
 ) -> CourseResponse:
     content = await file.read()
     result = await use_case.execute(

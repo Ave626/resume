@@ -9,7 +9,9 @@ from app.application.exceptions import QuestionNotFoundError
 from app.application.interfaces.repositories.answer_option_repository import (
     AnswerOptionRepository,
 )
-from app.application.interfaces.repositories.question_repository import QuestionRepository
+from app.application.interfaces.repositories.question_repository import (
+    QuestionRepository,
+)
 from app.application.services.course_content_access_service import (
     CourseContentAccessService,
 )
@@ -36,14 +38,14 @@ class GetQuestionUseCase:
     async def execute(self, query: GetQuestionQuery) -> QuestionDetailsDTO:
         question = await self.question_repository.get_by_id(query.question_id)
         if question is None:
-            raise QuestionNotFoundError('Question not found.')
+            raise QuestionNotFoundError("Question not found.")
 
         can_view = await self.access_service.can_view_section_content(
             section_id=question.section_id,
             actor=query.actor,
         )
         if not can_view:
-            raise QuestionNotFoundError('Question not found.')
+            raise QuestionNotFoundError("Question not found.")
 
         answer_options = await self.answer_option_repository.get_by_ids(
             question.answer_option_ids

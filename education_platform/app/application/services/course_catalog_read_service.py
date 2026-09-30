@@ -3,15 +3,20 @@ from app.application.dto.course_catalog import (
     CourseCatalogCountersDTO,
     CourseCatalogItemDTO,
     CourseCatalogModulePreviewDTO,
-    CourseCatalogSectionPreviewDTO
+    CourseCatalogSectionPreviewDTO,
 )
-from app.application.interfaces.repositories.code_task_repository import CodeTaskRepository
+from app.application.interfaces.repositories.code_task_repository import (
+    CodeTaskRepository,
+)
 from app.application.interfaces.repositories.lecture_repository import LectureRepository
 from app.application.interfaces.repositories.module_repository import ModuleRepository
-from app.application.interfaces.repositories.question_repository import QuestionRepository
+from app.application.interfaces.repositories.question_repository import (
+    QuestionRepository,
+)
 from app.application.interfaces.repositories.section_repository import SectionRepository
 from app.application.interfaces.repositories.task_repository import TaskRepository
 from app.domain.entities.course import Course
+
 
 class CourseCatalogReadService:
     def __init__(
@@ -29,7 +34,7 @@ class CourseCatalogReadService:
         self.question_repository = question_repository
         self.task_repository = task_repository
         self.code_task_repository = code_task_repository
-    
+
     async def build_catalog_item(self, course: Course) -> CourseCatalogItemDTO:
         counters = await self._build_counters(course)
         return CourseCatalogItemDTO(
@@ -42,7 +47,7 @@ class CourseCatalogReadService:
             status=course.status,
             counters=counters,
         )
-    
+
     async def build_course_card(self, course: Course) -> CourseCatalogCardDTO:
         counters = await self._build_counters(course)
         modules = await self.module_repository.get_by_ids(course.module_ids)
@@ -96,9 +101,13 @@ class CourseCatalogReadService:
 
             for section in sections:
                 lectures = await self.lecture_repository.get_by_ids(section.lecture_ids)
-                questions = await self.question_repository.get_by_ids(section.question_ids)
+                questions = await self.question_repository.get_by_ids(
+                    section.question_ids
+                )
                 tasks = await self.task_repository.get_by_ids(section.task_ids)
-                code_tasks = await self.code_task_repository.get_by_ids(section.code_task_ids)
+                code_tasks = await self.code_task_repository.get_by_ids(
+                    section.code_task_ids
+                )
 
                 lecture_count += len(lectures)
                 question_count += len(questions)

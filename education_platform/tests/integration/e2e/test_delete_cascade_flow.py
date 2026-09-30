@@ -52,7 +52,9 @@ async def test_delete_module_cascade_removes_sections_and_lectures(
     course_resp = await client.get(f"/api/courses/{course_id}", headers=headers)
     assert course_resp.status_code == 200
 
-    structure_resp = await client.get(f"/api/courses/{course_id}/structure", headers=headers)
+    structure_resp = await client.get(
+        f"/api/courses/{course_id}/structure", headers=headers
+    )
     assert structure_resp.status_code == 200
     assert len(structure_resp.json()["modules"]) == 0
 

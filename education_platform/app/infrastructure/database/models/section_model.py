@@ -25,14 +25,14 @@ class SectionModel(Base):
         order_by="LectureModel.position",
     )
     tasks = relationship(
-        'TaskModel',
-        back_populates='section',
-        cascade='all, delete-orphan',
-        order_by='TaskModel.position',
+        "TaskModel",
+        back_populates="section",
+        cascade="all, delete-orphan",
+        order_by="TaskModel.position",
     )
     code_tasks = relationship(
-        'CodeTaskModel',
-        back_populates='section',
-        cascade='all, delete-orphan',
-        order_by='CodeTaskModel.position',
+        "CodeTaskModel",
+        back_populates="section",
+        cascade="all, delete-orphan",
+        order_by="CodeTaskModel.position",
     )

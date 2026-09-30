@@ -10,9 +10,9 @@ class TaskWriteRequest(BaseModel):
     statement: str = Field(min_length=1)
     position: int = Field(ge=1)
     check_type: TaskCheckType
-    expected_answer: str = ''
+    expected_answer: str = ""
     accepted_answers: list[str] = Field(default_factory=list)
-    answer_pattern: str = ''
+    answer_pattern: str = ""
     max_attempts: int = Field(ge=1)
     reward_points: int = Field(ge=1)
 

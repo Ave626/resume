@@ -15,11 +15,11 @@ def build_code_task() -> CodeTask:
     return CodeTask(
         id=uuid4(),
         section_id=uuid4(),
-        title='Sum two numbers',
-        statement='Read two integers and print their sum.',
+        title="Sum two numbers",
+        statement="Read two integers and print their sum.",
         position=1,
         language=CodeTaskLanguage.PYTHON,
-        starter_code='print(1)',
+        starter_code="print(1)",
         max_attempts=2,
         reward_points=5,
         time_limit_seconds=2,
@@ -32,7 +32,7 @@ def test_code_task_creates_submission() -> None:
 
     submission = task.create_submission(
         student_id=uuid4(),
-        source_code='print(1)',
+        source_code="print(1)",
         existing_submissions_count=0,
         has_passed_submission=False,
     )
@@ -47,7 +47,7 @@ def test_code_task_respects_submission_limit() -> None:
     with pytest.raises(CodeSubmissionLimitExceededError):
         task.create_submission(
             student_id=uuid4(),
-            source_code='print(1)',
+            source_code="print(1)",
             existing_submissions_count=2,
             has_passed_submission=False,
         )
@@ -57,7 +57,7 @@ def test_code_submission_transitions_to_passed() -> None:
     task = build_code_task()
     submission = task.create_submission(
         student_id=uuid4(),
-        source_code='print(1)',
+        source_code="print(1)",
         existing_submissions_count=0,
         has_passed_submission=False,
     )
@@ -81,11 +81,11 @@ def test_code_task_rejects_too_small_memory_limit() -> None:
         CodeTask(
             id=uuid4(),
             section_id=uuid4(),
-            title='Bad config',
-            statement='Invalid task.',
+            title="Bad config",
+            statement="Invalid task.",
             position=1,
             language=CodeTaskLanguage.PYTHON,
-            starter_code='print(1)',
+            starter_code="print(1)",
             max_attempts=1,
             reward_points=1,
             time_limit_seconds=1,

@@ -8,7 +8,7 @@ class TestCaseWriteRequest(BaseModel):
     input_data: str
     expected_output: str
     is_hidden: bool = True
-    explanation: str = ''
+    explanation: str = ""
 
 
 class CreateTestCaseRequest(TestCaseWriteRequest):

@@ -3,20 +3,28 @@ from botocore.exceptions import ClientError
 
 from app.application.interfaces.services.file_storage import FileStorage
 
+
 class S3FileStorage(FileStorage):
-    def __init__(self,endpoint_url : str,access_key : str,secret_key : str,bucket_name : str,public_url_base : str) -> None:
+    def __init__(
+        self,
+        endpoint_url: str,
+        access_key: str,
+        secret_key: str,
+        bucket_name: str,
+        public_url_base: str,
+    ) -> None:
         self._endpoint_url = endpoint_url
         self._access_key = access_key
         self._secret_key = secret_key
         self._bucket_name = bucket_name
         self._public_url_base = public_url_base.rstrip("/")
         self._session = aioboto3.Session()
-    
+
     async def upload(
         self,
-        file_name : str,
-        content : bytes,
-        content_type : str,
+        file_name: str,
+        content: bytes,
+        content_type: str,
     ) -> str:
         async with self._session.client(
             "s3",

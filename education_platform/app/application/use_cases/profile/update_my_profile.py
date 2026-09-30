@@ -21,7 +21,7 @@ class UpdateMyProfileUseCase:
         async with self.uow:
             user = await self.uow.users.get_by_id(command.actor.id)
             if user is None:
-                raise RuntimeError('Authenticated user was not found.')
+                raise RuntimeError("Authenticated user was not found.")
 
             user.update_profile(
                 full_name=command.full_name,

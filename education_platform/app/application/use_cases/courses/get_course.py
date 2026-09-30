@@ -33,11 +33,11 @@ class GetCourseUseCase:
     async def execute(self, query: GetCourseQuery) -> CourseCatalogCardDTO:
         course = await self.course_repository.get_by_id(query.course_id)
         if course is None:
-            raise CourseNotFoundError('Course not found.')
+            raise CourseNotFoundError("Course not found.")
         can_view = await self.access_service.can_view_course(
             course_id=course.id,
             actor=query.actor,
         )
         if not can_view:
-            raise CourseNotFoundError('Course not found.')
+            raise CourseNotFoundError("Course not found.")
         return await self.catalog_read_service.build_course_card(course)

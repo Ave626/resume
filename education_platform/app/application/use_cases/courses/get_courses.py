@@ -2,13 +2,15 @@ from dataclasses import dataclass, field
 
 from app.application.dto.course_catalog import CourseCatalogItemDTO
 from app.application.interfaces.repositories.course_repository import CourseRepository
-from app.application.services.course_catalog_read_service import CourseCatalogReadService
+from app.application.services.course_catalog_read_service import (
+    CourseCatalogReadService,
+)
 from app.domain.entities.course import CourseDifficulty
 
 
 @dataclass(slots=True)
 class GetCoursesQuery:
-    search: str = ''
+    search: str = ""
     difficulty: CourseDifficulty | None = None
     tag_names: list[str] = field(default_factory=list)
 
@@ -21,7 +23,7 @@ class GetCoursesUseCase:
     ) -> None:
         self.course_repository = course_repository
         self.catalog_read_service = catalog_read_service
-    
+
     def _normalize_tags(self, tag_names: list[str]) -> list[str]:
         normalized: list[str] = []
         seen: set[str] = set()

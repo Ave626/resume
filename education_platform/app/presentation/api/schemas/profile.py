@@ -17,6 +17,6 @@ class UserProfileResponse(BaseModel):
 
 
 class UpdateMyProfileRequest(BaseModel):
-    full_name: str = Field(default='', max_length=120)
-    bio: str = Field(default='', max_length=500)
+    full_name: str = Field(default="", max_length=120)
+    bio: str = Field(default="", max_length=500)
     avatar_url: HttpUrl | None = None

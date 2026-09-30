@@ -1,10 +1,11 @@
 from uuid import UUID
-from app.domain.entities.code_task import CodeTask,CodeTaskLanguage
+from app.domain.entities.code_task import CodeTask, CodeTaskLanguage
 from app.infrastructure.database.models.code_task_model import CodeTaskModel
+
 
 class CodeTaskMapper:
     @staticmethod
-    def to_domain(model : CodeTaskModel) -> CodeTask:
+    def to_domain(model: CodeTaskModel) -> CodeTask:
         return CodeTask(
             id=UUID(model.id),
             section_id=UUID(model.section_id),
@@ -18,6 +19,7 @@ class CodeTaskMapper:
             time_limit_seconds=model.time_limit_seconds,
             memory_limit_mb=model.memory_limit_mb,
         )
+
     @staticmethod
     def to_model(entity: CodeTask) -> CodeTaskModel:
         return CodeTaskModel(

@@ -20,7 +20,9 @@ from app.application.dto.course_structure import (
     SectionStructureDTO,
     TaskStructureDTO,
 )
-from app.application.interfaces.repositories.code_task_repository import CodeTaskRepository
+from app.application.interfaces.repositories.code_task_repository import (
+    CodeTaskRepository,
+)
 from app.application.interfaces.repositories.task_repository import TaskRepository
 from app.application.services.course_content_access_service import (
     CourseContentAccessService,
@@ -53,16 +55,18 @@ class GetCourseStructureUseCase:
         self.code_task_repository = code_task_repository
         self.access_service = access_service
 
-    async def execute(self, query: GetCourseStructureQuery) -> CourseStructureDTO | None:
+    async def execute(
+        self, query: GetCourseStructureQuery
+    ) -> CourseStructureDTO | None:
         course = await self.course_repository.get_by_id(query.course_id)
-        if course is None:   
-            raise CourseNotFoundError('Course not found.')
+        if course is None:
+            raise CourseNotFoundError("Course not found.")
         can_view = await self.access_service.can_view_course(
             course_id=course.id,
             actor=query.actor,
         )
         if not can_view:
-            raise CourseNotFoundError('Course not found.')
+            raise CourseNotFoundError("Course not found.")
         modules = await self.module_repository.get_by_ids(course.module_ids)
         module_dtos: list[ModuleStructureDTO] = []
         for module in sorted(modules, key=lambda item: item.position):
@@ -79,7 +83,9 @@ class GetCourseStructureUseCase:
                     for lecture in sorted(lectures, key=lambda item: item.position)
                 ]
                 tasks = await self.task_repository.get_by_ids(section.task_ids)
-                code_tasks = await self.code_task_repository.get_by_ids(section.code_task_ids)
+                code_tasks = await self.code_task_repository.get_by_ids(
+                    section.code_task_ids
+                )
 
                 task_dtos = [
                     TaskStructureDTO(

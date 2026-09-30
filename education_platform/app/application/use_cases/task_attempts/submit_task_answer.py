@@ -23,25 +23,29 @@ class SubmitTaskAnswerCommand:
 
 
 class SubmitTaskAnswerUseCase:
-    def __init__(self, uow: UnitOfWork,task_checker : TaskChecker | None = None) -> None:
+    def __init__(
+        self, uow: UnitOfWork, task_checker: TaskChecker | None = None
+    ) -> None:
         self.uow = uow
         self.task_checker = task_checker or SimpleTaskChecker()
 
     async def execute(self, command: SubmitTaskAnswerCommand) -> TaskAttempt:
         if not command.actor.can_submit_task_solutions():
-            raise PermissionDeniedError('User cannot submit task solutions.')
+            raise PermissionDeniedError("User cannot submit task solutions.")
 
         async with self.uow:
             task = await self.uow.tasks.get_by_id(command.task_id)
             if task is None:
-                raise TaskNotFoundError('Task not found.')
+                raise TaskNotFoundError("Task not found.")
 
             student_attempts = await self.uow.task_attempts.get_by_student_and_task(
                 student_id=command.actor.id,
                 task_id=task.id,
             )
             existing_attempts_count = len(student_attempts)
-            has_correct_attempt = any(attempt.is_correct() for attempt in student_attempts)
+            has_correct_attempt = any(
+                attempt.is_correct() for attempt in student_attempts
+            )
 
             attempt = task.create_attempt(
                 student_id=command.actor.id,
@@ -64,11 +68,11 @@ class SubmitTaskAnswerUseCase:
             if attempt.is_correct():
                 section = await self.uow.sections.get_by_id(task.section_id)
                 if section is None:
-                    raise SectionNotFoundError('Section not found.')
+                    raise SectionNotFoundError("Section not found.")
 
                 module = await self.uow.modules.get_by_id(section.module_id)
                 if module is None:
-                    raise ModuleNotFoundError('Module not found.')
+                    raise ModuleNotFoundError("Module not found.")
 
                 progress = await self.uow.progress.get_by_student_and_course(
                     student_id=command.actor.id,

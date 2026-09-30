@@ -1,5 +1,6 @@
 from app.application.dto.course_publication import CoursePublicationReadinessDTO
 
+
 class ApplicationError(Exception):
     pass
 
@@ -47,6 +48,7 @@ class QuestionAlreadyUsedError(ApplicationError):
 class QuestionAttemptNotFoundError(ApplicationError):
     pass
 
+
 class TaskNotFoundError(ApplicationError):
     pass
 
@@ -54,11 +56,14 @@ class TaskNotFoundError(ApplicationError):
 class TaskAlreadyUsedError(ApplicationError):
     pass
 
+
 class CodeSubmissionNotFoundError(ApplicationError):
     pass
 
+
 class CodeTaskNotFoundError(ApplicationError):
     pass
+
 
 class CodeTaskAlreadyUsedError(ApplicationError):
     pass
@@ -67,13 +72,16 @@ class CodeTaskAlreadyUsedError(ApplicationError):
 class TestCaseNotFoundError(ApplicationError):
     pass
 
+
 class RetryableExecutionError(ApplicationError):
     pass
 
+
 class CoursePublicationNotReadyError(ApplicationError):
     def __init__(self, readiness: CoursePublicationReadinessDTO) -> None:
-        super().__init__('Course is not ready for publication.')
+        super().__init__("Course is not ready for publication.")
         self.readiness = readiness
+
 
 class InvalidCourseCoverFileError(ApplicationError):
     pass
