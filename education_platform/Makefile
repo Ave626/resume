@@ -7,11 +7,20 @@ RUFF ?= $(VENV)/bin/ruff
 HOST ?= 127.0.0.1
 PORT ?= 8000
 
-.PHONY: install run dev worker redis migrate migrate-down migration lint format clean
+.PHONY: install run dev worker redis compose-up compose-down compose-logs migrate migrate-down migration lint format clean
 
 install:
 	@chmod +x ./setup_env.sh
 	./setup_env.sh
+
+compose-up:
+	docker compose up -d
+
+compose-down:
+	docker compose down
+
+compose-logs:
+	docker compose logs -f
 
 run:
 	$(UVICORN) app.main:app --reload --host $(HOST) --port $(PORT)
