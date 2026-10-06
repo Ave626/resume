@@ -1,9 +1,10 @@
 import os
 from collections.abc import AsyncIterator
+from datetime import UTC, datetime
 from pathlib import Path
 from types import SimpleNamespace
 from uuid import uuid4
-from datetime import UTC, datetime
+
 import pytest
 import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
@@ -25,11 +26,13 @@ from app.infrastructure.database.models import (
     QuestionAttemptModel,
     QuestionModel,
     SectionModel,
+    StudentActivityModel,
     TaskAttemptModel,
     TaskModel,
     TestCaseModel,
     UserModel,
 )
+from app.bootstrap.build_submission_queue import get_redis_client
 from app.infrastructure.security.password_hasher import PwdlibPasswordHasher
 from app.main import create_app
 
@@ -82,6 +85,7 @@ async def client(app) -> AsyncIterator[AsyncClient]:
 async def clear_database(session_factory) -> None:
     async with session_factory() as session:
         for model in [
+            StudentActivityModel,
             AnswerOptionModel,
             QuestionAttemptModel,
             TaskAttemptModel,
@@ -101,60 +105,13 @@ async def clear_database(session_factory) -> None:
         ]:
             await session.execute(delete(model))
         await session.commit()
-
-
-@pytest_asyncio.fixture
-async def seeded_course_tree(session_factory):
-    course_id = str(uuid4())
-    module_id = str(uuid4())
-    section_id = str(uuid4())
-    lecture_id = str(uuid4())
-
-    async with session_factory() as session:
-        course = CourseModel(
-            id=course_id,
-            author_id=str(uuid4()),
-            title="FastAPI course",
-            description="Clean architecture in practice.",
-        )
-        module = ModuleModel(
-            id=module_id,
-            course_id=course_id,
-            title="MVP stage",
-            description="Content, users and access.",
-            position=1,
-        )
-        section = SectionModel(
-            id=section_id,
-            module_id=module_id,
-            title="Auth section",
-            description="JWT and route protection.",
-            position=1,
-        )
-        lecture = LectureModel(
-            id=lecture_id,
-            section_id=section_id,
-            title="Bearer token in practice",
-            content="Lecture content",
-            position=1,
-        )
-        session.add_all([course, module, section, lecture])
-        await session.commit()
-
-    return SimpleNamespace(
-        course_id=course_id,
-        module_id=module_id,
-        section_id=section_id,
-        lecture_id=lecture_id,
-        course_title="FastAPI course",
-        course_short_description="Build a production-ready learning backend.",
-        course_cover_image_url="https://example.com/fastapi-course-cover.png",
-        course_difficulty="intermediate",
-        course_tag_names=["fastapi", "backend", "architecture"],
-        course_average_rating=0.0,
-        course_reviews_count=0,
-        lecture_content="Lecture content",
-    )
+    try:
+        redis_client = get_redis_client()
+        keys = [k async for k in redis_client.scan_iter("content:*")]
+        if keys:
+            await redis_client.delete(*keys)
+    except Exception:
+        pass
 
 
 @pytest_asyncio.fixture

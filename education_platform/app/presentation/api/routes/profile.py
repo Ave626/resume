@@ -2,6 +2,10 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends
 
+from app.application.use_cases.activity.get_my_activity import (
+    GetMyActivitiesCommand,
+    GetMyActivitiesUseCase,
+)
 from app.application.use_cases.profile.get_my_course_analytics import (
     GetMyCourseAnalyticsQuery,
     GetMyCourseAnalyticsUseCase,
@@ -21,6 +25,7 @@ from app.application.use_cases.profile.update_my_profile import (
 from app.domain.entities.user import User
 from app.presentation.api.dependencies import (
     get_current_user,
+    get_get_my_activities_use_case,
     get_get_my_course_analytics,
     get_get_my_profile_use_case,
     get_get_my_teaching_course_analytics_use_case,
@@ -29,6 +34,7 @@ from app.presentation.api.dependencies import (
 from app.presentation.api.schemas import (
     AuthorCourseAnalyticsResponse,
     ErrorResponse,
+    StudentActivityResponse,
     StudentCourseAnalyticsResponse,
     UpdateMyProfileRequest,
     UserProfileResponse,
@@ -149,3 +155,27 @@ async def get_my_teaching_course_analytics(
         GetMyTeachingCourseAnalyticsQuery(actor=actor, course_id=course_id)
     )
     return AuthorCourseAnalyticsResponse.model_validate(result)
+
+@router.get(
+    "/me/activities",
+    response_model=list[StudentActivityResponse],
+    summary="Get my activities",
+    description="Returns activities of the current authenticated user.",
+    responses={
+        401: {
+            "description": "Authentication credentials are missing or invalid.",
+            "model": ErrorResponse,
+        },
+    },
+)
+async def get_my_activities(
+    limit : int = 20,
+    offset : int = 0,
+    actor : User = Depends(get_current_user),
+    use_case : GetMyActivitiesUseCase = Depends(get_get_my_activities_use_case)
+) -> list[StudentActivityResponse]:
+    result = await use_case.execute(
+        GetMyActivitiesCommand(actor=actor, limit=limit, offset=offset)
+    )
+    return [StudentActivityResponse.model_validate(item) for item in result]
+    

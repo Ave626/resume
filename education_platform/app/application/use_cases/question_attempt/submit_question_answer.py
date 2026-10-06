@@ -10,6 +10,7 @@ from app.application.exceptions import (
 from app.application.interfaces.unit_of_work import UnitOfWork
 from app.domain.entities.progress import Progress
 from app.domain.entities.question_attempt import QuestionAttempt
+from app.domain.entities.student_activity import StudentActivity, StudentActivityType
 from app.domain.entities.user import User
 
 
@@ -97,13 +98,50 @@ class SubmitQuestionAnswerUseCase:
 
                 progress_changed = progress.apply_correct_attempt(attempt)
                 if progress_changed:
-                    progress.sync_section_completion(section)
-                    progress.sync_module_completion(module)
+                    activity = StudentActivity(
+                        id=uuid4(),
+                        student_id=command.actor.id,
+                        course_id=module.course_id,
+                        activity_type=StudentActivityType.QUESTION_COMPLETED,
+                        entity_id=question.id,
+                        title=question.title,
+                        details={"awarded_points": attempt.awarded_points},
+                    )
+                    await self.uow.student_activities.add(activity)
+
+                    section_completed = progress.sync_section_completion(section)
+                    if section_completed:
+                        await self.uow.student_activities.add(
+                            StudentActivity(
+                                id=uuid4(),
+                                student_id=command.actor.id,
+                                course_id=module.course_id,
+                                activity_type=StudentActivityType.SECTION_COMPLETED,
+                                entity_id=section.id,
+                                title=section.title,
+                                details={},
+                            )
+                        )
+
+                    module_completed = progress.sync_module_completion(module)
+                    if module_completed:
+                        await self.uow.student_activities.add(
+                            StudentActivity(
+                                id=uuid4(),
+                                student_id=command.actor.id,
+                                course_id=module.course_id,
+                                activity_type=StudentActivityType.MODULE_COMPLETED,
+                                entity_id=module.id,
+                                title=module.title,
+                                details={},
+                            )
+                        )
 
                     if progress_is_new:
                         await self.uow.progress.add(progress)
                     else:
                         await self.uow.progress.update(progress)
+
 
             await self.uow.commit()
             return attempt

@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from uuid import UUID
 
 from app.application.exceptions import LectureNotFoundError, SectionNotFoundError
+from app.application.interfaces.content_cache import ContentCache
 from app.application.interfaces.unit_of_work import UnitOfWork
 from app.application.services.course_access_service import CourseAccessService
 from app.domain.entities.lecture import Lecture
@@ -18,8 +19,13 @@ class UpdateLectureCommand:
 
 
 class UpdateLectureUseCase:
-    def __init__(self, uow: UnitOfWork) -> None:
+    def __init__(
+        self,
+        uow: UnitOfWork,
+        content_cache: ContentCache | None = None,
+    ) -> None:
         self.uow = uow
+        self.content_cache = content_cache
         self.course_access_service = CourseAccessService(uow)
 
     async def execute(self, command: UpdateLectureCommand) -> Lecture:
@@ -33,9 +39,12 @@ class UpdateLectureUseCase:
             await self.course_access_service.ensure_can_manage_section(
                 command.actor, section.id
             )
+            module = await self.uow.modules.get_by_id(section.module_id)
             lecture.update(
                 title=command.title, content=command.content, position=command.position
             )
             await self.uow.lectures.update(lecture)
             await self.uow.commit()
+            if self.content_cache is not None and module is not None:
+                await self.content_cache.invalidate_course(module.course_id)
             return lecture

@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from uuid import UUID
 
 from app.application.exceptions import CoursePublicationNotReadyError
+from app.application.interfaces.content_cache import ContentCache
 from app.application.interfaces.unit_of_work import UnitOfWork
 from app.application.services.course_access_service import CourseAccessService
 from app.application.services.course_publication_readiness_service import (
@@ -18,8 +19,13 @@ class PublishCourseCommand:
 
 
 class PublishCourseUseCase:
-    def __init__(self, uow: UnitOfWork) -> None:
+    def __init__(
+        self,
+        uow: UnitOfWork,
+        content_cache: ContentCache | None = None,
+    ) -> None:
         self.uow = uow
+        self.content_cache = content_cache
         self.course_access_service = CourseAccessService(uow=uow)
         self.course_publication_readiness_service = CoursePublicationReadinessService(
             uow
@@ -41,4 +47,6 @@ class PublishCourseUseCase:
             course.publish()
             await self.uow.courses.update(course)
             await self.uow.commit()
+            if self.content_cache is not None:
+                await self.content_cache.invalidate_course(course.id)
             return course

@@ -1,8 +1,8 @@
 from dataclasses import dataclass, field
 from uuid import UUID
 
-from app.domain.entities.course import CourseDifficulty, CourseStatus
 from app.application.dto.course_reviews import CourseRatingSummaryDTO
+from app.domain.entities.course import CourseDifficulty, CourseStatus
 
 
 @dataclass(slots=True)
@@ -13,6 +13,12 @@ class CourseCatalogCountersDTO:
     question_count: int
     task_count: int
     code_task_count: int
+
+
+@dataclass(slots=True)
+class CourseCatalogMetricsDTO:
+    counters: CourseCatalogCountersDTO
+    rating: CourseRatingSummaryDTO
 
 
 @dataclass(slots=True)

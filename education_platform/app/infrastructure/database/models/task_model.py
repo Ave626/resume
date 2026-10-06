@@ -1,4 +1,4 @@
-from sqlalchemy import ForeignKey, Integer, String, Text, JSON
+from sqlalchemy import JSON, ForeignKey, Index, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.infrastructure.database.models.base import Base
@@ -6,7 +6,13 @@ from app.infrastructure.database.models.base import Base
 
 class TaskModel(Base):
     __tablename__ = "tasks"
-
+    __table_args__ = (
+        Index(
+            'ix_tasks_section_position',
+            'section_id',
+            'position',
+        ),
+    )
     id: Mapped[str] = mapped_column(String(36), primary_key=True)
     section_id: Mapped[str] = mapped_column(
         ForeignKey("sections.id", ondelete="CASCADE")

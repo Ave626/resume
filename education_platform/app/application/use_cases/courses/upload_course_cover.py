@@ -3,6 +3,7 @@ from dataclasses import dataclass
 from uuid import UUID, uuid4
 
 from app.application.exceptions import InvalidCourseCoverFileError
+from app.application.interfaces.content_cache import ContentCache
 from app.application.interfaces.services.file_storage import FileStorage
 from app.application.interfaces.unit_of_work import UnitOfWork
 from app.application.services.course_access_service import CourseAccessService
@@ -24,9 +25,15 @@ class UploadCourseCoverCommand:
 
 
 class UploadCourseCoverUseCase:
-    def __init__(self, uow: UnitOfWork, file_storage: FileStorage) -> None:
+    def __init__(
+        self,
+        uow: UnitOfWork,
+        file_storage: FileStorage,
+        content_cache: ContentCache | None = None,
+    ) -> None:
         self.uow = uow
         self.file_storage = file_storage
+        self.content_cache = content_cache
         self.course_access_service = CourseAccessService(uow=uow)
 
     async def execute(self, command: UploadCourseCoverCommand) -> Course:
@@ -55,6 +62,8 @@ class UploadCourseCoverUseCase:
             )
             await self.uow.courses.update(course)
             await self.uow.commit()
+            if self.content_cache is not None:
+                await self.content_cache.invalidate_course(course.id)
             return course
 
     def _validate_file(self, command: UploadCourseCoverCommand) -> None:

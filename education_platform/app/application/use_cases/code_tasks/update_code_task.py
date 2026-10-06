@@ -2,12 +2,13 @@ from dataclasses import dataclass
 from uuid import UUID
 
 from app.application.exceptions import CodeTaskAlreadyUsedError, CodeTaskNotFoundError
+from app.application.interfaces.content_cache import ContentCache
 from app.application.interfaces.unit_of_work import UnitOfWork
 from app.application.services.course_access_service import CourseAccessService
 from app.domain.entities.code_task import CodeTask
-from app.domain.exceptions import InvalidCodeTaskError
 from app.domain.entities.code_task import CodeTaskLanguage
 from app.domain.entities.user import User
+from app.domain.exceptions import InvalidCodeTaskError
 
 
 @dataclass(slots=True)
@@ -26,8 +27,13 @@ class UpdateCodeTaskCommand:
 
 
 class UpdateCodeTaskUseCase:
-    def __init__(self, uow: UnitOfWork) -> None:
+    def __init__(
+        self,
+        uow: UnitOfWork,
+        content_cache: ContentCache | None = None,
+    ) -> None:
         self.uow = uow
+        self.content_cache = content_cache
         self.course_access_service = CourseAccessService(uow)
 
     async def execute(self, command: UpdateCodeTaskCommand) -> CodeTask:
@@ -40,6 +46,8 @@ class UpdateCodeTaskUseCase:
                 actor=command.actor,
                 section_id=code_task.section_id,
             )
+            section = await self.uow.sections.get_by_id(code_task.section_id)
+            module = await self.uow.modules.get_by_id(section.module_id) if section is not None else None
 
             has_submissions = await self.uow.code_submissions.exists_by_code_task_id(
                 code_task.id
@@ -90,4 +98,6 @@ class UpdateCodeTaskUseCase:
 
             await self.uow.code_tasks.update(code_task)
             await self.uow.commit()
+            if self.content_cache is not None and module is not None:
+                await self.content_cache.invalidate_course(module.course_id)
             return code_task

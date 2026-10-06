@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from uuid import uuid4
 
 from app.application.exceptions import PermissionDeniedError
+from app.application.interfaces.content_cache import ContentCache
 from app.application.interfaces.unit_of_work import UnitOfWork
 from app.domain.entities.course import Course, CourseDifficulty
 from app.domain.entities.user import User
@@ -19,8 +20,13 @@ class CreateCourseCommand:
 
 
 class CreateCourseUseCase:
-    def __init__(self, uow: UnitOfWork) -> None:
+    def __init__(
+        self,
+        uow: UnitOfWork,
+        content_cache: ContentCache | None = None,
+    ) -> None:
         self.uow = uow
+        self.content_cache = content_cache
 
     async def execute(self, command: CreateCourseCommand) -> Course:
         if not command.actor.can_manage_learning_content():
@@ -39,4 +45,6 @@ class CreateCourseUseCase:
             )
             await self.uow.courses.add(course)
             await self.uow.commit()
+            if self.content_cache is not None:
+                await self.content_cache.invalidate_course(course.id)
             return course

@@ -1,6 +1,10 @@
 from app.infrastructure.database.models.answer_option_model import AnswerOptionModel
 from app.infrastructure.database.models.base import Base
+from app.infrastructure.database.models.code_submission_model import CodeSubmissionModel
+from app.infrastructure.database.models.code_task_model import CodeTaskModel
+from app.infrastructure.database.models.comment_model import CommentModel
 from app.infrastructure.database.models.course_model import CourseModel
+from app.infrastructure.database.models.course_review_model import CourseReviewModel
 from app.infrastructure.database.models.lecture_model import LectureModel
 from app.infrastructure.database.models.module_model import ModuleModel
 from app.infrastructure.database.models.progress_model import ProgressModel
@@ -9,31 +13,31 @@ from app.infrastructure.database.models.question_attempt_model import (
 )
 from app.infrastructure.database.models.question_model import QuestionModel
 from app.infrastructure.database.models.section_model import SectionModel
+from app.infrastructure.database.models.student_activity_model import (
+    StudentActivityModel,
+)
 from app.infrastructure.database.models.task_attempt_model import TaskAttemptModel
 from app.infrastructure.database.models.task_model import TaskModel
-from app.infrastructure.database.models.user_model import UserModel
-from app.infrastructure.database.models.code_submission_model import CodeSubmissionModel
-from app.infrastructure.database.models.code_task_model import CodeTaskModel
-from app.infrastructure.database.models.comment_model import CommentModel
-from app.infrastructure.database.models.course_review_model import CourseReviewModel
 from app.infrastructure.database.models.test_case_model import TestCaseModel
+from app.infrastructure.database.models.user_model import UserModel
 
 __all__ = [
+    "AnswerOptionModel",
     "Base",
+    "CodeSubmissionModel",
+    "CodeTaskModel",
     "CommentModel",
     "CourseModel",
     "CourseReviewModel",
-    "ModuleModel",
-    "SectionModel",
     "LectureModel",
-    "UserModel",
-    "QuestionModel",
-    "AnswerOptionModel",
-    "QuestionAttemptModel",
-    "TaskModel",
-    "TaskAttemptModel",
+    "ModuleModel",
     "ProgressModel",
-    "CodeSubmissionModel",
-    "CodeTaskModel",
+    "QuestionAttemptModel",
+    "QuestionModel",
+    "SectionModel",
+    "StudentActivityModel",
+    "TaskAttemptModel",
+    "TaskModel",
     "TestCaseModel",
+    "UserModel",
 ]

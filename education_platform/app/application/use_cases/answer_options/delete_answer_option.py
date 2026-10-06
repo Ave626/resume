@@ -6,6 +6,7 @@ from app.application.exceptions import (
     QuestionAlreadyUsedError,
     QuestionNotFoundError,
 )
+from app.application.interfaces.content_cache import ContentCache
 from app.application.interfaces.unit_of_work import UnitOfWork
 from app.application.services.course_access_service import CourseAccessService
 from app.domain.entities.user import User
@@ -18,8 +19,13 @@ class DeleteAnswerOptionCommand:
 
 
 class DeleteAnswerOptionUseCase:
-    def __init__(self, uow: UnitOfWork) -> None:
+    def __init__(
+        self,
+        uow: UnitOfWork,
+        content_cache: ContentCache | None = None,
+    ) -> None:
         self.uow = uow
+        self.content_cache = content_cache
         self.course_access_service = CourseAccessService(uow)
 
     async def execute(self, command: DeleteAnswerOptionCommand) -> None:
@@ -37,6 +43,8 @@ class DeleteAnswerOptionUseCase:
             await self.course_access_service.ensure_can_manage_section(
                 actor=command.actor, section_id=question.section_id
             )
+            section = await self.uow.sections.get_by_id(question.section_id)
+            module = await self.uow.modules.get_by_id(section.module_id) if section is not None else None
 
             has_attempt = await self.uow.question_attempts.exists_by_question_id(
                 question.id
@@ -56,3 +64,5 @@ class DeleteAnswerOptionUseCase:
             await self.uow.questions.update(question)
             await self.uow.answer_options.remove(answer_option.id)
             await self.uow.commit()
+            if self.content_cache is not None and module is not None:
+                await self.content_cache.invalidate_course(module.course_id)

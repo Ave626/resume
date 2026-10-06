@@ -3,8 +3,22 @@ from collections.abc import AsyncGenerator
 from fastapi import Depends, Security
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
+from app.application.interfaces.services.file_storage import FileStorage
 from app.application.interfaces.services.password_hasher import PasswordHasher
 from app.application.interfaces.services.token_service import TokenService
+from app.application.services.comment_target_resolver import CommentTargetResolver
+from app.application.services.course_catalog_read_service import (
+    CourseCatalogReadService,
+)
+from app.application.services.course_content_access_service import (
+    CourseContentAccessService,
+)
+from app.application.use_cases.activity.get_admin_activities import (
+    GetAdminActivitiesUseCase,
+)
+from app.application.use_cases.activity.get_my_activity import (
+    GetMyActivitiesUseCase,
+)
 from app.application.use_cases.answer_options.create_answer_option import (
     CreateAnswerOptionUseCase,
 )
@@ -16,21 +30,49 @@ from app.application.use_cases.answer_options.update_answer_option import (
 )
 from app.application.use_cases.auth.login_user import LoginUserUseCase
 from app.application.use_cases.auth.register_user import RegisterUserUseCase
+from app.application.use_cases.code_submissions.get_code_submission import (
+    GetCodeSubmissionUseCase,
+)
+from app.application.use_cases.code_submissions.list_code_submissions import (
+    ListCodeSubmissionsUseCase,
+)
+from app.application.use_cases.code_submissions.submit_code_submission import (
+    SubmitCodeSubmissionUseCase,
+)
+from app.application.use_cases.code_tasks.create_code_task import CreateCodeTaskUseCase
+from app.application.use_cases.code_tasks.delete_code_task import (
+    DeleteCodeTaskUseCase,
+)
+from app.application.use_cases.code_tasks.get_code_task import GetCodeTaskUseCase
+from app.application.use_cases.code_tasks.update_code_task import UpdateCodeTaskUseCase
 from app.application.use_cases.comments import (
     CreateCommentUseCase,
     DeleteCommentUseCase,
     GetCommentsByTargetUseCase,
     UpdateCommentUseCase,
 )
-from app.application.services.comment_target_resolver import CommentTargetResolver
+from app.application.use_cases.course_reviews.get_course_reviews import (
+    GetCourseReviewsUseCase,
+)
+from app.application.use_cases.course_reviews.upsert_course_review import (
+    UpsertCourseReviewUseCase,
+)
+from app.application.use_cases.courses.archive_course import ArchiveCourseUseCase
 from app.application.use_cases.courses.create_course import CreateCourseUseCase
 from app.application.use_cases.courses.delete_course import DeleteCourseUseCase
 from app.application.use_cases.courses.get_course import GetCourseUseCase
+from app.application.use_cases.courses.get_course_publication_readiness import (
+    GetCoursePublicationReadinessUseCase,
+)
 from app.application.use_cases.courses.get_course_structure import (
     GetCourseStructureUseCase,
 )
 from app.application.use_cases.courses.get_courses import GetCoursesUseCase
+from app.application.use_cases.courses.publish_course import PublishCourseUseCase
 from app.application.use_cases.courses.update_course import UpdateCourseUseCase
+from app.application.use_cases.courses.upload_course_cover import (
+    UploadCourseCoverUseCase,
+)
 from app.application.use_cases.lectures.create_lecture import CreateLectureUseCase
 from app.application.use_cases.lectures.delete_lecture import DeleteLectureUseCase
 from app.application.use_cases.lectures.get_lecture import GetLectureUseCase
@@ -38,6 +80,14 @@ from app.application.use_cases.lectures.update_lecture import UpdateLectureUseCa
 from app.application.use_cases.modules.create_module import CreateModuleUseCase
 from app.application.use_cases.modules.delete_module import DeleteModuleUseCase
 from app.application.use_cases.modules.update_module import UpdateModuleUseCase
+from app.application.use_cases.profile.get_my_course_analytics import (
+    GetMyCourseAnalyticsUseCase,
+)
+from app.application.use_cases.profile.get_my_profile import GetMyProfileUseCase
+from app.application.use_cases.profile.get_my_teaching_course_analytics import (
+    GetMyTeachingCourseAnalyticsUseCase,
+)
+from app.application.use_cases.profile.update_my_profile import UpdateMyProfileUseCase
 from app.application.use_cases.question_attempt.get_question_attempt_result import (
     GetQuestionAttemptResultUseCase,
 )
@@ -51,92 +101,45 @@ from app.application.use_cases.questions.create_question import CreateQuestionUs
 from app.application.use_cases.questions.delete_question import (
     DeleteQuestionUseCase,
 )
+from app.application.use_cases.questions.get_question import GetQuestionUseCase
 from app.application.use_cases.questions.update_question import UpdateQuestionUseCase
 from app.application.use_cases.sections.create_section import CreateSectionUseCase
 from app.application.use_cases.sections.delete_section import DeleteSectionUseCase
 from app.application.use_cases.sections.update_section import UpdateSectionUseCase
+from app.application.use_cases.task_attempts.submit_task_answer import (
+    SubmitTaskAnswerUseCase,
+)
 from app.application.use_cases.tasks.create_task import CreateTaskUseCase
+from app.application.use_cases.tasks.delete_task import (
+    DeleteTaskUseCase,
+)
+from app.application.use_cases.tasks.get_task import GetTaskUseCase
 from app.application.use_cases.tasks.update_task import UpdateTaskUseCase
-from app.application.use_cases.code_tasks.create_code_task import CreateCodeTaskUseCase
-from app.application.use_cases.code_tasks.update_code_task import UpdateCodeTaskUseCase
 from app.application.use_cases.test_cases.create_test_case import CreateTestCaseUseCase
+from app.application.use_cases.test_cases.delete_test_case import (
+    DeleteTestCaseUseCase,
+)
 from app.application.use_cases.test_cases.update_test_case import UpdateTestCaseUseCase
+from app.bootstrap.build_content_cache import build_content_cache
+from app.bootstrap.build_submission_queue import build_submission_queue
 from app.domain.entities.user import User
+from app.infrastructure.config.settings import get_settings
 from app.infrastructure.database import SessionFactory, SqlAlchemyUnitOfWork
 from app.infrastructure.security.jwt_token_service import (
     InvalidTokenError,
     JwtTokenService,
 )
-from app.application.use_cases.task_attempts.submit_task_answer import (
-    SubmitTaskAnswerUseCase,
-)
-from app.application.use_cases.code_submissions.submit_code_submission import (
-    SubmitCodeSubmissionUseCase,
-)
-from app.bootstrap.build_submission_queue import build_submission_queue
-
 from app.infrastructure.security.password_hasher import PwdlibPasswordHasher
-from app.presentation.exceptions import AuthenticationError, PermissionDeniedError
-from app.application.use_cases.code_submissions.get_code_submission import (
-    GetCodeSubmissionUseCase,
-)
-from app.application.use_cases.code_submissions.list_code_submissions import (
-    ListCodeSubmissionsUseCase,
-)
-from app.application.use_cases.questions.get_question import GetQuestionUseCase
-from app.application.use_cases.tasks.get_task import GetTaskUseCase
-from app.application.use_cases.code_tasks.get_code_task import GetCodeTaskUseCase
-from app.application.use_cases.code_tasks.delete_code_task import (
-    DeleteCodeTaskCommand,
-    DeleteCodeTaskUseCase,
-)
-from app.application.use_cases.test_cases.delete_test_case import (
-    DeleteTestCaseCommand,
-    DeleteTestCaseUseCase,
-)
-from app.application.use_cases.tasks.delete_task import (
-    DeleteTaskCommand,
-    DeleteTaskUseCase,
-)
-from app.application.use_cases.courses.archive_course import ArchiveCourseUseCase
-from app.application.use_cases.courses.publish_course import PublishCourseUseCase
-from app.application.services.course_content_access_service import (
-    CourseContentAccessService,
-)
-from app.application.use_cases.courses.get_course_publication_readiness import (
-    GetCoursePublicationReadinessUseCase,
-)
-from app.application.services.course_catalog_read_service import (
-    CourseCatalogReadService,
-)
-from app.application.interfaces.services.file_storage import FileStorage
-from app.application.use_cases.courses.upload_course_cover import (
-    UploadCourseCoverUseCase,
-)
-from app.infrastructure.config.settings import get_settings
 from app.infrastructure.storage.s3_storage import S3FileStorage
-from app.application.use_cases.profile.get_my_profile import GetMyProfileUseCase
-from app.application.use_cases.profile.update_my_profile import UpdateMyProfileUseCase
-from app.application.use_cases.profile.get_my_course_analytics import (
-    GetMyCourseAnalyticsUseCase,
-)
-from app.application.use_cases.profile.get_my_teaching_course_analytics import (
-    GetMyTeachingCourseAnalyticsUseCase,
-)
-from app.application.services.course_rating_read_service import CourseRatingReadService
-from app.application.use_cases.course_reviews.get_course_reviews import (
-    GetCourseReviewsUseCase,
-)
-from app.application.use_cases.course_reviews.upsert_course_review import (
-    UpsertCourseReviewUseCase,
-)
+from app.presentation.exceptions import AuthenticationError, PermissionDeniedError
 
 http_bearer = HTTPBearer(auto_error=False)
 
 
 def get_upsert_course_review_use_case() -> UpsertCourseReviewUseCase:
     return UpsertCourseReviewUseCase(
-        uow=SqlAlchemyUnitOfWork(session_factory=SessionFactory)
+        uow=SqlAlchemyUnitOfWork(session_factory=SessionFactory),
+        content_cache=build_content_cache(),
     )
 
 
@@ -163,6 +166,7 @@ def get_upload_course_cover_use_case(
     return UploadCourseCoverUseCase(
         uow=SqlAlchemyUnitOfWork(session_factory=SessionFactory),
         file_storage=file_storage,
+        content_cache=build_content_cache(),
     )
 
 
@@ -174,28 +178,21 @@ async def get_uow() -> AsyncGenerator[SqlAlchemyUnitOfWork]:
     async with SqlAlchemyUnitOfWork(session_factory=SessionFactory) as uow:
         yield uow
 
-
 def get_get_courses_use_case(
-    uow: SqlAlchemyUnitOfWork = Depends(get_uow),
+        uow: SqlAlchemyUnitOfWork = Depends(get_uow),
 ) -> GetCoursesUseCase:
     return GetCoursesUseCase(
         course_repository=uow.courses,
         catalog_read_service=CourseCatalogReadService(
+            metrics_repository=uow.course_catalog_metrics,
             module_repository=uow.modules,
             section_repository=uow.sections,
-            lecture_repository=uow.lectures,
-            question_repository=uow.questions,
-            task_repository=uow.tasks,
-            code_task_repository=uow.code_tasks,
-            rating_read_service=CourseRatingReadService(
-                review_repository=uow.course_reviews,
-            ),
         ),
+        content_cache=build_content_cache(),
     )
 
-
 def get_get_course_use_case(
-    uow: SqlAlchemyUnitOfWork = Depends(get_uow),
+        uow: SqlAlchemyUnitOfWork = Depends(get_uow),
 ) -> GetCourseUseCase:
     return GetCourseUseCase(
         course_repository=uow.courses,
@@ -205,16 +202,11 @@ def get_get_course_use_case(
             section_repository=uow.sections,
         ),
         catalog_read_service=CourseCatalogReadService(
+            metrics_repository=uow.course_catalog_metrics,
             module_repository=uow.modules,
             section_repository=uow.sections,
-            lecture_repository=uow.lectures,
-            question_repository=uow.questions,
-            task_repository=uow.tasks,
-            code_task_repository=uow.code_tasks,
-            rating_read_service=CourseRatingReadService(
-                review_repository=uow.course_reviews
-            ),  # New
         ),
+        content_cache=build_content_cache(),
     )
 
 
@@ -233,6 +225,7 @@ def get_get_course_structure_use_case(
             module_repository=uow.modules,
             section_repository=uow.sections,
         ),
+        content_cache=build_content_cache(),
     )
 
 
@@ -250,63 +243,87 @@ def get_get_lecture_use_case(
 
 
 def get_create_course_use_case() -> CreateCourseUseCase:
-    return CreateCourseUseCase(uow=SqlAlchemyUnitOfWork(session_factory=SessionFactory))
+    return CreateCourseUseCase(
+        uow=SqlAlchemyUnitOfWork(session_factory=SessionFactory),
+        content_cache=build_content_cache(),
+    )
 
 
 def get_update_course_use_case() -> UpdateCourseUseCase:
-    return UpdateCourseUseCase(uow=SqlAlchemyUnitOfWork(session_factory=SessionFactory))
+    return UpdateCourseUseCase(
+        uow=SqlAlchemyUnitOfWork(session_factory=SessionFactory),
+        content_cache=build_content_cache(),
+    )
 
 
 def get_create_module_use_case() -> CreateModuleUseCase:
-    return CreateModuleUseCase(uow=SqlAlchemyUnitOfWork(session_factory=SessionFactory))
+    return CreateModuleUseCase(
+        uow=SqlAlchemyUnitOfWork(session_factory=SessionFactory),
+        content_cache=build_content_cache(),
+    )
 
 
 def get_update_module_use_case() -> UpdateModuleUseCase:
-    return UpdateModuleUseCase(uow=SqlAlchemyUnitOfWork(session_factory=SessionFactory))
+    return UpdateModuleUseCase(
+        uow=SqlAlchemyUnitOfWork(session_factory=SessionFactory),
+        content_cache=build_content_cache(),
+    )
 
 
 def get_create_section_use_case() -> CreateSectionUseCase:
     return CreateSectionUseCase(
-        uow=SqlAlchemyUnitOfWork(session_factory=SessionFactory)
+        uow=SqlAlchemyUnitOfWork(session_factory=SessionFactory),
+        content_cache=build_content_cache(),
     )
 
 
 def get_update_section_use_case() -> UpdateSectionUseCase:
     return UpdateSectionUseCase(
-        uow=SqlAlchemyUnitOfWork(session_factory=SessionFactory)
+        uow=SqlAlchemyUnitOfWork(session_factory=SessionFactory),
+        content_cache=build_content_cache(),
     )
 
 
 def get_create_lecture_use_case() -> CreateLectureUseCase:
     return CreateLectureUseCase(
-        uow=SqlAlchemyUnitOfWork(session_factory=SessionFactory)
+        uow=SqlAlchemyUnitOfWork(session_factory=SessionFactory),
+        content_cache=build_content_cache(),
     )
 
 
 def get_update_lecture_use_case() -> UpdateLectureUseCase:
     return UpdateLectureUseCase(
-        uow=SqlAlchemyUnitOfWork(session_factory=SessionFactory)
+        uow=SqlAlchemyUnitOfWork(session_factory=SessionFactory),
+        content_cache=build_content_cache(),
     )
 
 
 def get_delete_lecture_use_case() -> DeleteLectureUseCase:
     return DeleteLectureUseCase(
-        uow=SqlAlchemyUnitOfWork(session_factory=SessionFactory)
+        uow=SqlAlchemyUnitOfWork(session_factory=SessionFactory),
+        content_cache=build_content_cache(),
     )
 
 
 def get_delete_section_use_case() -> DeleteSectionUseCase:
     return DeleteSectionUseCase(
-        uow=SqlAlchemyUnitOfWork(session_factory=SessionFactory)
+        uow=SqlAlchemyUnitOfWork(session_factory=SessionFactory),
+        content_cache=build_content_cache(),
     )
 
 
 def get_delete_module_use_case() -> DeleteModuleUseCase:
-    return DeleteModuleUseCase(uow=SqlAlchemyUnitOfWork(session_factory=SessionFactory))
+    return DeleteModuleUseCase(
+        uow=SqlAlchemyUnitOfWork(session_factory=SessionFactory),
+        content_cache=build_content_cache(),
+    )
 
 
 def get_delete_course_use_case() -> DeleteCourseUseCase:
-    return DeleteCourseUseCase(uow=SqlAlchemyUnitOfWork(session_factory=SessionFactory))
+    return DeleteCourseUseCase(
+        uow=SqlAlchemyUnitOfWork(session_factory=SessionFactory),
+        content_cache=build_content_cache(),
+    )
 
 
 def get_password_hasher() -> PasswordHasher:
@@ -364,25 +381,29 @@ async def get_current_author_or_admin(
 
 def get_create_question_use_case() -> CreateQuestionUseCase:
     return CreateQuestionUseCase(
-        uow=SqlAlchemyUnitOfWork(session_factory=SessionFactory)
+        uow=SqlAlchemyUnitOfWork(session_factory=SessionFactory),
+        content_cache=build_content_cache(),
     )
 
 
 def get_update_question_use_case() -> UpdateQuestionUseCase:
     return UpdateQuestionUseCase(
-        uow=SqlAlchemyUnitOfWork(session_factory=SessionFactory)
+        uow=SqlAlchemyUnitOfWork(session_factory=SessionFactory),
+        content_cache=build_content_cache(),
     )
 
 
 def get_create_answer_option_use_case() -> CreateAnswerOptionUseCase:
     return CreateAnswerOptionUseCase(
-        uow=SqlAlchemyUnitOfWork(session_factory=SessionFactory)
+        uow=SqlAlchemyUnitOfWork(session_factory=SessionFactory),
+        content_cache=build_content_cache(),
     )
 
 
 def get_update_answer_option_use_case() -> UpdateAnswerOptionUseCase:
     return UpdateAnswerOptionUseCase(
-        uow=SqlAlchemyUnitOfWork(session_factory=SessionFactory)
+        uow=SqlAlchemyUnitOfWork(session_factory=SessionFactory),
+        content_cache=build_content_cache(),
     )
 
 
@@ -406,45 +427,57 @@ def get_get_question_attempt_result_use_case() -> GetQuestionAttemptResultUseCas
 
 def get_delete_question_use_case() -> DeleteQuestionUseCase:
     return DeleteQuestionUseCase(
-        uow=SqlAlchemyUnitOfWork(session_factory=SessionFactory)
+        uow=SqlAlchemyUnitOfWork(session_factory=SessionFactory),
+        content_cache=build_content_cache(),
     )
 
 
 def get_delete_answer_option_use_case() -> DeleteAnswerOptionUseCase:
     return DeleteAnswerOptionUseCase(
-        uow=SqlAlchemyUnitOfWork(session_factory=SessionFactory)
+        uow=SqlAlchemyUnitOfWork(session_factory=SessionFactory),
+        content_cache=build_content_cache(),
     )
 
 
 def get_create_task_use_case() -> CreateTaskUseCase:
-    return CreateTaskUseCase(uow=SqlAlchemyUnitOfWork(session_factory=SessionFactory))
+    return CreateTaskUseCase(
+        uow=SqlAlchemyUnitOfWork(session_factory=SessionFactory),
+        content_cache=build_content_cache(),
+    )
 
 
 def get_update_task_use_case() -> UpdateTaskUseCase:
-    return UpdateTaskUseCase(uow=SqlAlchemyUnitOfWork(session_factory=SessionFactory))
+    return UpdateTaskUseCase(
+        uow=SqlAlchemyUnitOfWork(session_factory=SessionFactory),
+        content_cache=build_content_cache(),
+    )
 
 
 def get_create_code_task_use_case() -> CreateCodeTaskUseCase:
     return CreateCodeTaskUseCase(
-        uow=SqlAlchemyUnitOfWork(session_factory=SessionFactory)
+        uow=SqlAlchemyUnitOfWork(session_factory=SessionFactory),
+        content_cache=build_content_cache(),
     )
 
 
 def get_update_code_task_use_case() -> UpdateCodeTaskUseCase:
     return UpdateCodeTaskUseCase(
-        uow=SqlAlchemyUnitOfWork(session_factory=SessionFactory)
+        uow=SqlAlchemyUnitOfWork(session_factory=SessionFactory),
+        content_cache=build_content_cache(),
     )
 
 
 def get_create_test_case_use_case() -> CreateTestCaseUseCase:
     return CreateTestCaseUseCase(
-        uow=SqlAlchemyUnitOfWork(session_factory=SessionFactory)
+        uow=SqlAlchemyUnitOfWork(session_factory=SessionFactory),
+        content_cache=build_content_cache(),
     )
 
 
 def get_update_test_case_use_case() -> UpdateTestCaseUseCase:
     return UpdateTestCaseUseCase(
-        uow=SqlAlchemyUnitOfWork(session_factory=SessionFactory)
+        uow=SqlAlchemyUnitOfWork(session_factory=SessionFactory),
+        content_cache=build_content_cache(),
     )
 
 
@@ -515,29 +548,36 @@ def get_submit_code_submission_use_case() -> SubmitCodeSubmissionUseCase:
 
 def get_delete_code_task_use_case() -> DeleteCodeTaskUseCase:
     return DeleteCodeTaskUseCase(
-        uow=SqlAlchemyUnitOfWork(session_factory=SessionFactory)
+        uow=SqlAlchemyUnitOfWork(session_factory=SessionFactory),
+        content_cache=build_content_cache(),
     )
 
 
 def get_delete_test_case_use_case() -> DeleteTestCaseUseCase:
     return DeleteTestCaseUseCase(
-        uow=SqlAlchemyUnitOfWork(session_factory=SessionFactory)
+        uow=SqlAlchemyUnitOfWork(session_factory=SessionFactory),
+        content_cache=build_content_cache(),
     )
 
 
 def get_delete_task_use_case() -> DeleteTaskUseCase:
-    return DeleteTaskUseCase(uow=SqlAlchemyUnitOfWork(session_factory=SessionFactory))
+    return DeleteTaskUseCase(
+        uow=SqlAlchemyUnitOfWork(session_factory=SessionFactory),
+        content_cache=build_content_cache(),
+    )
 
 
 def get_publish_course_use_case() -> PublishCourseUseCase:
     return PublishCourseUseCase(
-        uow=SqlAlchemyUnitOfWork(session_factory=SessionFactory)
+        uow=SqlAlchemyUnitOfWork(session_factory=SessionFactory),
+        content_cache=build_content_cache(),
     )
 
 
 def get_archive_course_use_case() -> ArchiveCourseUseCase:
     return ArchiveCourseUseCase(
-        uow=SqlAlchemyUnitOfWork(session_factory=SessionFactory)
+        uow=SqlAlchemyUnitOfWork(session_factory=SessionFactory),
+        content_cache=build_content_cache(),
     )
 
 
@@ -640,3 +680,14 @@ def get_delete_comment_use_case(
             section_repository=uow.sections,
         ),
     )
+
+def get_get_my_activities_use_case(
+    uow : SqlAlchemyUnitOfWork = Depends(get_uow),
+) -> GetMyActivitiesUseCase:
+    return GetMyActivitiesUseCase(uow=uow)
+
+def get_get_admin_activities_use_case(
+    uow: SqlAlchemyUnitOfWork = Depends(get_uow),
+) -> GetAdminActivitiesUseCase:
+    return GetAdminActivitiesUseCase(uow=uow)
+    

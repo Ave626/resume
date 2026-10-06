@@ -1,7 +1,15 @@
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, Response, status, UploadFile, File
+from fastapi import APIRouter, Depends, File, Response, UploadFile, status
 
+from app.application.use_cases.activity.get_admin_activities import (
+    GetAdminActivitiesCommand,
+    GetAdminActivitiesUseCase,
+)
+from app.application.use_cases.courses.archive_course import (
+    ArchiveCourseCommand,
+    ArchiveCourseUseCase,
+)
 from app.application.use_cases.courses.create_course import (
     CreateCourseCommand,
     CreateCourseUseCase,
@@ -10,9 +18,21 @@ from app.application.use_cases.courses.delete_course import (
     DeleteCourseCommand,
     DeleteCourseUseCase,
 )
+from app.application.use_cases.courses.get_course_publication_readiness import (
+    GetCoursePublicationReadinessQuery,
+    GetCoursePublicationReadinessUseCase,
+)
+from app.application.use_cases.courses.publish_course import (
+    PublishCourseCommand,
+    PublishCourseUseCase,
+)
 from app.application.use_cases.courses.update_course import (
     UpdateCourseCommand,
     UpdateCourseUseCase,
+)
+from app.application.use_cases.courses.upload_course_cover import (
+    UploadCourseCoverCommand,
+    UploadCourseCoverUseCase,
 )
 from app.application.use_cases.lectures.create_lecture import (
     CreateLectureCommand,
@@ -50,8 +70,10 @@ from app.application.use_cases.sections.update_section import (
     UpdateSectionCommand,
     UpdateSectionUseCase,
 )
+from app.domain.entities.student_activity import StudentActivityType
 from app.domain.entities.user import User
 from app.presentation.api.dependencies import (
+    get_archive_course_use_case,
     get_create_course_use_case,
     get_create_lecture_use_case,
     get_create_module_use_case,
@@ -61,16 +83,18 @@ from app.presentation.api.dependencies import (
     get_delete_lecture_use_case,
     get_delete_module_use_case,
     get_delete_section_use_case,
+    get_get_admin_activities_use_case,
+    get_get_course_publication_readiness_use_case,
+    get_publish_course_use_case,
     get_update_course_use_case,
     get_update_lecture_use_case,
     get_update_module_use_case,
     get_update_section_use_case,
-    get_archive_course_use_case,
-    get_publish_course_use_case,
-    get_get_course_publication_readiness_use_case,
     get_upload_course_cover_use_case,
 )
 from app.presentation.api.schemas import (
+    CoursePublicationErrorResponse,
+    CoursePublicationReadinessResponse,
     CourseResponse,
     CreateCourseRequest,
     CreateLectureRequest,
@@ -80,28 +104,11 @@ from app.presentation.api.schemas import (
     LectureResponse,
     ModuleResponse,
     SectionResponse,
+    StudentActivityResponse,
     UpdateCourseRequest,
     UpdateLectureRequest,
     UpdateModuleRequest,
     UpdateSectionRequest,
-    CoursePublicationErrorResponse,
-    CoursePublicationReadinessResponse,
-)
-from app.application.use_cases.courses.archive_course import (
-    ArchiveCourseCommand,
-    ArchiveCourseUseCase,
-)
-from app.application.use_cases.courses.publish_course import (
-    PublishCourseCommand,
-    PublishCourseUseCase,
-)
-from app.application.use_cases.courses.get_course_publication_readiness import (
-    GetCoursePublicationReadinessQuery,
-    GetCoursePublicationReadinessUseCase,
-)
-from app.application.use_cases.courses.upload_course_cover import (
-    UploadCourseCoverCommand,
-    UploadCourseCoverUseCase,
 )
 
 router = APIRouter(
@@ -625,3 +632,40 @@ async def upload_course_cover(
         )
     )
     return CourseResponse.model_validate(result)
+
+@router.get(
+    "/activities",
+    response_model=list[StudentActivityResponse],
+    summary="Get student activities",
+    description="Returns student activities with filters.",
+    responses={
+        401: {
+            "description": "Authentication credentials are missing or invalid.",
+            "model": ErrorResponse,
+        },
+        403: {
+            "description": "User is not authorized to view these activities.",
+            "model": ErrorResponse,
+        },
+    },
+)
+async def get_admin_activities(
+    student_id: UUID | None = None,
+    course_id: UUID | None = None,
+    activity_type: StudentActivityType | None = None,
+    limit: int = 20,
+    offset: int = 0,
+    actor: User = Depends(get_current_author_or_admin),
+    use_case: GetAdminActivitiesUseCase = Depends(get_get_admin_activities_use_case),
+) -> list[StudentActivityResponse]:
+    result = await use_case.execute(
+        GetAdminActivitiesCommand(
+            actor=actor,
+            student_id=student_id,
+            course_id=course_id,
+            activity_type=activity_type,
+            limit=limit,
+            offset=offset,
+        )
+    )
+    return [StudentActivityResponse.model_validate(item) for item in result]

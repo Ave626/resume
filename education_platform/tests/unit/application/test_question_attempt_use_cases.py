@@ -20,6 +20,7 @@ from app.domain.entities.module import Module
 from app.domain.entities.question import Question, QuestionType
 from app.domain.entities.question_attempt import QuestionAttempt, QuestionResultStatus
 from app.domain.entities.section import Section
+from app.domain.entities.student_activity import StudentActivityType
 from app.domain.entities.user import User, UserRole
 
 
@@ -133,6 +134,21 @@ class FakeSectionRepository:
         self.items[section.id] = section
 
 
+class FakeStudentActivityRepository:
+    def __init__(self) -> None:
+        self.items = []
+
+    async def add(self, activity) -> None:
+        self.items.append(activity)
+
+    async def list_by_student_id(self, student_id, limit: int = 20, offset: int = 0):
+        res = [a for a in self.items if a.student_id == student_id]
+        return res[offset : offset + limit]
+
+    async def count_by_student_id(self, student_id) -> int:
+        return len([a for a in self.items if a.student_id == student_id])
+
+
 class FakeInteractiveUnitOfWork:
     def __init__(self) -> None:
         self.courses = FakeCourseRepository()
@@ -142,8 +158,10 @@ class FakeInteractiveUnitOfWork:
         self.answer_options = FakeAnswerOptionRepository()
         self.question_attempts = FakeQuestionAttemptRepository()
         self.progress = FakeProgressRepository()
+        self.student_activities = FakeStudentActivityRepository()
         self.committed = False
         self.rolled_back = False
+
 
     async def __aenter__(self):
         return self
@@ -267,7 +285,17 @@ async def test_submit_question_answer_creates_attempt_and_updates_progress() -> 
     assert section.id in progress.completed_section_ids
     assert module.id in progress.completed_module_ids
     assert progress.total_points == 5
+    assert len(uow.student_activities.items) == 3
+    assert uow.student_activities.items[0].activity_type == StudentActivityType.QUESTION_COMPLETED
+    assert uow.student_activities.items[0].entity_id == question.id
+    assert uow.student_activities.items[0].details == {"awarded_points": 5}
+    assert uow.student_activities.items[1].activity_type == StudentActivityType.SECTION_COMPLETED
+    assert uow.student_activities.items[1].entity_id == section.id
+    assert uow.student_activities.items[2].activity_type == StudentActivityType.MODULE_COMPLETED
+    assert uow.student_activities.items[2].entity_id == module.id
     assert uow.committed is True
+
+
 
 
 @pytest.mark.asyncio

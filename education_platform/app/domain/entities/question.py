@@ -35,6 +35,11 @@ class Question:
     def __post_init__(self) -> None:
         self._validate()
 
+    @property
+    def title(self) -> str:
+        return self.text
+
+
     def _validate(self) -> None:
         if not self.text or not self.text.strip():
             raise InvalidQuestionError("Question text cannot be empty.")

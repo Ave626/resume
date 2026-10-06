@@ -1,23 +1,27 @@
+from typing import Self
+
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
 from app.application.interfaces.unit_of_work import UnitOfWork
 from app.infrastructure.database.repositories import (
     SqlAlchemyAnswerOptionRepository,
+    SqlAlchemyCodeSubmissionRepository,
+    SqlAlchemyCodeTaskRepository,
+    SqlAlchemyCommentRepository,
+    SqlAlchemyCourseCatalogMetricsRepository,
     SqlAlchemyCourseRepository,
+    SqlAlchemyCourseReviewRepository,
     SqlAlchemyLectureRepository,
     SqlAlchemyModuleRepository,
     SqlAlchemyProgressRepository,
     SqlAlchemyQuestionAttemptRepository,
     SqlAlchemyQuestionRepository,
     SqlAlchemySectionRepository,
+    SqlAlchemyStudentActivityRepository,
     SqlAlchemyTaskAttemptRepository,
     SqlAlchemyTaskRepository,
-    SqlAlchemyUserRepository,
-    SqlAlchemyCodeTaskRepository,
     SqlAlchemyTestCaseRepository,
-    SqlAlchemyCodeSubmissionRepository,
-    SqlAlchemyCourseReviewRepository,
-    SqlAlchemyCommentRepository,
+    SqlAlchemyUserRepository,
 )
 
 
@@ -31,7 +35,7 @@ class SqlAlchemyUnitOfWork(UnitOfWork):
         self._external_session = session
         self.session: AsyncSession | None = session
 
-    async def __aenter__(self) -> "SqlAlchemyUnitOfWork":
+    async def __aenter__(self) -> Self:
         if self.session is None:
             if self.session_factory is None:
                 raise RuntimeError(
@@ -55,7 +59,10 @@ class SqlAlchemyUnitOfWork(UnitOfWork):
         self.code_submissions = SqlAlchemyCodeSubmissionRepository(self.session)
         self.course_reviews = SqlAlchemyCourseReviewRepository(self.session)
         self.comments = SqlAlchemyCommentRepository(self.session)
-
+        self.student_activities = SqlAlchemyStudentActivityRepository(self.session)
+        self.course_catalog_metrics = SqlAlchemyCourseCatalogMetricsRepository(self.session)
+        self.metrics = self.course_catalog_metrics
+        
         return self
 
     async def __aexit__(self, exc_type, exc, tb) -> None:

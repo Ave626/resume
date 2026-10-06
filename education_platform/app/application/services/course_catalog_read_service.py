@@ -5,68 +5,81 @@ from app.application.dto.course_catalog import (
     CourseCatalogModulePreviewDTO,
     CourseCatalogSectionPreviewDTO,
 )
-from app.application.interfaces.repositories.code_task_repository import (
-    CodeTaskRepository,
-)
-from app.application.interfaces.repositories.lecture_repository import LectureRepository
+from app.application.interfaces.repositories import CourseCatalogMetricsRepository
 from app.application.interfaces.repositories.module_repository import ModuleRepository
-from app.application.interfaces.repositories.question_repository import (
-    QuestionRepository,
-)
 from app.application.interfaces.repositories.section_repository import SectionRepository
-from app.application.interfaces.repositories.task_repository import TaskRepository
 from app.domain.entities.course import Course
-from app.application.services.course_rating_read_service import CourseRatingReadService
 
 
 class CourseCatalogReadService:
     def __init__(
         self,
+        metrics_repository: CourseCatalogMetricsRepository,
         module_repository: ModuleRepository,
         section_repository: SectionRepository,
-        lecture_repository: LectureRepository,
-        question_repository: QuestionRepository,
-        task_repository: TaskRepository,
-        code_task_repository: CodeTaskRepository,
-        rating_read_service: CourseRatingReadService,
     ) -> None:
+        self.metrics_repository = metrics_repository
         self.module_repository = module_repository
         self.section_repository = section_repository
-        self.lecture_repository = lecture_repository
-        self.question_repository = question_repository
-        self.task_repository = task_repository
-        self.code_task_repository = code_task_repository
-        self.rating_read_service = rating_read_service
 
-    async def build_catalog_item(self, course: Course) -> CourseCatalogItemDTO:
-        counters = await self._build_counters(course)
-        rating = await self.rating_read_service.build_summary(course.id)
-        return CourseCatalogItemDTO(
-            id=course.id,
-            title=course.title,
-            short_description=course.preview_description(),
-            cover_image_url=course.cover_image_url,
-            difficulty=course.difficulty,
-            tag_names=list(course.tag_names),
-            status=course.status,
-            counters=counters,
-            rating=rating,
+    async def build_catalog_items(
+        self,
+        courses: list[Course],
+    ) -> list[CourseCatalogItemDTO]:
+        metrics_by_course = (
+            await self.metrics_repository.get_by_course_ids(
+                [course.id for course in courses]
+            )
         )
 
-    async def build_course_card(self, course: Course) -> CourseCatalogCardDTO:
-        counters = await self._build_counters(course)
-        modules = await self.module_repository.get_by_ids(course.module_ids)
+        return [
+            CourseCatalogItemDTO(
+                id=course.id,
+                title=course.title,
+                short_description=course.preview_description(),
+                cover_image_url=course.cover_image_url,
+                difficulty=course.difficulty,
+                tag_names=list(course.tag_names),
+                status=course.status,
+                counters=metrics_by_course[course.id].counters,
+                rating=metrics_by_course[course.id].rating,
+            )
+            for course in courses
+        ]
+
+    async def build_course_card(
+        self,
+        course: Course,
+    ) -> CourseCatalogCardDTO:
+        metrics_by_course = (
+            await self.metrics_repository.get_by_course_ids(
+                [course.id]
+            )
+        )
+        metrics = metrics_by_course[course.id]
+
+        modules = await self.module_repository.get_by_ids(
+            course.module_ids
+        )
         module_dtos: list[CourseCatalogModulePreviewDTO] = []
 
-        for module in sorted(modules, key=lambda item: item.position):
-            sections = await self.section_repository.get_by_ids(module.section_ids)
+        for module in sorted(
+            modules,
+            key=lambda item: item.position,
+        ):
+            sections = await self.section_repository.get_by_ids(
+                module.section_ids
+            )
             section_dtos = [
                 CourseCatalogSectionPreviewDTO(
                     id=section.id,
                     title=section.title,
                     position=section.position,
                 )
-                for section in sorted(sections, key=lambda item: item.position)
+                for section in sorted(
+                    sections,
+                    key=lambda item: item.position,
+                )
             ]
             module_dtos.append(
                 CourseCatalogModulePreviewDTO(
@@ -87,11 +100,10 @@ class CourseCatalogReadService:
             difficulty=course.difficulty,
             tag_names=list(course.tag_names),
             status=course.status,
-            counters=counters,
-            rating=await self.rating_read_service.build_summary(course.id),
+            counters=metrics.counters,
+            rating=metrics.rating,
             modules=module_dtos,
         )
-
     async def _build_counters(self, course: Course) -> CourseCatalogCountersDTO:
         modules = await self.module_repository.get_by_ids(course.module_ids)
 

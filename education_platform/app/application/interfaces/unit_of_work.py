@@ -2,21 +2,23 @@ from abc import ABC, abstractmethod
 
 from app.application.interfaces.repositories import (
     AnswerOptionRepository,
+    CodeSubmissionRepository,
+    CodeTaskRepository,
+    CommentRepository,
+    CourseCatalogMetricsRepository,
     CourseRepository,
+    CourseReviewRepository,
     LectureRepository,
     ModuleRepository,
     ProgressRepository,
     QuestionAttemptRepository,
     QuestionRepository,
     SectionRepository,
-    UserRepository,
-    TaskRepository,
+    StudentActivityRepository,
     TaskAttemptRepository,
-    CodeTaskRepository,
+    TaskRepository,
     TestCaseRepository,
-    CodeSubmissionRepository,
-    CourseReviewRepository,
-    CommentRepository,
+    UserRepository,
 )
 
 
@@ -37,6 +39,9 @@ class UnitOfWork(ABC):
     code_submissions: CodeSubmissionRepository
     course_reviews: CourseReviewRepository
     comments: CommentRepository
+    student_activities: StudentActivityRepository
+    course_catalog_metrics: CourseCatalogMetricsRepository
+    metrics: CourseCatalogMetricsRepository
 
     @abstractmethod
     async def __aenter__(self) -> "UnitOfWork":

@@ -69,6 +69,11 @@ class Settings(BaseSettings):
         default="course-covers", validation_alias="S3_BUCKET_NAME"
     )
 
+    content_cache_ttl_seconds: int = Field(
+        default=300,
+        validation_alias='CONTENT_CACHE_TTL_SECONDS',
+    )
+
     @property
     def api(self) -> ApiSettings:
         return ApiSettings(
