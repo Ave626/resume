@@ -1,0 +1,19 @@
+[project]
+name = "fluxguard"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "Ave626",email = "itped7@gmail.com"}
+]
+requires-python = ">=3.12,<4.0"
+dependencies = [
+    "fastapi[all] (>=0.162.4,<0.163.0)",
+    "taskiq (>=0.13.0,<0.14.0)",
+    "aio-pika (>=10.2.3,<11.0.0)",
+    "sqlalchemy (>=2.1.8,<3.0.0)"
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
