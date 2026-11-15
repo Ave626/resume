@@ -12,7 +12,7 @@ class Settings(BaseSettings):
     )
 
     APP_NAME : str = "FluxGuard"
-    ENVIROMENT : str = "development"
+    ENVIRONMENT : str = "development"
     DEBUG : bool = False
 
     POSTGRES_HOST : str = "localhost"
@@ -43,7 +43,7 @@ class Settings(BaseSettings):
     @computed_field
     @property
     def rabbitmq_url(self) -> str:
-        return f"rabbitmq://{self.RABBITMQ_USER}:{self.RABBITMQ_PASSWORD}@{self.RABBITMQ_HOST}:{self.RABBITMQ_PORT}"
+        return f"amqp://{self.RABBITMQ_USER}:{self.RABBITMQ_PASSWORD}@{self.RABBITMQ_HOST}:{self.RABBITMQ_PORT}/"
 
 
 @lru_cache
