@@ -14,7 +14,7 @@ class UserRole(Enum):
 class User(Entity[UserId]):
     fullname : str
     email : str
-    role : UserRole = False
+    role : UserRole = UserRole.CLIENT
     is_active : bool
     created_at : datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
@@ -28,6 +28,11 @@ class User(Entity[UserId]):
     
     def is_admin(self) -> bool:
         return self.role == UserRole.ADMIN
+    
+    def update(self,fullname : str,email : str, is_active : bool) -> None:
+        self.fullname = fullname
+        self.email = email
+        self.is_active = is_active        
     
     
         

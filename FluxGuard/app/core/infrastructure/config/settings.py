@@ -21,6 +21,14 @@ class Settings(BaseSettings):
     POSTGRES_PASSWORD : str = "postgres"
     POSTGRES_DB : str = "fluxguard"
 
+    JWT_SECRET_KEY: str = "your-secret-key-change-in-production"
+    JWT_ALGORITHM: str = "HS256"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 15
+    REFRESH_TOKEN_EXPIRE_DAYS: int = 30
+
+    RESEND_API_KEY: str | None = None
+    EMAIL_FROM: str = "FluxGuard <onboarding@resend.dev>"
+
     @computed_field
     @property
     def database_url(self) -> str:
