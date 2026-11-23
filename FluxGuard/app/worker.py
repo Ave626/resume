@@ -2,6 +2,8 @@ from app.core.infrastructure.broker.taskiq import broker
 from taskiq import TaskiqEvents
 from app.core.infrastructure.redis.client import close_redis
 from app.core.infrastructure.database.database import engine
+from app.features.auth.infrastructure.workers.tasks import send_otp_email_task
+
 import logging
 
 logger = logging.getLogger("worker")

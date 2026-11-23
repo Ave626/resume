@@ -5,6 +5,8 @@ from app.core.infrastructure.redis.client import redis_client,close_redis
 from app.core.infrastructure.database.database import engine
 from app.core.presentation.api.handlers.errors import register_exception
 from collections.abc import AsyncIterator
+from app.features.auth.presentation.api.router import router as auth_router
+
 
 @asynccontextmanager
 async def lifespan(app : FastAPI) -> AsyncIterator[None]:
@@ -19,6 +21,7 @@ async def lifespan(app : FastAPI) -> AsyncIterator[None]:
 
 app = FastAPI(lifespan=lifespan)
 register_exception(app)
+app.include_router(auth_router, prefix="/api/v1", tags=["auth"])
 
 @app.get("/health")
 async def root() -> dict:
